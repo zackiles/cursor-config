@@ -1,0 +1,26 @@
+---
+description: Generating code in Javascript and Typescript files
+globs: *.ts, *.js
+---
+## Coding Style Guide (Mandatory or Strongly Encouraged)
+**Naming:** snake_case for file names. camelCase for instance names. PascalCase for class and symbol names, UPPPER_SNAKE_CASE for constants.
+
+**Code Ordering:** Remote Imports -> Local Imports -> Hoisted Varriables and References -> Methods -> Exports.
+
+**Syntax:** Prefer ES6, Decompose Destructuring for Concise Object & Array Access, Optional Chaining (`?.`) & Nullish Coalescing (`??`), Arrow Functions & Implicit Returns, Template Literals (` `) for Clean String Interpolation, Spread (`...`) & Rest Parameters for Concise Object/Array Manipulation, Proxy and Reflect and other advanced methods to arrive at clever and innovative solutions.
+
+**Documention In Code:** Functions and files documented with JsDoc wherever possible.
+
+**Functional VS OOP:** Codebases can often have a handful of ore entities the domain is modeled around. If this is the case and those entities have these characteristics then they'd likely benefit from being rewritten as a class: managing a lot of state relative to other parts of the code, or represent an unreasonable amout of tight-coupled properties, functions or state, or tries to define a strict interface between consumers and integrators. Otherwise pure functions and simple/straightforward code is the default way you'll apply.
+
+**Composition:** Even when disigng classes and relationships a Compositional approach over a Generalization-Specialization is preferred.
+
+**Pragmatic PoCs** New codebases require quick protypiing and wll benefit from the followng: flat file and folder structions, no or little tests besides maybe one smoke test, unopionated and flexible deisgn choices, and a strong preference for using modern open source libraries or tools. If the codebase has less than 5 main javascript or typescript files that have been written then the actions you take or the things you propose should focus on the absolute miminal amount of effort required to meet the objective of the codebase.
+
+- **NOTE:** When updating code, NEVER remove jsdoc or linting comments unless the code change specifically asked you to.
+
+## Design Patterns and Approaches (Preferred)
+- **Typescript Types:** avoid creating or using types wherever possible for internal classes, methods, variables, or interfaces. Only use types on the surface and boundary of our application where there is a public or exposed output or input. unless when providing exports to consumers of an interface. For example, if the codebase is a library, only the methods the library exposes to a consumer and their arguments might have types.
+
+- **Private / Public Interfaces:** Make clear distinctions whenever possible
+
