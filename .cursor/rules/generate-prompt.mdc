@@ -2,25 +2,23 @@
 description: Steps to take when you've been tasked with generating a prompt
 globs: 
 ---
-## Generating Prompts
-When asked to generate a prompt, you will output a fully comprehensive prompt, along with a detailed set of numbered steps for the to take to generate a response or take an action for by an AI Agent tasked with acting on the prompt. Each step should list instructions that includes the following: the action the LLM should take on that step, the objective for the LLM taking that action, the rationale for them having to take that action, and an example of an action taken on that step that would meet the objective.
+## Generating Prompts  
+When asked to generate a prompt, you will output a fully comprehensive prompt that includes a detailed set of numbered steps for the AI Agent tasked with executing on that prompt. Each step should list instructions that include the following: the action the LLM should take in that step, the objective for the LLM taking that action, the rationale for taking that action, and an example of an action taken in that step that would meet the objective so it knows how to validate its completed step or task.  
 
-## Comprehensive vs Brief
-Don't be detailed or comrehensive in steps that only has a action that doesn't require reasoning. For example, a step that has an action to run a terminal command, and where the exact command needed is provided in the exanple for that step, doesn't require comprehensive detail. Otherwise, the majority of the time you should provide comprheensive steps
-Only objectives that recure actions
+## Comprehensive vs Brief  
+Don't be detailed or comprehensive in steps that only have an action that doesn't require deep reasoning. For example, a step that has an action to run a terminal command, and where the exact command needed is provided in the example for that step, doesn't require comprehensive detail. Otherwise, the majority of the time, you should provide comprehensive steps.
 
-## Specifics vs Generalties
-LLMs tasked with executing your prompt require that prompt to contain a **precise way of thinking about and describing things in the domain** to help the LLM execute. Thereforce, the more content that focuses on specific things related to the domain and uses the most terms, names, descriptions, associated with that domain in the generated prompt assists LLMs tasked with that prompt to act in a way that is consistent with the domain and take actions and contribute in a way that resembles the domain.
+## Specifics vs Generalities  
+LLMs tasked with executing your prompt require that prompt to contain a **precise way of thinking about and describing things in the domain** to help the LLM execute and maintain coherence. Therefore, the more contexual clues and content that highlights specific things related to the domain and uses the precise and relevant: terms, names, tokens, and descriptions associated with that domain, the better the LLM will execute the prompt in a way that is consistent with the domain. This ensures actions and contributions align with the domain and overall codebase.
 
-### Examples of specifcs: 
+### Examples of specifics:  
+- Full file paths if files are mentioned  
+- When generating code snippets, ensure they look exactly like the code found in the codebase  
+- Describing and organizing your output similar to a structured technical specification, using the exact names of methods, properties, inputs/outputs, commands, tokens, entities, library names, terms, and language used in the codebase when it is reasonable and appropriate to do so  
+- Structured elements in your output, such as objects, tables, formulas, labels, or simple human-readable expressions that represent evaluations or logic in a formulaic way  
 
-- Full file paths if files are mentioned
-- When generating code snippets ensure they look exactly like the code found in the codebase
-- Describing and orginizing your output similar to a structured technical specification would, using the exact names of methods, properties, inputs/outputs, commands, tokens, entities, library names, terms and language used in the codebase when it seems reasonable and appropriate to do so
-- Structured elements in your output such as objects, tables, formulas, labels, or simple human readable expressions that represent evaluations or logic in a formulaic way
-
-### Examples of generalties:
-- Blocks of text and bullet points that are loosely related but not organized
-- Focusing more on the Why instead of the What and How
-- Providing multiple options but not making it clear what your preffered option should be
-- Answering questions or generating code before you've taken the time to research the wider topic within the code base to ensure your output is strictly informed by the broad current state of the codebase
+### Examples of generalities:  
+- Blocks of text and bullet points that are loosely related but not organized  
+- Focusing more on the "Why" instead of the "What" and "How"  
+- Providing multiple options but not making it clear what your preferred option should be  
+- Answering questions or generating code before you've taken the time to research the wider topic within the codebase to ensure your output is strictly informed by the broad current state of the codebase  
