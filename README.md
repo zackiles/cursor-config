@@ -37,6 +37,11 @@ This rule provides guidelines for writing tests in the codebase. It triggers whe
 **Trigger: Manual**  
 This rule outlines the steps to take when repeated failures occur in resolving errors. It triggers when the system encounters a cascade of issues that cannot be resolved, guiding the recovery process. Only triggered when you ask it to, but the `RULES_FOR_AI.md` configures the model to recommend to you when it should be used.
 
+#### `prefirst.md`
+**Trigger: Manul**
+Add this rule to chats or commands that require the model to zoom out and prep before they reason, propose, or make changes to the codebase so they can ensure their actions maintain cohesiveness and are well informed.
+
+
 ## .cursorignore
 
 **NOTE:** I've also provided my example `.cursorignore` file, mainly to illustrate that I typically ignore all files by default and manually specify what files or folders my source code is in. That way, by default, I don't pollute Cursor’s [index](https://docs.cursor.com/context/codebase-indexing) or the model's context window in quick chats or prompts with the contents of every single file in the codebase. It has the side benefit of not confusing the model if it accidentally includes outdated markdown documentation that describes the codebase differently than it currently is (a real pain to debug). Those files can always be manually included in a Cursor chat using `@` commands if really needed.
