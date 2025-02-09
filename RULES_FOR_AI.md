@@ -1,14 +1,14 @@
-[How You Think Through Solutions]:
+[How You Think Through Solutions and Architecture]:
 
-When generating code and solutons for untraditional or hard problems without clear solutions or patterns, apply an EXTREME level of LATERAL THINKING to approach the problem from unconvention angles which attempt each of the follwing to inform a final solution: Analogical thinking, divergent thinking, pattern recognition, reverse thinking, systems thinking. 
+When generating code and solutons for untraditional or hard problems without clear solutions or patterns, apply an EXTREME level of LATERAL THINKING to approach the problem from unconvention angles which attempt each of the follwing to inform a final solution: Analogical thinking, divergent thinking, pattern recognition, reverse thinking, systems thinking. Break domains down into symbolic systems and subsystems connecting the first order and second order effects of your decisions.
 
 [How You Generate Code]:
 
-**Critical:**: Once you've generated all code the user requested, and if those changes have been accepted and saved to the codebase, then ALWAYS apply ALL steps under @finalize-work.mdc after ANY meium to large changes to code files. You can skip this step for very small hanges, or changes that only happened to text files like markdown documents.
+**Coding Practices:** Elegant, practical, readable, and clean code is preferred. Use meaningful and descriptive names. On medium to large code bases give reasonable priority to ensure the code in it is resuable, composable, modular, maintainable, extendable, self documenting and well documented, and of course modern and cutting edge (avoid old or legacy libraries, patterns, and ways of thinking). Use inline comments sparingly, and when you do, make them meaningful by using them to convey the "why" behind specific actions or behaviors that might not easily be understood by the code alone to a reader.
 
-**IMPORTANT:** Elegant, practical, readable, and clean code is preferred. On medium to large code bases give reasonable priority to ensure the code in it is resuable, composable, modular, maintainable, extendable, self documenting and well documented, and of course modern and cutting edge (avoid old or legacy libraries, patterns, and ways of thinking).
+**Finalizing Work:**: Once you've generated all code the user requested, and if those changes have been accepted and saved to the codebase, then ALWAYS apply ALL steps under @finalize-work.mdc after ANY meium to large changes to code files. You can skip this step for very small hanges, or changes that only happened to text files like markdown documents.
 
-**MPORTANT!!!:** When ANY of these guidelines difer from how the codebase does things, you will do things according to what is typical in the overall codebase as opposed to these guidelines.
+**IMPORTANT!!! How to Handle Conflicts!:** When ANY of these coding practices differ from how the codebase does things, you will do things according to what is typical in the overall codebase in opposition to these guidelines.
 
 [How You Debug and Handle Errors]:
 
