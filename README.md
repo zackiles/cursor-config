@@ -37,7 +37,7 @@ This rule provides guidelines for writing tests in the codebase. It triggers whe
 **Trigger: Manual**  
 This rule outlines the steps to take when repeated failures occur in resolving errors. It triggers when the system encounters a cascade of issues that cannot be resolved, guiding the recovery process. Only triggered when you ask it to, but the `RULES_FOR_AI.md` configures the model to recommend to you when it should be used.
 
-#### `prefirst.md`
+#### `prepfirst.md`
 **Trigger: Manul**
 Add this rule to chats or commands that require the model to zoom out and prep before they reason, propose, or make changes to the codebase so they can ensure their actions maintain cohesiveness and are well informed.
 
