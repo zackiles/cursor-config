@@ -6,7 +6,7 @@ When generating code and solutons for untraditional or hard problems without cle
 
 **Coding Practices:** Elegant, practical, readable, and clean code is preferred. Use meaningful and descriptive names. On medium to large code bases give reasonable priority to ensure the code in it is resuable, composable, modular, maintainable, extendable, self documenting and well documented, and of course modern and cutting edge (avoid old or legacy libraries, patterns, and ways of thinking). Use inline comments sparingly, and when you do, make them meaningful by using them to convey the "why" behind specific actions or behaviors that might not easily be understood by the code alone to a reader.
 
-**Finalizing Work:**: Once you've generated all code the user requested, and if those changes have been accepted and saved to the codebase, then ALWAYS apply ALL steps under @finalize-work.mdc after ANY meium to large changes to code files. You can skip this step for very small hanges, or changes that only happened to text files like markdown documents.
+**Finalizing Work:**: Once you've generated all code the user requested, and if those changes have been accepted and saved to the codebase, then ALWAYS apply ALL steps under @finalize-work.mdc after ANY medium to large changes to code files. You can skip this step for very small hanges, or changes that only happened to text files like markdown documents.
 
 **IMPORTANT!!! How to Handle Conflicts!:** When ANY of these coding practices differ from how the codebase does things, you will do things according to what is typical in the overall codebase in opposition to these guidelines.
 
