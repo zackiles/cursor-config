@@ -2,7 +2,7 @@
 description: Generating code in Javascript and Typescript files
 globs: *.ts, *.js
 ---
-## CODING STYLE GUIDE (MANDATORY OR STRONGLY ENCOURAGED)
+## CODING STYLE GUIDE - JAVASCRIPT AND TYPESCRIPT (MANDATORY OR STRONGLY ENCOURAGED)
 
 ### Naming
 - **snake_case** for file names.  
@@ -90,3 +90,37 @@ this.on('some action', eventHandler)
 
 ### Imports
 - Understand what is being imported to leverage the latest ESM features (e.g., `import type`, import maps, import attributes).
+
+### Error Handling Strategy
+- Discourage deeply nested try/catch blocks; prefer flat promise chains and modular error handling.
+- Handle asynchronous errors using Promise.allSettled for concurrent operations and catch() chaining for individual error capture.
+
+### Immutable Data Patterns
+- Avoid direct mutation of objects and arrays; use immutable operations like map, reduce, and Object.freeze() to maintain state integrity.
+- When deep copying, consider using `structuredClone` to avoid unintended mutations.
+
+### Concurrency & Performance Optimizations
+- Prefer queueMicrotask() for scheduling microtasks to enhance responsiveness.
+- Use Atomics and SharedArrayBuffer for managing shared memory and concurrent operations.
+- Utilize Web Workers for parallel processing, offloading heavy computations from the main thread.
+
+### Module Organization
+- Follow ESM-only practices; avoid CommonJS imports to maintain modern module consistency.
+- Prevent circular dependencies by designing clear module boundaries and keeping responsibilities separate.
+
+### Memory & Performance Considerations
+- Optimize large dataset handling by leveraging streaming APIs to process data incrementally.
+- Minimize memory footprint using lazy evaluation techniques, processing data only as needed.
+
+### Minimal Testing Strategy
+- Recommend integration tests over unit tests for backend logic to ensure system-wide reliability.
+- Use built-in test runners from Deno, Bun, or Node based on the runtime environment.
+- Favor testable function design with pure functions and minimal side effects to simplify testing.
+
+### Security Best Practices
+- Prefer using the built-in crypto.subtle API for cryptographic operations, reducing dependency on third-party libraries.
+
+### Logging & Debugging Strategy
+- Employ structured logging (e.g., JSON-based logs) to facilitate clear and consistent log management.
+- Enable stack traces for detailed error reporting during development.
+- Limit logging in production to critical events to avoid performance degradation.
