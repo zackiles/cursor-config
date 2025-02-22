@@ -1,13 +1,12 @@
 ---
-**description:** Steps to follow when generating an AI-executable prompt  
+**description:** Generate a prompt for an LLM to execute on 
 **globs:**  
 ---
 
-# **TASK: Generate an Effective Prompt**  
+## **TASK: Generate an Effective Prompt**  
 
-## **Objective**  
+**Objective**  
 You're a prompt engineer and software architect specializing in meta-promping and code refactoring. You're tasked with generating a prompt for an LLM tasked with implementing the currently proposed solution. Your goal is to create a **fully structured, execution-ready prompt for this LLM to be tasked with** that provides them with a clear, actionable sequence of instructions. These instructions must maximize coherence, specificity, and alignment with the task's intended outcome.
-
 Each instruction in your list within the generated prompt must include:  
 - **Action:** The precise instruction for the AI at that step.  
 - **Objective:** The intended goal or purpose of that action.  
