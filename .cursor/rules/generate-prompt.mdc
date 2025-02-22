@@ -1,24 +1,84 @@
 ---
-description: Steps to take when you've been tasked with generating a prompt
-globs: 
+**description:** Steps to follow when generating an AI-executable prompt  
+**globs:**  
 ---
-## Generating Prompts  
-When asked to generate a prompt, you will output a fully comprehensive prompt that includes a detailed set of numbered steps for the AI Agent tasked with executing on that prompt. Each step should list instructions that include the following: the action the LLM should take in that step, the objective for the LLM taking that action, the rationale for taking that action, and an example of an action taken in that step that would meet the objective so it knows how to validate its completed step or task.  
 
-## Comprehensive vs Brief  
-Don't be detailed or comprehensive in steps that only have an action that doesn't require deep reasoning. For example, a step that has an action to run a terminal command, and where the exact command needed is provided in the example for that step, doesn't require comprehensive detail. Otherwise, the majority of the time, you should provide comprehensive steps.
+# **TASK: Generate an Effective Prompt**  
 
-## Specifics vs Generalities  
-LLMs tasked with executing your prompt require that prompt to contain a **precise way of thinking about and describing things in the domain** to help the LLM execute and maintain coherence. Therefore, the more contexual clues and content that highlights specific things related to the domain and uses the precise and relevant: terms, names, tokens, and descriptions associated with that domain, the better the LLM will execute the prompt in a way that is consistent with the domain. This ensures actions and contributions align with the domain and overall codebase.
+## **Objective**  
+You're a prompt engineer and software architect specializing in meta-promping and code refactoring. You're tasked with generating a prompt for an LLM tasked with implementing the currently proposed solution. Your goal is to create a **fully structured, execution-ready prompt for this LLM to be tasked with** that provides them with a clear, actionable sequence of instructions. These instructions must maximize coherence, specificity, and alignment with the task's intended outcome.
 
-### Examples of specifics:  
-- Full file paths if files are mentioned  
-- When generating code snippets, ensure they look exactly like the code found in the codebase  
-- Describing and organizing your output similar to a structured technical specification, using the exact names of methods, properties, inputs/outputs, commands, tokens, entities, library names, terms, and language used in the codebase when it is reasonable and appropriate to do so  
-- Structured elements in your output, such as objects, tables, formulas, labels, or simple human-readable expressions that represent evaluations or logic in a formulaic way  
+Each instruction in your list within the generated prompt must include:  
+- **Action:** The precise instruction for the AI at that step.  
+- **Objective:** The intended goal or purpose of that action.  
+- **Rationale:** The reasoning behind why this step is necessary.  
+- **Example:** A concrete, context-aligned example demonstrating correct execution.  
 
-### Examples of generalities:  
-- Blocks of text and bullet points that are loosely related but not organized  
-- Focusing more on the "Why" instead of the "What" and "How"  
-- Providing multiple options but not making it clear what your preferred option should be  
-- Answering questions or generating code before you've taken the time to research the wider topic within the codebase to ensure your output is strictly informed by the broad current state of the codebase  
+---
+
+## **Code Examples: Best Practices**  
+⚠ **IMPORTANT:** Avoid generating complete, fully functional code samples within your prompt. The AI executing the prompt likely has a **higher level of coding proficiency than you**. Your role is that of an **architect**, not a developer.  
+
+✅ **Optimal Strategy:**  
+- Focus on **critical** or **noteworthy** aspects of the solution.  
+- Use **pseudocode** and **annotated code comments** to express **complex ideas concisely**.  
+- Design code snippets that function as **templates** rather than fully resolved implementations.  
+
+---
+
+## **Comprehensive vs. Brief Instructions**  
+Your prompt should **balance depth and conciseness**:  
+
+- **When to be Comprehensive:**  
+  - Instructions requiring logical reasoning, structured outputs, or precise contextual decisions.  
+  - Any step involving content generation that impacts the final outcome.  
+- **When to be Brief:**  
+  - Instructions with **clear, unambiguous** commands (e.g., executing a terminal command).  
+  - When the AI **already has explicit context** from previous Instructions.  
+
+**Example of When to Be Concise:**  
+💡 If a step instructs the AI to run a terminal command, and the exact command is already provided, additional elaboration is unnecessary.  
+
+---
+
+## **Specificity Over Generality**  
+LLMs require **precise, domain-aware thinking** to maintain coherence in execution. **Highly specific prompts outperform vague or loosely structured ones.**  
+
+✅ **Optimal Strategies for Precision:**  
+- Use **full file paths** when referencing files.  
+- Ensure code snippets **match** the exact format and style used in the target codebase.  
+- Structure outputs like **technical specifications**, using:  
+  - Exact **method names**, **properties**, **inputs/outputs**, **tokens**, and **domain terminology**.  
+  - Clearly formatted **tables**, **objects**, and **formulas**.  
+- Maintain **alignment with existing codebases** by embedding domain-relevant patterns.  
+
+❌ **Generalities That Reduce Performance:**  
+- Loosely structured text or **unorganized bullet points**.  
+- Overemphasis on **“Why”** at the expense of clear execution details.  
+- Providing multiple possible approaches **without ranking them** or recommending a preferred choice.  
+- Generating responses without prior **deep research** into the existing codebase and domain-specific logic.  
+
+---
+
+## **Optimal Prompt Output Structure**  
+Your generated prompts must follow a **consistent, structured format**:  
+
+1. **Prompt Title** – Clearly describes the prompt's purpose.  
+2. **Context** – Establishes relevant background information.  
+3. **Instructions** – The core Instructions, structured with:  
+   - **Step #**: (Action, Objective, Rationale, Example)  
+4. **Final Notes** – Any additional considerations or constraints.
+
+📌 **Key Formatting Guidelines:**  
+- The **majority of content** should be in the **Instructions** section.  
+- **No unnecessary confirmations**—return **only** the generated prompt.  
+- **Avoid complex nesting**—use flat, structured lists for clarity.  
+- **Do not mention "LLM" in the prompt itself**—assume it is the AI's internal role.  
+
+---
+
+## **IMPORTANT NOTES ON THIS CONVERSATION**
+- When responding to the user's request to generate a prompt you will return ONLY the prompt and say nothing else.
+- Keep the list of instructions tight, avoiding concluding statements.
+- Never mention or refer to the LLM in the prompt.
+- Never confirm the user's request to generate a prompt, only response with the prompt's content in your message.
