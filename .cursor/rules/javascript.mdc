@@ -2,24 +2,91 @@
 description: Generating code in Javascript and Typescript files
 globs: *.ts, *.js
 ---
-## Coding Style Guide (Mandatory or Strongly Encouraged)  
-**Naming:** snake_case for file names, camelCase for instance names, PascalCase for class and symbol names, UPPER_SNAKE_CASE for constants.  
+## CODING STYLE GUIDE (MANDATORY OR STRONGLY ENCOURAGED)
 
-**Code Ordering:** Remote Imports → Local Imports → Hoisted Variables and References → Methods → Exports.  
+### Naming
+- **snake_case** for file names.  
+- **camelCase** for instance names.  
+- **PascalCase** for class and symbol names.  
+- **UPPER_SNAKE_CASE** for constants.
 
-**Syntax:** Prefer ES6, Decompose Destructuring for Concise Object & Array Access, Optional Chaining (`?.`) & Nullish Coalescing (`??`), Arrow Functions & Implicit Returns, Template Literals (``) for Clean String Interpolation, Spread (`...`) & Rest Parameters for Concise Object/Array Manipulation, Proxy and Reflect, and other advanced methods to arrive at clever and innovative solutions.  
+### Code Ordering
+- **Remote Imports**  
+- **Local Imports**  
+- **Hoisted Variables and References**  
+- **Methods**  
+- **Exports**
 
-**Documentation In Code:** Functions and files documented with JSDoc wherever possible.  
+### Syntax
+- Favor modern ECMAScript features and patterns:  
+  - Object & array **destructuring**  
+  - **Optional chaining** (`?.`) & **nullish coalescing** (`??`)  
+  - **Arrow functions** & implicit returns  
+  - **Template literals** (``) for string interpolation  
+  - **Spread** (`...`) & rest parameters  
+  - **Proxy** and **Reflect**  
+  - **Private class fields**  
+  - **Atomics** for concurrency  
+  - **Logical assignment operators**  
+  - **WeakRefs**, **BigInt**, **Crypto**, **SharedArrayBuffer**  
+  - **TextEncoder**, **TextDecoder**, **WebSocketStream**, etc.
 
-**Functional VS OOP:** Codebases can often have a handful of core entities the domain is modeled around. If this is the case and those entities have these characteristics, then they'd likely benefit from being rewritten as a class: managing a lot of state relative to other parts of the code, representing an unreasonable amount of tightly coupled properties, functions, or state, or trying to define a strict interface between consumers and integrators. Otherwise, pure functions and simple/straightforward code are the default approach.  
+### Functional & Compositional Approach
+- Within functions, prefer **functional** over imperative control flows.  
+- Avoid deeply nested callbacks or chains.  
+- When designing classes or relationships, use **composition** over generalization/inheritance.
 
-**Composition:** Even when designing classes and relationships, a Compositional approach over a Generalization-Specialization approach is preferred.  
+**Examples:**
 
-**Pragmatic PoCs:** New codebases require quick prototyping and will benefit from the following: flat file and folder structures, no or little tests besides maybe one smoke test, unopinionated and flexible design choices, and a strong preference for using modern open-source libraries or tools. If the codebase has fewer than 5 main JavaScript or TypeScript files written, then the actions you take or the things you propose should focus on the absolute minimal amount of effort required to meet the objective of the codebase.  
+**BAD (Imperative):**
+```javascript
+// Overly imperative
+this.on('some action', async (event) => {
+  try {
+    await handle(event).then(async (ev) => {
+      return await endAction(ev)
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+  } catch(err) {
+    console.error(err)
+  }
+})
+```
 
-- **NOTE:** When updating code, NEVER remove JSDoc or linting comments unless the code change specifically asks you to.  
+**GOOD (Functional):**
+```javascript
+// Reduces code length, boosts readability
+const errorHandler = console.error
+const eventHandler = event => handle(event).then(endAction).catch(errorHandler)
+this.on('some action', eventHandler)
+```
 
-## Design Patterns and Approaches (Preferred)  
-- **TypeScript Types:** Avoid creating or using types wherever possible for internal classes, methods, variables, or interfaces. Only use types on the surface and boundary of our application where there is a public or exposed output or input, unless when providing exports to consumers of an interface. For example, if the codebase is a library, only the methods the library exposes to a consumer and their arguments might have types.  
+### Documentation in Code
+- Use **JSDoc** for functions and files (including `@module` docs with examples).  
+- **DANGER**: When updating code, never remove JSDoc or linting comments unless explicitly requested. If changes break comments, update them accurately.
 
-- **Private / Public Interfaces:** Make clear distinctions whenever possible.
+### Functional vs. OOP
+- If entities have large state or define strict interfaces, consider using classes.  
+- Otherwise, default to simple, pure functions and straightforward code.
+
+### Pragmatic Proofs of Concept (PoCs)
+- For new codebases or prototypes:  
+  - Use a **flat file/folder structure**  
+  - Write minimal or no tests (maybe one smoke test)  
+  - Choose **unopinionated, flexible designs**  
+  - Prefer **modern open-source libraries**  
+  - If fewer than 5 main JS/TS files exist, keep everything as minimal as possible.
+
+### TypeScript Types
+- Avoid or reduce internal usage of types for classes, methods, variables, or interfaces.  
+- Expose types only at application boundaries or in public APIs (e.g., library exports).
+
+### Private / Public Interfaces
+- Mark private fields or functions clearly.  
+- For public interfaces, ensure a clean, well-documented user experience.  
+- Patterns may include private fields, singletons, factories, prototypes, observers, or dependency injection.
+
+### Imports
+- Understand what is being imported to leverage the latest ESM features (e.g., `import type`, import maps, import attributes).
