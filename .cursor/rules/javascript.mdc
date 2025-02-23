@@ -30,6 +30,12 @@ globs: *.ts, *.js
   - **Logical assignment operators**  
   - **WeakRefs**, **BigInt**, **Crypto**, **SharedArrayBuffer**  
   - **TextEncoder**, **TextDecoder**, **WebSocketStream**, etc.
+- **Semicolon Usage**
+  - **Always** follow the existing codebase's semicolon style
+  - If the codebase uses semicolons, include them consistently
+  - If the codebase omits semicolons, ensure they are not added
+  - When in doubt, verify the style in multiple files before making assumptions
+  - For new codebases, default to **no semicolons** unless specified otherwise
 
 ### Functional & Compositional Approach
 - Within functions, prefer **functional** over imperative control flows.  
