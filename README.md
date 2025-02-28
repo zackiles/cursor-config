@@ -25,6 +25,10 @@ This rule provides guidelines for generating prompts for AI agents. It triggers 
 **Trigger: Semi-Manual**  
 This rule specifies coding style guidelines for JavaScript and TypeScript files. It triggers for any code generation or modification within `.js` or `.ts` files, promoting best practices in naming, syntax, and documentation.
 
+#### `with-deno.md`
+**Trigger: Manual**
+Adds a bunch of great context specifcally for Deno 2 to help better leverage the best practices and latest it has to offer straight from the Deno documentation.
+
 #### `running-tests.mdc`
 **Trigger: Manual**  
 This rule details the steps for running tests in the codebase. It triggers when tests need to be executed, ensuring that the testing process is thorough and well-understood. Triggers manually with the @ command and can only be used in the Composer's Agent-Mode (as that's the only mode that has access to your terminal and it;s output).
@@ -44,6 +48,7 @@ Add this rule to chats or commands that require the model to zoom out and prep b
 #### `propose.md`
 **Trigger: Manual**
 Add this rule to chats that are only for brainstorming solutions and answering questions and which require the LLM to do deep research and provide a structured fact-based answer. Note: although this rule prevent the LLM from making changes to the code directly, the structure of it's response is optimized to be exported through @summary or copying and pasting into a composer to implement. You can also use @generate-prompt.mdc directly after their proposal to convert it into a read-to-go prompt that can be given to an agent in composer mode.
+
 
 ## .cursorignore
 
