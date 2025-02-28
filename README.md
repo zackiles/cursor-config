@@ -26,8 +26,8 @@ This rule provides guidelines for generating prompts for AI agents. It triggers 
 This rule specifies coding style guidelines for JavaScript and TypeScript files. It triggers for any code generation or modification within `.js` or `.ts` files, promoting best practices in naming, syntax, and documentation.
 
 #### `with-deno.md`
-**Trigger: Manual**
-Adds a bunch of great context specifcally for Deno 2 to help better leverage the best practices and latest it has to offer straight from the Deno documentation.
+**Trigger: Semi-Manual**
+Adds a bunch of great context specifcally for Deno 2 to help better leverage the best practices and latest it has to offer straight from the Deno documentation. Will only trigger if specified manually OR if a deno.json/deno.jsonc was added to the context.
 
 #### `running-tests.mdc`
 **Trigger: Manual**  
