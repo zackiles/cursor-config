@@ -1,6 +1,7 @@
 ---
-**description:** Generate a prompt for an LLM to execute on 
-**globs:**  
+description: Generate a prompt for an LLM tasked with execution on the proposal
+globs: 
+alwaysApply: false
 ---
 
 ## **TASK: Generate an Effective Prompt**  
