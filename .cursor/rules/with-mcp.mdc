@@ -1,0 +1,600 @@
+---
+description: For use with MCP and the MCP Typescript SDK (modelcontextprotocol/sdk)
+globs: mcp-schema.json
+alwaysApply: false
+---
+# Context on a Model Context Protocol (MCP) Server
+You're working on an MCP server and must use this information to guide your decisons and opinions. MCP servers provide LLMs with **tools**, **resources**, and **prompts** they can access with either stdio or server side events (WebSockets).
+
+##  MCP Message Types
+**Protocol**: JSON-RPC2.0
+**Requests** → Initiate operations; require a unique ID and method name.  
+**Responses** → Reply to requests; must include the same ID as the request.  
+**Notifications** → One-way messages; must not include an ID.
+
+## MCP Clien/Server Lifecycle
+**Initialization Phase**:
+  - Client sends `initialize` request with protocol version, capabilities, and implementation info.
+  - Server responds with its protocol version and capabilities.
+  - Client sends `initialized` notification after successful initialization.
+ 
+**Version Negotiation**:
+  - Client proposes protocol version in `initialize` request.
+  - Server responds with supported version.
+  - If versions are incompatible, client should disconnect.
+ 
+**Capability Negotiation**:
+  - Both client and server declare supported capabilities during initialization.
+  - **Key capabilities**:
+    - **Client**:
+      - `roots`: Provides filesystem roots.
+      - `sampling`: Supports LLM sampling requests.
+    - **Server**:
+      - `prompts`: Offers prompt templates.
+      - `resources`: Provides readable resources.
+      - `tools`: Exposes callable tools.
+      - `logging`: Emits structured log messages.
+
+**Operation Phase**:
+  - After initialization, normal protocol operations commence.
+
+**Shutdown Phase**:
+  - Client disconnects to terminate the connection gracefully.
+
+
+## MCP Tools
+
+### Purpose
+Facilitates LLM interaction with external systems (APIs, databases, computations) via server-exposed tools.
+
+](mdc:https:/spec.modelcontextprotocol.io/specification/2024-11-05/server/tools)
+
+
+### Endpoints
+
+#### `tools/list`
+- **Request**: Optional `cursor` for pagination.
+- **Response**: List of tools + `nextCursor` if more available.
+
+#### `tools/call`
+- **Request**: `name` (tool ID), `arguments` (parameters).
+- **Response**: `content` array (text, images, etc.), `isError` flag.
+
+#### `notifications/tools/list_changed`
+- Server notifies client when available tools change (if supported).
+
+### Tool Definition
+Each tool includes:
+- **`name`**: Unique identifier
+- **`description`**: Functionality summary
+- **`inputSchema`**: JSON Schema for parameters
+
+#### Example `tools/list` Response
+```json
+[{
+  "name": "summarize_text",
+  "description": "Summarizes input text.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "text": { "type": "string" },
+      "max_length": { "type": "integer" }
+    },
+    "required": ["text"]
+  }
+}]
+```
+
+#### Example `tools/call` Responses
+
+- **Text**
+  ```json
+  { "type": "text", "content": "Summary result." }
+  ```
+- **Image**
+  ```json
+  { "type": "image", "content": "data:image/png;base64,..." }
+  ```
+- **Audio**
+  ```json
+  { "type": "audio", "content": "data:audio/wav;base64,..." }
+  ```
+- **Resource**
+  ```json
+  { "type": "resource", "url": "https://example.com/resource" }
+  ```
+
+## MCP Prompts
+
+### Purpose
+Facilitates LLM interaction with ebling retrieval, execution, and dynamic updates.
+
+[**MCP Prompts Specification**](mdc:https:/spec.modelcontextprotocol.io/specification/draft/server/prompts)
+
+### Endpoints
+
+#### `prompts/list`
+- **Request**: Optional `cursor` for pagination.
+- **Response**: List of prompts + `nextCursor` if more available.
+
+#### `prompts/call`
+- **Request**: `name` (prompt ID), `arguments` (parameters).
+- **Response**: `content` array (text, images, etc.), `isError` flag.
+
+#### `notifications/prompts/list_changed`
+- Server notifies client when available prompts change (if supported).
+
+### Prompt Definition
+Each prompt includes:
+- **`name`**: Unique identifier
+- **`description`**: Functionality summary
+- **`inputSchema`**: JSON Schema for parameters
+
+#### Example `prompts/list` Response
+```json
+[{
+  "name": "generate_summary",
+  "description": "Generates a summary for input text.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "text": { "type": "string" },
+      "max_length": { "type": "integer" }
+    },
+    "required": ["text"]
+  }
+}]
+```
+
+#### Example `prompts/call` Responses
+
+- **Text**
+  ```json
+  { "type": "text", "content": "Generated summary." }
+  ```
+- **Image**
+  ```json
+  { "type": "image", "content": "data:image/png;base64,..." }
+  ```
+- **Audio**
+  ```json
+  { "type": "audio", "content": "data:audio/wav;base64,..." }
+  ```
+- **Resource**
+  ```json
+  { "type": "resource", "url": "https://example.com/resource" }
+  `e
+Facilitates LLM interaction with external resources, enabling retrieval, storage, and dynamic updates of structured data.
+
+[**MCP Resources Specification**](mdc:https:/spec.modelcontextprotocol.io/specification/draft/server/resources)
+
+### Endpoints
+
+#### `resources/list`
+- **Request**: Optional `cursor` for pagination.
+- **Response**: List of resources + `nextCursor` if more available.
+
+#### `resources/get`
+- **Request**: `name` (resource ID).
+- **Response**: `content` array (text, images, etc.), `isError` flag.
+
+#### `resources/put`
+- **Request**: `name` (resource ID), `content` (data to store).
+- **Response**: Confirmation of successful storage or error status.
+
+#### `notifications/resources/list_changed`
+- Server notifies client when available resources change (if supported).
+
+### Resource Definition
+Each resource includes:
+- **`name`**: Unique identifier
+- **`description`**: Functionality summary
+- **`contentSchema`**: JSON Schema for structured data format
+
+#### Example `resources/list` Response
+```json
+[{
+  "name": "user_profile",
+  "description": "Stores user profile information.",
+  "contentSchema": {
+    "type": "object",
+    "properties": {
+      "user_id": { "type": "string" },
+      "name": { "type": "string" },
+      "email": { "type": "string" }
+    },
+    "required": ["user_id", "name"]
+  }
+}]
+```
+
+#### Example `resources/get` Responses
+
+- **Text**
+  ```json
+  { "type": "text", "content": "User profile data." }
+  ```
+- **Image**
+  ```json
+  { "type": "image", "content": "data:image/png;base64,..." }
+  ```
+- **Audio**
+  ```json
+  { "type": "audio", "content": "data:audio/wav;base64,..." }
+  ```
+- **"resource", "url": "https://example.com/resource" }
+  ```
+
+## MCP Completion
+
+### Purpose
+Facilitates LLM-driven text completion requests, enabling models to generate responses based on provided input.
+
+[**MCP Completion Specification**](mdc:https:/spec.modelcontextprotocol.io/specification/draft/server/utilities/completion)
+
+
+### Endpoints
+
+#### `completion/create`
+- **Request**: `model` (LLM identifier), `prompt` (text input), `parameters` (generation options).
+- **Response**: `content` (generated output), `isError` flag.
+
+### Completion Request Definition
+Each request includes:
+- **`model`**: Target LLM identifier
+- **`prompt`**: Input text for completion
+- **`parameters`**: Optional generation settings (e.g., max tokens, temperature)
+
+#### Example `completion/create` Request
+```json
+{
+  "model": "gpt-4",
+  "prompt": "Once upon a time...",
+  "parameters": {
+    "max_tokens": 50,
+    "temperature": 0.7
+  }
+}
+```
+
+#### Example `completion/create` Responses
+
+- **Text**
+  ```": "Once upon a time, in a faraway land, there lived a wise old owl." }
+  ```
+- **Error**
+  ```json
+  { "isError": true, "message": "Invalid model specified." }
+  ```
+
+## MCP Pagination
+
+### Purpose
+Standardizes pagination for server responses, enabling efficient handling of large datasets.
+
+[**MCP Pagination Specification**](mdc:https:/spec.modelcontextprotocol.io/specification/draft/server/utilities/pagination)
+
+---
+
+### Pagination Fields
+
+#### **`cursor`**
+- **Definition**: A token representing the position in the dataset.
+- **Usage**: Passed in requests to fetch the next batch of results.
+
+#### **`nextCursor`**
+- **Definition**: A token indicating more results are available.
+- **Usage**: Returned in responses; clients pass it in the next request.
+
+#### **`limit`**
+- **Definition**: The maximum number of items to return.
+- **Usage**: Clients can specify to control baginated Request
+```json
+{
+  "cursor": "abc123",
+  "limit": 50
+}
+```
+
+### Example Paginated Response
+```json
+{
+  "items": [
+    { "id": "1", "name": "Item 1" },
+    { "id": "2", "name": "Item 2" }
+  ],
+  "nextCursor": "def456"
+}
+```
+
+## MCP Logging and Notifications
+
+### Purpose  
+Facilitates structured logging for server interactions, enabling monitoring, debugging, and analytics.
+
+[**MCP Logging Specification**](mdc:https:/spec.modelcontextprotocol.io/specification/draft/server/utilities/logging)
+
+---
+
+### Endpoints  
+
+#### `logs/submit`
+- **Request**: Structured log entry containing metadata and event details.  
+- **Response**: Confirmation of successful log storage or error status.  
+
+---
+
+### Log Entry Definition  
+Each log entry includes:  
+- **`timestamp`**: ISO 8601-formatted event time.  
+- **`level`**: Log severity level.  
+- **`message`**: Human-readable event description.  
+- **`metadata`**: Optional structured data related to the event.  
+
+#### Supported Log Levels  
+- **`trace`** – Fine-grained debugging events.  
+- **`debug`** – General debugging information.  
+- **`info`** – General operational events.  
+- **`notice`** – Significant, but non-error events.  
+- **`warning`** – Potentially problematic situations.  
+- **`error`** – Issues affecting normal operation.  
+- **`critical`** – Critical conditions requiring immediate attention.  
+- **`alert`** – Action must be taken immediately.  
+- **`emergency`** – System is unusable.  
+
+---
+
+### Example `logs/submit` Request  
+```json
+{
+  "timestamp": "2025-03-04T12:34:56Z",
+  "level": "error",
+  "message": "Database connection lost",
+  "metadata": { "database": "primary-db", "retryCount": 3 }
+}
+```
+
+### Example `logs/submit` Response  
+```json
+{ "success": true }
+```
+
+## MCP Progress  
+
+### Purpose  
+Provides a standardized way for clients to track the progress of long-running operations.  
+
+[**MCP Progress Specification**](mdc:https:/spec.modelcontextprotocol.io/specification/draft/basic/utilities/progress)  
+
+---
+
+### Endpoints  
+
+#### `progress/get`  
+- **Request**: `requestId` (operation identifier).  
+- **Response**: Returns the current progress of the requested operation.  
+
+---
+
+### Progress Response Definition  
+Each response includes:  
+- **`requestId`**: Unique identifier of the operation.  
+- **`status`**: Current state (`pending`, `in_progress`, `completed`, `failed`).  
+- **`progress`**: Percentage of completion (0-100).  
+- **`message`**: Optional status message.  
+
+---
+
+### Example `progress/get` Request  
+```json
+{
+  "requestId": "abc123"
+}
+```
+
+### Example `progress/get` Response  
+```json
+{
+  "requestId": "abc123",
+  "status": "in_progress",
+  "progress": 45,
+  "message": "Processing data..."
+}
+```
+
+## MCP Ping  
+
+### Purpose  
+Provides a lightweight mechanism to check server availability and responsiveness.  
+
+[**MCP Ping Specification**](mdc:https:/spec.modelcontextprotocol.io/specification/draft/basic/utilities/ping)  
+
+---
+
+### Endpoints  
+
+#### `ping`  
+- **Request**: Empty request payload.  
+- **Response**: Server returns a success response with an optional timestamp.  
+
+---
+
+### Example `ping` Request  
+```json
+{}
+```
+
+### Example `ping` Response  
+```json
+{ "success": true, "timestamp": "2025-03-04T12:34:56Z" }
+```
+## MCP Cancellation  
+
+### Purpose  
+Enables clients to request the cancellation of ongoing operations, allowing efficient resource management and interruption of unnecessary computations.  
+
+[**MCP Cancellation Specification**](mdc:https:/spec.modelcontextprotocol.io/specification/draft/basic/utilities/cancellation)  
+
+---
+
+### Endpoints  
+
+#### `cancellation/request`  
+- **Request**: `requestId` (operation identifier).  
+- **Response**: Confirmation of cancellation request status.  
+
+---
+
+### Cancellation Request Definition  
+Each request includes:  
+- **`requestId`**: Unique identifier of the operation to cancel.  
+
+---
+
+### Example `cancellation/request` Request  
+```json
+{
+  "requestId": "abc123"
+}
+```
+
+### Example `cancellation/request` Response  
+```json
+{ "success": true, "message": "Cancellation requested." }
+```
+
+## Rules for Generating MCP Code
+**ALWAYS adhere to MCP Speicifation**. We centralize export types from the Model Context Protcol Typescript SDK `@modelcontextprotocol/sdk`in "src/types.ts" so they can be shared across the codebase. 
+
+- Type saftey by leveraging types from `@modelcontextprotocol/sdk`
+- Leverage known functionality provided by `@modelcontextprotocol/sdk`
+- Review related types for hints on proper implementation of an MCP server.
+
+### MCP SDK Imports and Methods to Use
+- `@modelcontextprotocol/sdk/server/types.jateMessage()", "ping()", "sendLoggingMessage()", "registerCapabilities()", "sendResourceUpdated()"
+- `@modelcontextprotocol/sdk/server/completable.js`: The "Completable" class provides a standardized way for servers to offer argument autocompletion suggestions for prompts and resource URIs. ke experiences where users rectering argument values. If you're working on something that needs it, read more at [MDC Transports and Custom Transporrts)
+- `@modelcontextprotocol/sdk/typourcesRequestSchema", "ListToolsRequestSchema", "ReadResourceRequestSchema", "Tool", "ToolSchema", 
+- `@modelcontextprotocol/sdk/shared/transport.js`: Transport interface read more at [MDC Utilities Completion](mdc:https:/spec.modelcontextprotocol.io/specification/2024-11-05/server/utilities/completion)
+
+**See More On the MCP SDK** [@modelcontextprotocol/sdk README.md](mdc:https:/github.com/modelcontextprotocol/typescript-sdk/blob/main/README.md)
+
+## MCP JSON-RPC Specification
+The full JSON RPC Specification for the actual protocol (not the SDK) can be found at [[modelcontextprotocol/specification/refs/heads/main/schema/draft/schema.json](mdc:https:/raw.githubusercontent.com/modelcontextprotocol/specification/refs/heads/main/schema/draft/schema.json)]().or using the Typescript types at [[modelcontextprotocol/specification/refs/heads/main/schema/draft/schema.ts](mdc:https:/raw.githubusercontent.com/modelcontextprotocol/specification/refs/heads/main/schema/draft/schema.ts)]()
+
+## Example MCP Servers
+
+### Example Google Drive Server
+MCP server for Google Drive interaction. Requires Google Cloud credentials.
+
+| Tool           | Description              | Required Parameters                                    |
+|----------------|--------------------------|--------------------------------------------------------|
+| `create_file`  | Creates a new file       | `name`, `content`, `mime_type`, `parent_id` (optional) |
+| `update_file`  | Updates an existing file | `file_id`, `content`, `mime_type` (optional)           |
+| `delete_file`  | Deletes a file           | `file_id`                                              |
+| `list_files`   | Lists files in Drive     | `folder_id` (optional), `page_size` (optional)         |
+| `search_files` | Searches for files       | `query` (string), `page_size` (optional)               |
+
+#### Example Google Drive Server MCP Configuration
+```typescript
+{
+  name: "example-gdrive-mcp-server",
+  version: "0.5.1",
+  config: {
+    // Required credentials file
+    credentialsPath: ".gdrive-server-credentials.json",
+    // Optional settings
+    settings: {
+      pageSize: number,    // Default number of items per page (max 100)
+      fields: string[],    // Default fields to return
+      includeTeamDrives: boolean,
+      supportsAllDrives: boolean,
+      corpora: "user" | "drive" | "allDrives"
+    },
+    // Cache settings
+    cache: {
+      enabled: boolean,
+      maxAge: number      // Cache TTL in seconds
+    }
+  }
+}
+```
+
+### Example Slack Server
+MCP server for Slack integration. Requires Slack API credentials (`SLACK_BOT_TOKEN`, `SLACK_TEAM_ID`).
+
+| Tool                 | Description              | Required Parameters                               |
+|----------------------|--------------------------|---------------------------------------------------|
+| `send_message`       | Sends a message          | `channel`, `text`, `thread_ts` (optional)         |
+| `create_channel`     | Creates a channel        | `name`, `is_private` (optional)                   |
+| `invite_to_channel`  | Invites users to channel | `channel`, `users` (string[])                     |
+| `list_channels`      | Lists all channels       | `exclude_archived` (optional), `limit` (optional) |
+| `upload_file`        | Uploads a file           | `channels`, `file`, `title` (optional)            |
+| `reply_to_thread`    | Reply in thread          | `channel_id`, `thread_ts`, `text`                 |
+| `add_reaction`       | Add reaction to message  | `channel_id`, `timestamp`, `reaction`             |
+| `get_thread_replies` | Get thread replies       | `channel_id`, `thread_ts`, `limit` (optional)     |
+
+#### Example Slack Server MCP Configuration
+```typescript
+{
+  name: "slack-mcp-server",
+  version: "0.5.1",
+  config: {
+    // Required environment variables
+    env: {
+      SLACK_BOT_TOKEN: string,
+      SLACK_TEAM_ID: string
+    },
+    // Optional settings
+    settings: {
+      defaultLimit: number,     // Default number of items per page (max 1000)
+      retryOnRateLimit: boolean,// Whether to retry on rate limit errors
+      retryCount: number,       // Maximum number of retries
+      includeLabels: boolean,   // Include labels in user profiles
+      excludeArchived: boolean  // Exclude archived channels
+    }
+  }
+}
+```
+
+### Example PostgreSQL Server
+MCP server for PostgreSQL databases. Requires database connection details.
+
+| Tool             | Description                   | Required Parameters   |
+|------------------|-------------------------------|-----------------------|
+| `read_query`     | Executes SELECT queries       | `query` (string)      |
+| `write_query`    | Executes INSERT/UPDATE/DELETE | `query` (string)      |
+| `create_table`   | Creates a new table           | `query` (string)      |
+| `list_tables`    | Lists all tables              | None                  |
+| `describe_table` | Shows table schema            | `table_name` (string) |
+
+#### Example PostgreSQL Server MCP Configuration
+```typescript
+{
+  name: "postgres-mcp-server",
+  version: "0.5.1",
+  config: {
+    // Required environment variables
+    env: {
+      PGHOST: string,
+      PGPORT: string,
+      PGDATABASE: string,
+      PGUSER: string,
+      PGPASSWORD: string,
+      PGSSLMODE: string    // Optional: disable, allow, prefer, require, verify-ca, verify-full
+    },
+    // Optional connection pool settings
+    pool: {
+      max: number,         // Maximum number of clients
+      idleTimeoutMillis: number,
+      connectionTimeoutMillis: number,
+      allowExitOnIdle: boolean
+    },
+    // Query settings
+    query: {
+      maxRows: number,     // Maximum rows to return
+      timeout: number,     // Query timeout in milliseconds
+      readOnly: boolean    // Force read-only mode
+    }
+  }
+}
+```

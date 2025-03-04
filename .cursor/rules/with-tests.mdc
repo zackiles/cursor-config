@@ -1,6 +1,7 @@
 ---
-description: Rules for Running Tests
+description: Rules for Running and Reading Tests
 globs: *.test.js, *.test.ts
+alwaysApply: false
 ---
 ## Steps To Running or Reading Tests
 

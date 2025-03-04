@@ -1,5 +1,5 @@
 ---
-description: Generate a prompt for an LLM tasked with execution on the proposal
+description: Generate a prompt for an LLM tasked with implementing the proposal
 globs: 
 alwaysApply: false
 ---

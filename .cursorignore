@@ -1,15 +1,7 @@
-# Ignore things that .gitigore possibly didn't cover. Cursor already ignores whatever .gitignore does but the below are things occasionally people don't ignore in git
+# Ignore things that .gitignore possibly didn't cover. Cursor already ignores whatever .gitignore does but the below are things occasionally people don't ignore in git
 # CAUTION: this assumes there truly isn't anything in
 /bin
 /dist
-
-# Prefer to manually provide documentation and settings to Cursor to avoid context pollution
-# CAUTION: you might actually need these, but can specify them manually using the @ symbol in chats if needed.
-*.md
-docs/
-*.json
-*.jsonc
-*.log
 
 # Since we're ignoring all json in the codebase, we'll manually allow these as it's typical the model will be working on them
 !package.json

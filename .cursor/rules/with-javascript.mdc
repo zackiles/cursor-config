@@ -1,6 +1,7 @@
 ---
 description: Generating code in Javascript and Typescript files
 globs: *.ts, *.js
+alwaysApply: false
 ---
 ## CODING STYLE GUIDE - JAVASCRIPT AND TYPESCRIPT (MANDATORY OR STRONGLY ENCOURAGED)
 

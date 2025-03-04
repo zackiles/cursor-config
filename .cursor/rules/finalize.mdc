@@ -1,6 +1,7 @@
 ---
 description: Finalizing Work or Ending the Conversation
 globs: 
+alwaysApply: false
 ---
 ## Steps to Follow at the End of Generating Code or Making Changes
 1. Review all changes made in this turn of the message to see if the files or dependent files **we** modified had bugs, linting errors, or issues introduced from our changes, or if the objective wasn't met, and fix it.
