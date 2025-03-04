@@ -1,0 +1,193 @@
+---
+description: Vibe coding for bleeding-edge Javascript and Typescript code generation
+globs: *.ts, *.js
+alwaysApply: false
+---
+## CODING STYLE GUIDE - JAVASCRIPT AND TYPESCRIPT (MANDATORY OR STRONGLY ENCOURAGED)
+
+### Naming
+- **snake_case** for file names.  
+- **camelCase** for instance names.  
+- **PascalCase** for class and symbol names.  
+- **UPPER_SNAKE_CASE** for constants.
+
+### Code Ordering
+- **Remote Imports**  
+- **Local Imports**  
+- **Hoisted Variables and References**  
+- **Methods**  
+- **Exports**
+
+### Syntax
+- Favor modern ECMAScript ES2024 Typescript 5.7 features and patterns:  
+  - Object & array **destructuring**  
+  - **Optional chaining** (`?.`) & **nullish coalescing** (`??`)  
+  - **Arrow functions** & implicit returns  
+  - **Template literals** (``) for string interpolation  
+  - **Spread** (`...`) & rest parameters  
+  - **Proxy** and **Reflect**  
+  - **Private class fields**  
+  - **Atomics** for concurrency
+  - **Logical assignment operators**  
+  - **WeakRefs**, **BigInt**, **Crypto**, **SharedArrayBuffer**  
+  - **TextEncoder**, **TextDecoder**, **WebSocketStream**, etc.
+- **Semicolon Usage**
+  - **Always** follow the existing codebase's semicolon style
+  - If the codebase uses semicolons, include them consistently
+  - If the codebase omits semicolons, ensure they are not added
+  - When in doubt, verify the style in multiple files before making assumptions
+  - For new codebases, default to **no semicolons** unless specified otherwise
+
+## New Methods That Excite You As Javascript Developer
+- Map(), WeakMap(), Set(), WeakSet(), WeakRef()
+- Reflect()
+- Proxy()
+- BigInt()
+- SharedArrayBuffer()
+- structuredClone()
+- TypedArray()
+- Symbol()
+- FinalizationRegistry()
+- New utilitiy methods: str.toCapitalCase(), array.toReversed()
+- toWellFormed()
+- AllocateArrayBuffer()
+- DataVieww()
+- Float64Array(), Uint8ClampedArray(), Uint32Array()
+- globalThis()
+- Promise.withResolvers()
+- Promise.try()
+- Temporal.Now.zonedDateTimeISO()
+- new Realm()
+
+### Examples of Modern
+- Atomic waitSync()
+```
+const sharedArray = new Int32Array(new SharedArrayBuffer(1024));
+// Example usage in a hypothetical shared memory scenario
+function performSynchronizedOperation(index, value) {
+  Atomics.waitSync(sharedArray, index, 0); // Wait until condition is met
+  sharedArray[index] = value;
+  Atomics.notify(sharedArray, index, 1); // Notify other threads of the update
+}
+```
+- Regular Expressions with the v Flag and Set Notation
+```
+// Using set notation to match characters with specific Unicode properties
+const regex = /\p{Script=Greek}/v;
+```
+- Pipeline Operator (|>)
+```
+// Output of one function is passed as input to the next. This makes code easier to read and helps organize complex transformations
+const processedValue = -10
+  |> (n => Math.max(0, n))
+  |> (n => Math.pow(n, 1/3))
+  |> Math.ceil;
+```
+- Records and Tuples (|>)
+```
+const userProfile = #{ username: "Alice", age: 30 };
+const updatedProfile = userProfile.with({ age: 31 });
+
+console.log(updatedProfile); // #{ username: "Alice", age: 31 }
+console.log(userProfile);     // #{ username: "Alice", age: 30 } (remains unchanged)
+```
+
+### Functional & Compositional Approach
+- Within functions, prefer **functional** over imperative control flows.  
+- Avoid deeply nested callbacks or chains.  
+- When designing classes or relationships, use **composition** over generalization/inheritance.
+
+**Examples:**
+
+**BAD (Imperative):**
+```javascript
+// Overly imperative
+this.on('some action', async (event) => {
+  try {
+    await handle(event).then(async (ev) => {
+      return await endAction(ev)
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+  } catch(err) {
+    console.error(err)
+  }
+})
+```
+
+**GOOD (Functional):**
+```javascript
+// Reduces code length, boosts readability
+const errorHandler = console.error
+const eventHandler = event => handle(event).then(endAction).catch(errorHandler)
+this.on('some action', eventHandler)
+```
+
+### Documentation in Code
+- Use **JSDoc** for functions and files (including `@module` docs with examples).  
+- **DANGER**: When updating code, never remove JSDoc or linting comments unless explicitly requested. If changes break comments, update them accurately.
+
+### Functional vs. OOP
+- If entities have large state or define strict interfaces, consider using classes.  
+- Otherwise, default to simple, pure functions and straightforward code.
+
+### Pragmatic Proofs of Concept (PoCs)
+- For new codebases or prototypes:  
+  - Use a **flat file/folder structure**  
+  - Write minimal or no tests (maybe one smoke test)  
+  - Choose **unopinionated, flexible designs**  
+  - Prefer **modern open-source libraries**  
+  - If fewer than 5 main JS/TS files exist, keep everything as minimal as possible.
+
+### TypeScript Types
+- Avoid or reduce internal usage of types for classes, methods, variables, or interfaces.  
+- Expose types only at application boundaries or in public APIs (e.g., library exports).
+
+### Private / Public Interfaces
+- Mark private fields or functions clearly.  
+- For public interfaces, ensure a clean, well-documented user experience.  
+- Patterns may include private fields, singletons, factories, prototypes, observers, or dependency injection.
+
+### Imports
+- Understand what is being imported to **leverage the latest ESM features** (e.g., `import type`, import maps, import attributes).
+- Imports should be cordered according to the rules about imports in "### Code Ordering".
+
+### Exports
+- ***Exports should always be declared at the bottom of code files** and never in the middle.
+- Exports delcarations should be as free of logic as possible.
+- Prefer simple object exports such as `export {someMethod, anotherMethod}`.
+
+### Error Handling Strategy
+- Discourage deeply nested try/catch blocks; prefer flat promise chains and modular error handling.
+- Handle asynchronous errors using Promise.allSettled for concurrent operations and catch() chaining for individual error capture.
+
+### Immutable Data Patterns
+- Avoid direct mutation of objects and arrays; use immutable operations like map, reduce, and Object.freeze() to maintain state integrity.
+- When deep copying, consider using `structuredClone` to avoid unintended mutations.
+
+### Concurrency & Performance Optimizations
+- Prefer queueMicrotask() for scheduling microtasks to enhance responsiveness.
+- Use Atomics and SharedArrayBuffer for managing shared memory and concurrent operations.
+- Utilize Web Workers for parallel processing, offloading heavy computations from the main thread.
+
+### Module Organization
+- Follow ESM-only practices; avoid CommonJS imports to maintain modern module consistency.
+- Prevent circular dependencies by designing clear module boundaries and keeping responsibilities separate.
+
+### Memory & Performance Considerations
+- Optimize large dataset handling by leveraging streaming APIs to process data incrementally.
+- Minimize memory footprint using lazy evaluation techniques, processing data only as needed.
+
+### Minimal Testing Strategy
+- Recommend integration tests over unit tests for backend logic to ensure system-wide reliability.
+- Use built-in test runners from Deno, Bun, or Node based on the runtime environment.
+- Favor testable function design with pure functions and minimal side effects to simplify testing.
+
+### Security Best Practices
+- Prefer using the built-in crypto.subtle API for cryptographic operations, reducing dependency on third-party libraries.
+
+### Logging & Debugging Strategy
+- Employ structured logging (e.g., JSON-based logs) to facilitate clear and consistent log management.
+- Enable stack traces for detailed error reporting during development.
+- Limit logging in production to critical events to avoid performance degradation.
