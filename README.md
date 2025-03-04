@@ -21,13 +21,17 @@ This rule outlines the steps to take at the end of generating code or making cha
 **Trigger: Semi-Automatic**  
 This rule provides guidelines for generating prompts for AI agents. It triggers when tasked with creating a prompt, ensuring that the output is comprehensive and structured with clear objectives and examples. Triggers only when the model was asked to generate a prompt.
 
-#### `javascript.mdc`
+#### `with-javascript.mdc`
 **Trigger: Semi-Manual**  
 This rule specifies coding style guidelines for JavaScript and TypeScript files. It triggers for any code generation or modification within `.js` or `.ts` files, promoting best practices in naming, syntax, and documentation.
 
+#### `with-javascript-vibe.mdc`
+**Trigger: Manual**  
+Similar to `with-javascript.mdc` but for vibe coders. Live on the bleeding edge, make Claude think it's some sort of 10x engineer. _You probably shouldn't use this_.
+
 #### `with-deno.md`
 **Trigger: Semi-Manual**
-Adds a bunch of great context specifcally for Deno 2 to help better leverage the best practices and latest it has to offer straight from the Deno documentation. Will only trigger if specified manually OR if a deno.json/deno.jsonc was added to the context.
+Adds a bunch of great context specifically for Deno 2 to help better leverage the best practices and latest it has to offer straight from the Deno documentation. Will only trigger if specified manually OR if a deno.json/deno.jsonc was added to the context.
 
 #### `running-tests.mdc`
 **Trigger: Manual**  
@@ -41,7 +45,7 @@ This rule provides guidelines for writing tests in the codebase. It triggers whe
 **Trigger: Manual**  
 This rule outlines the steps to take when repeated failures occur in resolving errors. It triggers when the system encounters a cascade of issues that cannot be resolved, guiding the recovery process. Only triggered when you ask it to, but the `RULES_FOR_AI.md` configures the model to recommend to you when it should be used.
 
-#### `prepfirst.md`
+#### `prepare.md`
 **Trigger: Manual**
 Add this rule to chats or commands that require the model to zoom out and prep before they reason, propose, or make changes to the codebase so they can ensure their actions maintain cohesiveness and are well informed.
 
