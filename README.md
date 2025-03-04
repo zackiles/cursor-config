@@ -11,49 +11,88 @@ My opinionated [Cursor Rules](https://docs.cursor.com/context/rules-for-ai). For
    - **Have no glob specified**, in which case the rule will only run when triggered manually in your chats and prompts using the [@ command](https://docs.cursor.com/context/@-symbols/basic).
 
 ## Available @ Rules
-All rules can be triggered using the @ command, but some of them are always applied as configured in `RULES_FOR_AI.md` or because you've provided files in the chat to the model that match a rules glob pattern.
 
-#### `finalize-work.mdc`
-**Trigger: Semi-Automatic**  
-This rule outlines the steps to take at the end of generating code or making changes. It triggers after any significant modifications to ensure that the codebase is clean, functional, and well-documented. Triggers only when the model was tasked with generating code.
+All rules can be triggered using the @ command, though some activate automatically based on configuration in `RULES_FOR_AI.md` or when relevant files are added to the chat that match the rule's glob pattern.
 
-#### `generate-prompt.mdc`
-**Trigger: Semi-Automatic**  
-This rule provides guidelines for generating prompts for AI agents. It triggers when tasked with creating a prompt, ensuring that the output is comprehensive and structured with clear objectives and examples. Triggers only when the model was asked to generate a prompt.
+## 1. Development and Code Generation
 
-#### `with-javascript.mdc`
-**Trigger: Semi-Manual**  
-This rule specifies coding style guidelines for JavaScript and TypeScript files. It triggers for any code generation or modification within `.js` or `.ts` files, promoting best practices in naming, syntax, and documentation.
+General purpose and frequently used rules for code generation. Battle tested, and frequently updated. Can be added anywhere in the prompt, or added to the end. Can be used in Agent or Chat mode
 
-#### `with-javascript-vibe.mdc`
-**Trigger: Manual**  
-Similar to `with-javascript.mdc` but for vibe coders. Live on the bleeding edge, make Claude think it's some sort of 10x engineer. _You probably shouldn't use this_.
+| Rule | Trigger Type | Description |
+|------|--------------|-------------|
+| **`with-javascript.mdc`** | Semi-Manual | Enforces coding standards for JavaScript/TypeScript files. Applies to `.js` or `.ts` files, promoting best practices in naming, syntax, and documentation. |
+| **`with-javascript-vibe.mdc`** | Manual | Alternative to standard JS rules for "bleeding edge" coding styles. *Use with caution.* |
+| **`with-deno.md`** | Semi-Manual | Provides Deno 2-specific best practices from official documentation. Triggers manually or when a `deno.json{c}` file was added to the context. |
+| **`with-mcp.md`** | Semi-Manual | Provides context on the [Model Context Protocol](https://spec.modelcontextprotocol.io/specification/draft/) for writing MCP Servers using the MCP Typescript SDK. See: [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk/tree/main). Triggers manually or when a `mcp-schema.json` file was added to the context. |
+| **`create-mcp-server.md`** | Semi-Manual | Prompts the AI to generate a complete [Model Context Protocol](https://spec.modelcontextprotocol.io/specification/draft/) server using the MCP Typescript SDK. See: [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk/tree/main). You can provide your own instructions along with the prompt. Triggers manually or when a `mcp-schema.json` file was added to the context. |
+| **`finalize.mdc`** | Semi-Automatic | Ensures the AI fully completes it's previous work. Outlines cleanup steps after code generation or modifications to ensure the changes they made to the codebase are clean, functional, free of dead-code, and well-documented. Great to use after every code-generation prompt to help the AI close out any loose ends and double check their last changes were implemented properly. I personally use this one a LOT. Does not need additional context provided. |
 
-#### `with-deno.md`
-**Trigger: Semi-Manual**
-Adds a bunch of great context specifically for Deno 2 to help better leverage the best practices and latest it has to offer straight from the Deno documentation. Will only trigger if specified manually OR if a deno.json/deno.jsonc was added to the context.
+## 2. Testing and Debugging
 
-#### `running-tests.mdc`
-**Trigger: Manual**  
-This rule details the steps for running tests in the codebase. It triggers when tests need to be executed, ensuring that the testing process is thorough and well-understood. Triggers manually with the @ command and can only be used in the Composer's Agent-Mode (as that's the only mode that has access to your terminal and it;s output).
+These rules are best to add at the end of your message to provide additional context in Agent mode.
 
-#### `writing-tests.mdc`
-**Trigger: Semi-Manual**  
-This rule provides guidelines for writing tests in the codebase. It triggers when new tests are being created, emphasizing simplicity, locality, and reusability in test design. Triggers only when it detects the glob of a test file.
+| Rule | Trigger Type | Description |
+|------|--------------|-------------|
+| **`create-tests.mdc`** | Semi-Manual | Guidelines for creating effective tests, emphasizing simplicity, locality, and reusability. Triggers manually or automatically when a file in the format `*.test.{js/ts}` has been added to the context. |
+| **`with-tests.mdc`** | Manual | Procedures for chatting about and analyzing your tests as well as running tests. Triggers manually or automatically when a file in the format `*.test.{js/ts}` has been added to the context. |
+| **`recover.mdc`** | Manual | Steps to take when facing persistent errors. Configured to be recommended by the model when appropriate, otherwise triggers manually. |
 
-#### `recovery.mdc`
-**Trigger: Manual**  
-This rule outlines the steps to take when repeated failures occur in resolving errors. It triggers when the system encounters a cascade of issues that cannot be resolved, guiding the recovery process. Only triggered when you ask it to, but the `RULES_FOR_AI.md` configures the model to recommend to you when it should be used.
+### 2.1 Examples
 
-#### `prepare.md`
-**Trigger: Manual**
-Add this rule to chats or commands that require the model to zoom out and prep before they reason, propose, or make changes to the codebase so they can ensure their actions maintain cohesiveness and are well informed.
+Here's an entire workflow to write tests, run them, and then recover if the test writing goes wrong:
 
-#### `propose.md`
-**Trigger: Manual**
-Add this rule to chats that are only for brainstorming solutions and answering questions and which require the LLM to do deep research and provide a structured fact-based answer. Note: although this rule prevent the LLM from making changes to the code directly, the structure of it's response is optimized to be exported through @summary or copying and pasting into a composer to implement. You can also use @generate-prompt.mdc directly after their proposal to convert it into a read-to-go prompt that can be given to an agent in composer mode.
+1 ) Write the tests (Agent Mode):
 
+```text
+"Add a new test to ensure graceful shutdown. @create-tests"
+```
 
-## .cursorignore
+2 ) Run the tests (Agent Mode):
 
-**NOTE:** I've also provided my example `.cursorignore` file, mainly to illustrate that I typically ignore all files by default and manually specify what files or folders my source code is in. That way, by default, I don't pollute Cursor’s [index](https://docs.cursor.com/context/codebase-indexing) or the model's context window in quick chats or prompts with the contents of every single file in the codebase. It has the side benefit of not confusing the model if it accidentally includes outdated markdown documentation that describes the codebase differently than it currently is (a real pain to debug). Those files can always be manually included in a Cursor chat using `@` commands if really needed.
+```text
+"Great tests. Now run them and debug any errors in the output. @with-tests"
+```
+
+3 ) Run the tests (Agent Mode):
+
+```text
+"You keep introducing errors into the tests! @recover"
+```
+
+## 3. Planning and Documentation
+
+These rules are for Chat mode only, and are best added at the end of your message to provide additional context.
+
+| Rule | Trigger Type | Description |
+|------|--------------|-------------|
+| **`prepare.md`** | Manual | Prompts the model to perform thorough research and preparation before making changes to maintain code cohesiveness. |
+| **`propose.md`** | Manual | Structures brainstorming sessions and question-answering without direct code changes. Results can be exported via @summary or implemented in composer mode. |
+| **`create-prompt.mdc`** | Semi-Automatic | Guidelines for creating comprehensive AI prompts with clear objectives and examples. Activates when prompt generation is requested. |
+
+### 3.1 Examples
+
+Here's an entire workflow to plan an implement a big sweeping change!
+
+1 ) Plan a great proposal first, and iron out the details. Combine `@prepare` with `@create-prompt` if you want for the best proposal:
+
+```text
+"Review the files I've shared and write a proposal to refactor the code to be more DRY. @propose @prepare"
+```
+
+2 ) Then after the proposal looks good:
+
+```text
+"Great proposal, now and generate a prompt to implement it. @create-prompt"
+```
+
+---
+
+## .cursorignore & .cursorindexignore
+
+**NOTE:** I've provided my example `.cursorignore` and `.cursorignoreindex` files. They illustrate that I typically ignore many files that are documentation or configuration unless they're prefixed with "AI-". Instead, when needed, I'll manually specify those files or folders when needed. That way, by default, I don't pollute Cursor’s [index](https://docs.cursor.com/context/codebase-indexing) or the model's context window in quick chats or prompts with the contents of every single file in the codebase. It has the side benefit of not confusing the model if it accidentally includes outdated markdown documentation that describes the codebase differently than it currently is (a real pain to debug). Those files can always be manually included in a Cursor chat using `@` commands if really needed.
+
+### Differences
+
+**.cursorignore:** For completely ignoring files in cursor. Note: things in `.gitignore` are already automatically ignored. I'll often use this to temporarily ignore files that might confused the AI based on work I'm doing. 
+
+**.cursorignoreindex:** For files you want available to cursor, but only when manually provided to it. These files will NOT be indexed. Note: things in `.gitignore` are already automatically ignored. I'll often use this to not index code that may confused the AI unless I provide it manually with specific context, such as a large schema file or random project notes and documentation. A typical file you'll want to ignore is lock files.

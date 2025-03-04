@@ -1,0 +1,105 @@
+---
+description: Create an MCP server
+globs: mcp-schema.json
+alwaysApply: false
+---
+## Context
+`@modelcontextprotocol/sdk` is an SDK for the Model Context Protocol. The full specifcation of the protocol can be found at [https://raw.githubusercontent.com/modelcontextprotocol/specification/refs/heads/main/schema/draft/schema.json](mdc:https:/raw.githubusercontent.com/modelcontextprotocol/specification/refs/heads/main/schema/draft/schema.json)
+
+## Task
+You'll write an MCP server given the available backend Javascript runtime available to you (e.g. Deno, Bun, Node) that supports invoking the server as either a stdio or WebSocket server using the native capabilities of the Javascript runtime available to you. using the native stdio and/or WebSocket available.
+
+## Mandatory Reading Before Starting
+Understand the depdency `@modelcontextprotocol/sdk` by reading [its README](mdc:https:/raw.githubusercontent.com/modelcontextprotocol/typescript-sdk/refs/heads/main/README.md). Understand it's method, types and interfaces, and the two was in which it allows starting a server (the high level, and the lower level for finer control and configuration). Understand the various helper methods it provides. Understand its core components: Resources, Prompts, Tools, Notifications, Errors, Pagination, Completions.
+
+## Output
+Follow any instructions already given to you and your understanding of the current codebase to generate code that solves the objective while maintaining coherence with the current codebase and any previous instructions. You've been provided an example below that is specific for the Deno runtime simply as an illustration and inspiration for your own design. When you're finished the code, create a task in the local package manager configuration that can run this server locally in a development mode.
+
+### Implementing Component Examples
+**NOTE**: If you've been provided no instructions of what the first components should be to implement in the MCP server, than generate a very simple stubbed out example of each: Resource, Prompt, Tool, Notification, Error, Pagination, Completion. Please them in a seperate folder, and have them implemenet an abstract base class that is stubbed out with everything the interfaces and types of `@modelcontextprotocol/sdk` allows for each.
+
+### File and Folder Structure
+- `handlers.ts`: all the core server handlers, e.g handlers for prompts. Also handles evens for notifications, and ensures clean integration between features and the mcp-server.
+- `registry.ts`: logic for registering the features: Prompts Tools, Resources, and Compeltions
+- `features/example.{feature_type}.ts`: features that implement the base classes of: Prompts Tools, Resources, and Compeltions. For example "example.prompt.ts" or "example.resource.ts". We only need one example of each to demonstrate how a user could add a new feature to the server.
+- `mcp-server.ts`: implements the full server. Reads configuration and loads the features using the registry and configures the handlers with them. Manages general state such a uniqiue session each feature can access, logging, and general server concerns.
+- `main.ts`: main entry point. Allows starting the server in SSE/WebSocket mode or stdio. Provides a help menu with various options and ways to configure the server based on command line arguments. Is the file that becomes referenced by tasks in the codebases pakcage manage configuration file, such as deno.json or package.json or bun.json.
+
+## Example MCP Server
+```typescript
+/** @module mcp_server.ts
+ * @description Example Deno MCP Server with WebSocket or stdio transport.
+ */
+
+import { Server } from "@modelcontextprotocol/sdk/server/index.js"
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
+import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js"
+import { ListPromptsRequestSchema, GetPromptRequestSchema, JSONRPCMessage } from "@modelcontextprotocol/sdk/types.js"
+
+class WebSocketServerTransport implements Transport {
+  onmessage?: (message: JSONRPCMessage) => void
+  onclose?: () => void
+  onerror?: (error: Error) => void
+
+  constructor(private socket: WebSocket) {
+    this.socket.addEventListener('message', e => this.onmessage?.(JSON.parse(e.data)))
+    this.socket.addEventListener('close', () => this.onclose?.())
+    this.socket.addEventListener('error', e => this.onerror?.(new Error(`WebSocket error: ${e}`)))
+  }
+
+  async start() {}
+  async send(message: JSONRPCMessage) {
+    this.socket.readyState === WebSocket.OPEN && this.socket.send(JSON.stringify(message))
+  }
+  async close() {
+    this.socket.readyState === WebSocket.OPEN && this.socket.close()
+  }
+}
+
+/**
+ * Creates and starts the MCP Server
+ * @param {boolean} useWebSocket - Whether to use WebSocket transport
+ * @param {number} port - The port to listen on when using WebSocket transport
+ */
+async function startServer(useWebSocket = false, port = 3000) {
+  const server = new Server({ name: "mcp-server", version: "1.0.0" }, { capabilities: { prompts: {} } })
+
+  server.setRequestHandler(ListPromptsRequestSchema, async () => ({
+    prompts: [{
+      name: "example-prompt",
+      description: "An example prompt template",
+      arguments: [{ name: "arg1", description: "Example argument", required: true }]
+    }]
+  }))
+
+  server.setRequestHandler(GetPromptRequestSchema, async ({ params }) => {
+    if (params.name !== "example-prompt") throw new Error("Unknown prompt")
+    return {
+      description: "Example prompt",
+      messages: [{
+        role: "user",
+        content: { type: "text", text: `Example text with arg: ${params.arguments?.arg1}` }
+      }]
+    }
+  })
+
+  useWebSocket
+    ? await Deno.serve({
+        port,
+        handler: async req =>
+          req.headers.get('upgrade')?.toLowerCase() === 'websocket'
+            ? (
+                await server.connect(new WebSocketServerTransport(Deno.upgradeWebSocket(req).socket)),
+                Deno.upgradeWebSocket(req).response
+              )
+            : new Response('MCP Server', { status: 200 })
+      }).finished
+    : await server.connect(new StdioServerTransport())
+}
+
+export { startServer }
+
+if (import.meta.main) {
+  await startServer(Deno.args.includes('--web'), 3000)
+}
+```

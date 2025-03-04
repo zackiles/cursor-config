@@ -15,7 +15,7 @@ Full documentation for the Deno namespace is at [https://docs.deno.com/api/deno/
 - **File System**: `Deno.chown`, `Deno.chmod`, `Deno.create`, `Deno.mkdir`, `Deno.realpath`, `Deno.remove`, `Deno.rename`, `Deno.umask`, `Deno.utime`, `Deno.watchFs`, `Deno.writeTextFile`, `Deno.stat`
 - **Networking**: `Deno.connect`, `Deno.connectQuic`, `Deno.connectTls`, `Deno.listen`, `Deno.listenDatagram`, `Deno.listenTls`, `Deno.networkInterfaces`, `Deno.resolveDns`, `Deno.startTls`
 - **Runtime**: `Deno.addSignalListener`, `Deno.bench`, `Deno.chdir`, `Deno.chmod`, `Deno.chmodSync`, `Deno.chown`, `Deno.chownSync`, `Deno.consoleSize`, `Deno.copyFile`, `Deno.copyFileSync`, `Deno.create`, `Deno.createHttpClient`, `Deno.createSync`, `Deno.cron`, `Deno.cwd`, `Deno.dlopen`, `Deno.execPath`, `Deno.exit`, `Deno.gid`, `Deno.hostname`, `Deno.inspect`, `Deno.kill`, `Deno.link`, `Deno.linkSync`, `Deno.loadavg`, `Deno.lstat`, `Deno.lstatSync`, `Deno.makeTempDir`, `Deno.makeTempDirSync`, `Deno.makeTempFile`, `Deno.makeTempFileSync`, `Deno.memoryUsage`, `Deno.mkdir`, `Deno.mkdirSync`, `Deno.open`, `Deno.openKv`, `Deno.openSync`, `Deno.osRelease`, `Deno.osUptime`, `Deno.refTimer`, `Deno.removeSignalListener`, `Deno.startTls`, `Deno.stat`, `Deno.statSync`, `Deno.systemMemoryInfo`, `Deno.uid`, `Deno.unrefTimer`, `Deno.utime`, `Deno.utimeSync`, `Deno.version` 
-- **Process and Commands**: CRITICAL: ALWAYS USE `Deno.command`. There is also `Deno.ChildProcess`. [Full documentation can be found here](https://docs.deno.com/api/deno/~/Deno.Command)
+- **Process and Commands**: CRITICAL: ALWAYS USE `Deno.command`. There is also `Deno.ChildProcess`. [Full documentation can be found here](mdc:https:/docs.deno.com/api/deno/~/Deno.Command)
 
 
 ### 2) Prefer `@std` Libraries
@@ -148,7 +148,7 @@ deno test --reporter=junit
 ```
 
 ### Mocking Spying and Complicated Testing
-Must use [@std/testing](https://jsr.io/@std/testing/doc)
+Must use [@std/testing](mdc:https:/jsr.io/@std/testing/doc)
 ```
 import { describe, it } from "@std/testing/bdd"
 import { assertEquals } from "@std/assert"
@@ -230,7 +230,7 @@ The string Deno.mainModule will give you the URL of the main module entry point,
 The Deno CLI comes with a built-in formatter which can be accessed using `deno fmt` but can also be configured to be used by VS Code in ".vscode/settings.json" and adding "editor.defaultFormatter": "denoland.vscode-deno".
 
 ### Workspaces and Monorepos
-Deno supports [workspaces](https://docs.deno.com/runtime/fundamentals/workspaces/), also known as "monorepos", which allow you to manage multiple related and interdependent packages simultaneously. A "workspace" is a collection of folders containing deno.json or deno.jsonc configuration file. The root configuration file defines the workspace:
+Deno supports [workspaces](mdc:https:/docs.deno.com/runtime/fundamentals/workspaces), also known as "monorepos", which allow you to manage multiple related and interdependent packages simultaneously. A "workspace" is a collection of folders containing deno.json or deno.jsonc configuration file. The root configuration file defines the workspace:
 ```
 // deno.jsonc
 {
