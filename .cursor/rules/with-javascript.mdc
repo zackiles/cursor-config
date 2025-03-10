@@ -37,6 +37,11 @@ alwaysApply: false
   - If the codebase omits semicolons, ensure they are not added
   - When in doubt, verify the style in multiple files before making assumptions
   - For new codebases, default to **no semicolons** unless specified otherwise
+- **Nesting and Chaining**
+  - Avoid deeply nested code within functions.
+  - Refactor deeply nested code by grouping and hoisting related functionationliy at the top of the function, and then call it with functional patterns or chaining toward the bottom.
+  - For code that contains multiple steps define those steps early and clearly in the function in a way that enhances the maintainability and readability.
+  - Where possible (and where it doesn't harm readability) instead of defining multiple variables, collapse that variables into a only a single one or a few where it's value is the result of several chained methods.
 
 ### Functional & Compositional Approach
 - Within functions, prefer **functional** over imperative control flows.  
@@ -71,7 +76,9 @@ this.on('some action', eventHandler)
 ```
 
 ### Documentation in Code
-- Use **JSDoc** for functions and files (including `@module` docs with examples).  
+- Use **JSDoc** for functions and files (including `@module` docs with examples).
+- Never include inline comments to describe code that can easily be understood.
+- Never include inline comments that are redundant, innacurate, or used only to help group sections of code unless the user asks you to.
 - **DANGER**: When updating code, never remove JSDoc or linting comments unless explicitly requested. If changes break comments, update them accurately.
 
 ### Functional vs. OOP
