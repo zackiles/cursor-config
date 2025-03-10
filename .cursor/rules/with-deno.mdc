@@ -4,12 +4,11 @@ globs: deno.json, deno.jsonc
 alwaysApply: false
 ---
 
-# Deno 2.0 Project Best Practices 
-This project uses the latest Deno 2
-Full documentation for the Deno namespace is at [Deno Documentation](https:/docs.deno.com/api/deno/~/Deno). You must adhere to the best practices for Deno.
+# Deno 2.0 Project Best Practices, Guidelines, Standards, and Rules
+This project uses the latest Deno 2 and any code you generate or review should adhere to all of the information below unless you've been explcitly asked to ignore parts or all of these guidelines.
 
-## Deno Rules
-### 1) Prefer Deno Methods
+## 1) Deno Concepts, Methods, Usage, and Project Design Patterns
+### Native Deno Methods and Classes
 - **Environment Variables**: `Deno.env.get` `Deno.env.set`
 - **Console and Logging**: `Console.table`, `Deno.inspect`
 - **File System**: `Deno.chown`, `Deno.chmod`, `Deno.create`, `Deno.mkdir`, `Deno.realpath`, `Deno.remove`, `Deno.rename`, `Deno.umask`, `Deno.utime`, `Deno.watchFs`, `Deno.writeTextFile`, `Deno.stat`
@@ -17,18 +16,34 @@ Full documentation for the Deno namespace is at [Deno Documentation](https:/docs
 - **Runtime**: `Deno.addSignalListener`, `Deno.bench`, `Deno.chdir`, `Deno.chmod`, `Deno.chmodSync`, `Deno.chown`, `Deno.chownSync`, `Deno.consoleSize`, `Deno.copyFile`, `Deno.copyFileSync`, `Deno.create`, `Deno.createHttpClient`, `Deno.createSync`, `Deno.cron`, `Deno.cwd`, `Deno.dlopen`, `Deno.execPath`, `Deno.exit`, `Deno.gid`, `Deno.hostname`, `Deno.inspect`, `Deno.kill`, `Deno.link`, `Deno.linkSync`, `Deno.loadavg`, `Deno.lstat`, `Deno.lstatSync`, `Deno.makeTempDir`, `Deno.makeTempDirSync`, `Deno.makeTempFile`, `Deno.makeTempFileSync`, `Deno.memoryUsage`, `Deno.mkdir`, `Deno.mkdirSync`, `Deno.open`, `Deno.openKv`, `Deno.openSync`, `Deno.osRelease`, `Deno.osUptime`, `Deno.refTimer`, `Deno.removeSignalListener`, `Deno.startTls`, `Deno.stat`, `Deno.statSync`, `Deno.systemMemoryInfo`, `Deno.uid`, `Deno.unrefTimer`, `Deno.utime`, `Deno.utimeSync`, `Deno.version` 
 - **Process and Commands**: CRITICAL: ALWAYS USE `Deno.command`. There is also `Deno.ChildProcess`. [Deno Documentation - Deno.command](https:/docs.deno.com/api/deno/~/Deno.Command)
 
+[Full Documentation On Deno Namespace APIs](https://docs.deno.com/api/deno/~/Deno)
 
-### 2) Prefer `@std` Libraries
+#### Deno Project Sructure and Design
+- **deno.json and deno.jsonc**: Always have a complete file, with typical fields filled out like: name, version, license, fmt, lint, publish, exports, test, publish etc.
+  -**include and exclude**: ensure lint, fmt, test, and publish use the propper include and exclude settings for the array of glob patterns needed for the codebase.
+- **.vscode/settings.json**: ensure a VS Code `settings.json` file exists and has `"deno.enable": true` set to enable the `denoland.vscode-deno` extension.
+  - Ensure the `settings.json` also sets the importMap and config file are set properly for the deno.json or deno.jsonc file, for example (deno.jsonc): `"deno.importMap": "deno.jsonc", "deno.config": "deno.jsonc"`,`.
+- **Deno Tasks**: Common tasks should use and be executed using tasks defined in a `deno.json` or `deno.jsonc` file.
+- **File and Folder Structure**: source code in `src/*.ts`, tests in `test/*.test.ts`, deno confgiuration in `deno.json` or `deno.jsonc` (preferred), and if writing a library a `mod.ts` file should be used to provide the exports.
+- **Common Project Files**: Most projects will always benefit from the following default files when starting a project or a suggestion to the user to create for existing projects: `src/utils.ts` for shared functions, `src/logger.ts` for a shared logger, `src/types.ts` for types that need to be shared in one or more files, `config.ts` as a singleton that loads or provides global configuration to files.
+- **Environemnt Variables and Configuration**: Most projects will benefit from a .env file and loading it with `import "@std/dotenv/load"`. Enviornment variables should be prefixed with a short acronym that represents the project name.
+- **Imports and Using Libraries**: any external npm or jsr imports used in the project should be added using `deno add jsr:@scope/name` or `deno add npm:name` so that they can be added to the deno.json or deno.jsonc file and imported in files use the short name such as `import func from '@scope/name'`
+- **Module Documentation**: All typescript modules in `src/` that are to be published as part of the project MUST contain a jsdoc module comment at the top of the module that describes its prupose and provides and example of its usage, and iff availble jsdoc "@see" comments with links to documentation for methods or libraries used in the module.
+- **Exports**: Exports should be defined cleared at the bottom of modules. If the exports are both types and normal exports they should be split over two lines for each such as `export {someMethod, someVariable}` and then `export type {someType}`
+
+### Prefer `@std` Libraries
 
 Deno's standard library, written in TypeScript, offers audited, reusable modules for common tasks, ensuring consistency and reliability. Modules are independently versioned following semantic versioning, allowing version pinning to prevent breaking changes. To import modules, use the `deno add` command to update your `deno.json` import map, or import directly with the `jsr:` specifier.
 
 #### Full list of `@std` packages
 @std/assert, @std/async, @std/bytes, @std/cache, @std/cbor, @std/cli, @std/collections, @std/crypto, @std/csv, @std/data-structures, @std/datetime, @std/dotenv, @std/encoding, @std/expect, @std/fmt, @std/front-matter, @std/fs, @std/html, @std/http, @std/ini, @std/internal, @std/io, @std/json, @std/jsonc, @std/log, @std/media-types, @std/msgpack, @std/net, @std/path, @std/random, @std/regexp, @std/semver, @std/streams, @std/tar, @std/testing, @std/text, @std/toml, @std/ulid, @std/uuid, @std/webgpu, @std/yaml 
 
-### 3) Understand the Deno CLI for Building, Testing, Running, Formatting, Linting and Debugging
-It provides helpful functionality. Most common methods:
+### 3) Deno CLI for 
+It provides helpful functionality for Building, Testing, Running, Formatting, Linting and Debugging and the [full documentation is here](https://docs.deno.com/runtime/reference/cli/).
 
+#### Common Methods for the Deno CLI:
 - `deno add [OPTIONS] [packages]`: Add dependencies to your configuration file.
+- `deno publish [OPTIONS]`: publishes a package to jsr.
 - `deno install`: Installs dependencies either in the local project or globally to a bin directory. Allows " --global" flag to install globally.
 - `deno task`: runs a task speciifed in deno.json or deno.jsonc.
 - `deno info [OPTIONS] [file]`:Show information about a module or the cache directories.
@@ -40,7 +55,7 @@ It provides helpful functionality. Most common methods:
 
 **NOTE ON CACHING AND RLOADING:** By default, Deno uses a global cache directory (DENO_DIR) for downloaded dependencies. This cache is shared across all projects.You can force deno to refetch and recompile modules into the cache using the `--reload` flag.
 
-## 4) Know the Latest Deno 2 Methods
+## 4) Use the Latest Methods From Deno 2 (Avoid Deno 1)
 ### Deno Serve
 `deno serve [OPTIONS] [SCRIPT_ARG]...`: Run a server defined in a main module.he serve command uses the default exports of the main module to determine which servers to start. For example, it can run a file as a server which exports:
 ```
@@ -62,23 +77,47 @@ export default {
 ```
 [Full documentation on Deno.serve](https:/docs.deno.com/runtime/fundamentals/http_server)
 
-### Deno Native APIs
-[Full documentation of Deno Native APIs](https:/docs.deno.com/api/deno/~/Deno).
+#### New Methods Deno Nampespace APIs in Deno 2
+Deno.serve Deno.AtomicOperation, Deno.ChildProcess, Deno.Command, Deno.FsFile, Deno.HttpClient, Deno.Kv, Deno.KvListIterator, Deno.KvU64, Deno.Permissions, Deno.PermissionStatus, Deno.QuicEndpoint, Deno.UnsafeCallback, Deno.UnsafeFnPointer, Deno.UnsafePointer, Deno.UnsafePointerView, Deno.UnsafeWindowSurface
 
-#### Example Deno Native API Classes
-Deno.AtomicOperation, Deno.ChildProcess, Deno.Command, Deno.FsFile, Deno.HttpClient, Deno.Kv, Deno.KvListIterator, Deno.KvU64, Deno.Permissions, Deno.PermissionStatus, Deno.QuicEndpoint, Deno.UnsafeCallback, Deno.UnsafeFnPointer, Deno.UnsafePointer, Deno.UnsafePointerView, Deno.UnsafeWindowSurface
+### New and Supported Web APIs in Deno 2
+- **Example methods**: AbortController, AbortSignal, addEventListener, atob, Blob, btoa, BroadcastChannel, caches, CacheStorage, clearInterval, clearTimeout, console, createImageBitmap, crypto, Crypto, CryptoKey, CustomEvent, DOMException, ErrorEvent, Event, EventSource, EventTarget, fetch, File, FileReader, FormData, Headers, localStorage, location, MessageChannel, MessageEvent, MessagePort, navigator, offscreenCanvas, Performance, performance, removeEventListener, Request, Response, setInterval, setTimeout, Storage, TextDecoder, TextEncoder, URL, URLSearchParams, WebSocket, Worker, WritableStream, ReadableStream, TransformStream, XMLHttpRequest
+- [Full documentation of Deno Web APIs](https:/docs.deno.com/api/web).
 
-
-### Web APIs
-[Full documentation of Deno Web APIs](https:/docs.deno.com/api/web).
-
-#### Supported Web APIs:
-AbortController, AbortSignal, addEventListener, atob, Blob, btoa, BroadcastChannel, caches, CacheStorage, clearInterval, clearTimeout, console, createImageBitmap, crypto, Crypto, CryptoKey, CustomEvent, DOMException, ErrorEvent, Event, EventSource, EventTarget, fetch, File, FileReader, FormData, Headers, localStorage, location, MessageChannel, MessageEvent, MessagePort, navigator, offscreenCanvas, Performance, performance, removeEventListener, Request, Response, setInterval, setTimeout, Storage, TextDecoder, TextEncoder, URL, URLSearchParams, WebSocket, Worker, WritableStream, ReadableStream, TransformStream, XMLHttpRequest
-
-## 5) Know How to Test in Deno 2
+## 5) Testing in Deno 2
 `deno test [OPTIONS] [files]... [-- [SCRIPT_ARG]...]`: Run tests using Deno's built-in test runner. Evaluate the given modules, run all tests declared with Deno.test() and report results to standard output. Directory arguments are expanded to all contained files matching the glob `{*_,*.,}test.{js,mjs,ts,mts,jsx,tsx}` or `**/__tests__/**`. Typechecking errors can be skipped with `--no-check`.
 
-### Deno Native Test Methods
+### `@std/assert` Deno Native Assert Methods:
+- [`assert(expr: unknown, msg?: string): asserts expr`](https://jsr.io/@std/assert/doc/~/assert): Make an assertion; throws an error if `expr` is not truthy.
+- [`assertAlmostEquals(actual: number, expected: number, tolerance?: number, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertAlmostEquals): Asserts that `actual` and `expected` numbers are almost equal within a given tolerance; throws if they are not.
+- [`assertArrayIncludes<T>(actual: ArrayLike<T>, expected: ArrayLike<T>, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertArrayIncludes): Asserts that `actual` array includes all elements of `expected` array; throws if it does not.
+- [`assertEquals(actual: unknown, expected: unknown, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertEquals): Asserts that `actual` and `expected` are deeply equal; throws if they are not.
+- [`assertExists<T>(actual: T, msg?: string): asserts actual is NonNullable<T>`](https://jsr.io/@std/assert/doc/~/assertExists): Asserts that `actual` is not `null` or `undefined`; throws if it is.
+- [`assertFalse(expr: unknown, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertFalse): Asserts that `expr` is falsy; throws if it is not.
+- [`assertGreater(actual: number, expected: number, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertGreater): Asserts that `actual` is greater than `expected`; throws if it is not.
+- [`assertGreaterOrEqual(actual: number, expected: number, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertGreaterOrEqual): Asserts that `actual` is greater than or equal to `expected`; throws if it is not.
+- [`assertInstanceOf(object: unknown, type: AnyConstructor, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertInstanceOf): Asserts that `object` is an instance of `type`; throws if it is not.
+- [`assertIsError<E extends Error = Error>(error: unknown, ErrorClass?: new (...args: any[]) => E, msgIncludes?: string, msg?: string): asserts error is E`](https://jsr.io/@std/assert/doc/~/assertIsError): Asserts that `error` is an instance of `ErrorClass` and optionally that its message includes `msgIncludes`; throws if it is not.
+- [`assertLess(actual: number, expected: number, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertLess): Asserts that `actual` is less than `expected`; throws if it is not.
+- [`assertLessOrEqual(actual: number, expected: number, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertLessOrEqual): Asserts that `actual` is less than or equal to `expected`; throws if it is not.
+- [`assertMatch(actual: string, expected: RegExp, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertMatch): Asserts that `actual` matches the regular expression `expected`; throws if it does not.
+- [`assertNotEquals(actual: unknown, expected: unknown, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertNotEquals): Asserts that `actual` and `expected` are not deeply equal; throws if they are.
+- [`assertNotInstanceOf(object: unknown, type: AnyConstructor, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertNotInstanceOf): Asserts that `object` is not an instance of `type`; throws if it is.
+- [`assertNotMatch(actual: string, expected: RegExp, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertNotMatch): Asserts that `actual` does not match the regular expression `expected`; throws if it does.
+- [`assertNotStrictEquals(actual: unknown, expected: unknown, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertNotStrictEquals): Asserts that `actual` and `expected` are not strictly equal using `Object.is`; throws if they are.
+- [`assertObjectMatch(actual: Record<PropertyKey, unknown>, expected: Record<PropertyKey, unknown>, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertObjectMatch): Asserts that `expected` object is a subset of `actual` object; throws if it is not.
+- [`assertRejects<T = void>(fn: () => Promise<T>, ErrorClass?: new (...args: any[]) => Error, msgIncludes?: string, msg?: string): Promise<Error>`](https://jsr.io/@std/assert/doc/~/assertRejects): Asserts that the async function `fn` rejects; throws if it does not.
+- [`assertStrictEquals(actual: unknown, expected: unknown, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertStrictEquals): Asserts that `actual` and `expected` are strictly equal using `Object.is`; throws if they are not.
+- [`assertStringIncludes(actual: string, expected: string, msg?: string): void`](https://jsr.io/@std/assert/doc/~/assertStringIncludes): Asserts that `actual` string includes `expected` string; throws if it does not.
+- [`assertThrows<T = void>(fn: () => T, ErrorClass?: new (...args: any[]) => Error, msgIncludes?: string, msg?: string): Error`](https://jsr.io/@std/assert/doc/~/assertThrows): Asserts that the function `fn` throws; throws if it does not.
+- [`equal(actual: unknown, expected: unknown): boolean`](https://jsr.io/@std/assert/doc/~/equal): Performs a deep equality comparison between `actual` and `expected`; returns `true` if they are equal.
+- [`fail(msg?: string): never`](https://jsr.io/@std/assert/doc/~/fail): Throws a failed assertion error with the provided `msg`.
+- [`unimplemented(msg?: string): never`](https://jsr.io/@std/assert/doc/~/unimplemented): Throws an error indicating that the method is unimplemented.
+- [`unreachable(msg?: string): never`](https://jsr.io/@std/assert/doc/~/unreachable): Throws an error indicating that the code should be unreachable. 
+
+**See the full documentation**: [`@std/assert`](https://jsr.io/@std/assert/doc)
+
+#### Example of `@std/assert`
 ```
 import { assertEquals } from "@std/assert"
 Deno.test("simple test", () => {
@@ -148,7 +187,48 @@ deno test --reporter=junit
 ```
 
 ### Mocking Spying and Complicated Testing in Deno
-Must use [@std/testing](https:/jsr.io/@std/testing/doc)
+If needed, tests must use [@std/testing](https:/jsr.io/@std/testing/doc). All of these methods and more can be used after doing `deno add jsr:@std/testing`:
+
+- **[`@std/testing/bdd`](https://jsr.io/@std/testing/doc/bdd)**
+  - [`after()`](https://jsr.io/@std/testing/doc/bdd/~/after): Alias of `afterAll`.
+  - [`afterAll()`](https://jsr.io/@std/testing/doc/bdd/~/afterAll): Run some shared teardown after all of the tests in the suite.
+  - [`afterEach()`](https://jsr.io/@std/testing/doc/bdd/~/afterEach): Run some shared teardown after each test in the suite.
+  - [`before()`](https://jsr.io/@std/testing/doc/bdd/~/before): Alias of `beforeAll`.
+  - [`beforeAll()`](https://jsr.io/@std/testing/doc/bdd/~/beforeAll): Run some shared setup before all of the tests in the group.
+  - [`beforeEach()`](https://jsr.io/@std/testing/doc/bdd/~/beforeEach): Run some shared setup before each test in the suite.
+  - [`describe()`](https://jsr.io/@std/testing/doc/bdd/~/describe): Registers a test suite.
+  - [`it()`](https://jsr.io/@std/testing/doc/bdd/~/it): Registers an individual test case.
+  - [`test()`](https://jsr.io/@std/testing/doc/bdd/~/test): Alias of `it`.
+
+- **[`@std/testing/mock`](https://jsr.io/@std/testing/doc/mock)**
+  - [`assertSpyCall()`](https://jsr.io/@std/testing/doc/mock/~/assertSpyCall): Asserts that a spy is called as expected.
+  - [`assertSpyCallArg()`](https://jsr.io/@std/testing/doc/mock/~/assertSpyCallArg): Asserts that a spy is called with a specific arg as expected.
+  - [`assertSpyCallArgs()`](https://jsr.io/@std/testing/doc/mock/~/assertSpyCallArgs): Asserts that a spy is called with a specific range of args as expected.
+  - [`assertSpyCallAsync()`](https://jsr.io/@std/testing/doc/mock/~/assertSpyCallAsync): Asserts that an async spy is called as expected.
+  - [`assertSpyCalls()`](https://jsr.io/@std/testing/doc/mock/~/assertSpyCalls): Asserts that a spy is called as much as expected and no more.
+  - [`mockSession()`](https://jsr.io/@std/testing/doc/mock/~/mockSession): Creates a session that tracks all mocks created before it's restored.
+  - [`mockSessionAsync()`](https://jsr.io/@std/testing/doc/mock/~/mockSessionAsync): Creates an async session that tracks all mocks created before the promise resolves.
+  - [`resolvesNext()`](https://jsr.io/@std/testing/doc/mock/~/resolvesNext): Creates a function that resolves the awaited iterable values.
+  - [`restore()`](https://jsr.io/@std/testing/doc/mock/~/restore): Restores all mocks registered in the current session that have not already been restored.
+  - [`returnsArg()`](https://jsr.io/@std/testing/doc/mock/~/returnsArg): Creates a function that returns one of its arguments.
+  - [`returnsArgs()`](https://jsr.io/@std/testing/doc/mock/~/returnsArgs): Creates a function that returns its arguments or a subset of them.
+  - [`returnsNext()`](https://jsr.io/@std/testing/doc/mock/~/returnsNext): Creates a function that returns the iterable values.
+  - [`returnsThis()`](https://jsr.io/@std/testing/doc/mock/~/returnsThis): Creates a function that returns the instance the method was called on.
+  - [`spy()`](https://jsr.io/@std/testing/doc/mock/~/spy): Creates a spy function.
+  - [`stub()`](https://jsr.io/@std/testing/doc/mock/~/stub): Replaces an instance method with a Stub with empty implementation.
+
+- **[`@std/testing/snapshot`](https://jsr.io/@std/testing/doc/snapshot)**
+  - [`assertSnapshot()`](https://jsr.io/@std/testing/doc/snapshot/~/assertSnapshot): Make an assertion that `actual` matches a snapshot.
+  - [`createAssertSnapshot()`](https://jsr.io/@std/testing/doc/snapshot/~/createAssertSnapshot): Create `assertSnapshot` function with the given options.
+  - [`serialize()`](https://jsr.io/@std/testing/doc/snapshot/~/serialize): Default serializer for `assertSnapshot`.
+
+- **[`@std/testing/time`](https://jsr.io/@std/testing/doc/time)**
+  - [`FakeTime()`](https://jsr.io/@std/testing/doc/time/~/FakeTime): Overrides the real Date object and timer functions with fake ones that can be controlled through the fake time instance.
+
+- **[`@std/testing/types`](https://jsr.io/@std/testing/doc/types)**
+  - [`assertType()`](https://jsr.io/@std/testing/doc/types/~/assertType): Asserts at compile time that the provided type argument's type resolves to the expected boolean literal type.
+
+#### Example of `@std/testing`
 ```
 import { describe, it } from "@std/testing/bdd"
 import { assertEquals } from "@std/assert"
@@ -198,24 +278,180 @@ export function foo(): string {
 }
 ```
 
-## 6) Understand the Extras
+## 6) Text Manipulation and Text Files
 
-### ClI Usages
-Use `@std/cli`. Methods: parseArgs, promptSecret, unicodeWidth, ProgressBar, ProgressBarStream, promptMultipleSelect, promptSelect, Spinner
+### Reading and Writing Text Files
+- **Reading Text Files**  
+  - [Deno.readTextFile(path: string | URL): Promise<string>](https://docs.deno.com/api/deno/~/Deno.readTextFile) - Reads and returns text from a file.  
 
-Example
+- **Writing Text Files**  
+  - [Deno.writeTextFile(path: string | URL, data: string, options?: WriteFileOptions): Promise<void>](https://docs.deno.com/api/deno/~/Deno.writeTextFile) - Writes string data to a file, optionally with write options.  
+
+- **Opening Files for Text Manipulation**  
+  - [Deno.open(path: string | URL, options?: OpenOptions): Promise<Deno.FsFile>](https://docs.deno.com/api/deno/~/Deno.open) - Opens a file for reading or writing, returning a FsFile handle.  
+
+- **`Deno.FsFile` Methods for Text Manipulation**  
+  - [read(p: Uint8Array): Promise<number | null>](https://docs.deno.com/api/deno/~/Deno.FsFile.prototype.read) - Reads bytes into a buffer, returns the number of bytes read or null if EOF.  
+  - [write(p: Uint8Array): Promise<number>](https://docs.deno.com/api/deno/~/Deno.FsFile.prototype.write) - Writes bytes from a buffer to the file, returning the number of bytes written.  
+  - [seek(offset: number | bigint, whence: Deno.SeekMode): Promise<number>](https://docs.deno.com/api/deno/~/Deno.FsFile.prototype.seek) - Moves the file cursor to a specified offset based on the given mode.  
+  - [stat(): Promise<Deno.FileInfo>](https://docs.deno.com/api/deno/~/Deno.FsFile.prototype.stat) - Retrieves file metadata like size and modification time.  
+  - [truncate(len?: number): Promise<void>](https://docs.deno.com/api/deno/~/Deno.FsFile.prototype.truncate) - Changes the file size to a specified length.  
+  - [close(): void](https://docs.deno.com/api/deno/~/Deno.FsFile.prototype.close) - Closes the file, freeing its resources.  
+
+- **File Streams for Text Manipulation**  
+  - [readable: ReadableStream<Uint8Array>](https://docs.deno.com/api/deno/~/Deno.FsFile.prototype.readable) - A readable stream for fetching data from the file.  
+  - [writable: WritableStream<Uint8Array>](https://docs.deno.com/api/deno/~/Deno.FsFile.prototype.writable) - A writable stream for sending data to the file.  
+
+- **`OpenOptions` for Flexible File Access**  
+  - `read?: boolean` - Allows reading from the file.  
+  - `write?: boolean` - Allows writing to the file.  
+  - `append?: boolean` - Appends data to the file instead of overwriting.  
+  - `create?: boolean` - Creates the file if it does not exist.  
+  - `truncate?: boolean` - Truncates the file to zero length if it exists.  
+  - `createNew?: boolean` - Creates a new file but fails if it already exists.
+
+### Manipulating Text and Strings
+Whenever possible, use `@std/text` and its related unstable packages to manipulate text.
+
+- Methods in `@std/text`:
+  - [closestString](https://jsr.io/@std/text/doc/~/closestString): Finds the most similar string from an array of strings.
+  - [compareSimilarity](https://jsr.io/@std/text/doc/~/compareSimilarity): Generates a comparator function to determine which of two strings is more similar to a given string.
+  - [levenshteinDistance](https://jsr.io/@std/text/doc/~/levenshteinDistance): Calculates the Levenshtein distance between two strings.
+  - [toCamelCase](https://jsr.io/@std/text/doc/~/toCamelCase): Converts a string into camelCase.
+  - [toKebabCase](https://jsr.io/@std/text/doc/~/toKebabCase): Converts a string into kebab-case.
+  - [toPascalCase](https://jsr.io/@std/text/doc/~/toPascalCase): Converts a string into PascalCase.
+  - [toSnakeCase](https://jsr.io/@std/text/doc/~/toSnakeCase): Converts a string into snake_case.
+  - [wordSimilaritySort](https://jsr.io/@std/text/doc/~/wordSimilaritySort): Sorts an array of strings by similarity to a given string.
+
+- Methods in `@std/text/unstable-reverse`:
+  - [reverse](https://jsr.io/@std/text/doc/~/reverse): Performs a Unicode-aware string reversal.
+
+- Methods in `@std/text/unstable-slugify`:
+  - [slugify](https://jsr.io/@std/text/doc/~/slugify): Converts a string into a slug.
+
+- Methods in `@std/text/unstable-to-constant-case`:
+  - [toConstantCase](https://jsr.io/@std/text/doc/~/toConstantCase): Converts a string into CONSTANT_CASE (also known as SCREAMING_SNAKE_CASE).
+
+- Regular Expressions in `@std/text/unstable-slugify`:
+  - [ASCII_DIACRITICS](https://jsr.io/@std/text/doc/~/ASCII_DIACRITICS): A regular expression for stripping ASCII diacritics (but not other diacritics) from slugs.
+  - [DIACRITICS](https://jsr.io/@std/text/doc/~/DIACRITICS): A regular expression for stripping diacritics from slugs.
+  - [NON_ASCII](https://jsr.io/@std/text/doc/~/NON_ASCII): A regular expression for stripping non-ASCII characters from slugs.
+  - [NON_WORD](https://jsr.io/@std/text/doc/~/NON_WORD): A regular expression for stripping non-word characters from slugs.
+
+### ASCII Color and Formatting
+
+Deno provides the `@std/fmt/colors` module for ANSI color and text styling. Use it to improve log readability.
+
+**Import:**
+```ts
+import { bold, dim, red, cyan, yellow } from "@std/fmt/colors";
 ```
-import cli from "@std/cli"
 
-// For proper use, one should use `parseArgs(Deno.args)`
-cli.parseArgs(["--foo", "--bar=baz", "./deno.txt"], {
-  foo: true,
-  bar: "baz",
-  _: ["./deno.txt"],
-})
-const userSelection = cli.promptSelect("Please select a browser:", ["safari", "chrome", "firefox"], { clear: true })
-
+**Preferred Console Prefixes:**
+```ts
+console.error(red(bold("[ERROR]")), "Message");
+console.debug(dim("[DEBUG]"), "Message");
+console.log(cyan("[LOG]"), "Message");
+console.warn(yellow(bold("[WARN]")), "Message");
 ```
+
+**Guidelines:**
+- Use colors to differentiate log levels.
+- Keep logs structured and easy to read.
+
+### Logging and Printing Objects
+
+#### `Deno.inspect`
+
+- **ALWAYS** use `Deno.inspect()` for logging or printing objects to files or the console.
+- **Preferred Options for `Deno.inspect()`**:
+
+| Option             | Type    | Default | Preferred Value | Reason                                                                 |
+|--------------------|---------|---------|-----------------|------------------------------------------------------------------------|
+| `colors`           | boolean | `false` | `true`          | Enables ANSI colorized output for better CLI readability.              |
+| `compact`          | boolean | `true`  | `false`         | Improves readability by ensuring each entry appears on a new line.     |
+| `depth`            | number  | `4`     | `3`             | Prevents excessive verbosity while maintaining useful detail.          |
+| `breakLength`      | number  | `80`    | `100`           | Reduces excessive wrapping while staying readable.                     |
+| `iterableLimit`    | number  | `100`   | `50`            | Avoids overly large logs while keeping insight useful.                 |
+| `sorted`           | boolean | `false` | `true`          | Makes debugging easier by sorting Object, Set, and Map entries.        |
+| `strAbbreviateSize`| number  | _N/A_   | `200`           | Prevents logs from being flooded with excessively long strings.        |
+
+- **Minimal Example with Only Preferred Overrides**:
+
+```ts
+import { inspect } from "Deno";
+
+const obj = { foo: "bar", nested: { key: "value" } };
+console.log(inspect(obj, {
+  colors: true,
+  compact: false,
+  depth: 3,
+  breakLength: 100,
+  iterableLimit: 50,
+  sorted: true,
+  strAbbreviateSize: 200
+}));
+```
+
+- **Guidelines**:
+  - Use these options **consistently** across the project to maintain readable and structured logging.
+  - Only modify these defaults **if explicitly required** for specific debugging needs.
+
+
+## 7) Understand Scripts, stdio, and Command Line Interfaces (CLI)
+- Use `@std/cli` whenever possible.
+- Avoid legacy methods such as`confirm` unless there is no alternative in `@std/cli`
+- **Methods in `@std/cli`**: `parseOptions`, `parseArgs`, `promptSecret`, `unicodeWidth`, `ProgressBar`, `ProgressBarStream`, `promptMultipleSelect`, `promptSelect`, `Spinner`
+- **Types in `@std/cli`**: , `Args`, `ParseOptions`, `PromptSecretOptions`, `ProgressBarFormatter`, `ProgressBarOptions`, `PromptMultipleSelectOptions`, `PromptSelectOptions`, `SpinnerOptions`, `Color`
+- **Troubleshooting Imports**: Unstable packages are marked`unstable-` and MUST be imported individually for their methods and types:`@std/cli/unstable-prompt-select`,`@std/cli/unstable-prompt-multiple-select`,`@std/cli/unstable-progress-bar`
+- **Logging and Printing Messages**: If a logger or logging module in the codebase doesn't exist, consider using `@std/log` which is a customizable logger framework with support for terminal and file outputs, also providing interfaces for building custom loggers. [@std/log Documentation](https://jsr.io/@std/log/doc)
+
+### Example CLI using `@std/cli` in Deno
+```
+import '@std/dotenv/load' // automatically loads`.env` files into`Deno.env` which can be used to: override commands, provide defaults for commands, decide which commands to run, and context to command messages or other dynamic enhancements to the CLI
+import { parseArgs, promptSelect, type ParseOptions } from '@std/cli'
+
+interface Command {
+  name: string
+  command: (msg: string, values?: string[]) => Promise<string | null>
+  message: string
+  values?: string[]
+  defaultValue?: string
+  handler?: (result: string | null) => unknown
+}
+
+const commands: Command[] = [
+  {
+    name: 'BROWSER_NAME',
+    command: promptSelect,
+    message: 'Select a browser:',
+    values: ['safari', 'chrome', 'firefox'],
+    defaultValue: 'chrome',
+    handler: (result) => console.log('Selected:', result),
+  },
+]
+
+async function runCommands(cmds: Command[]) {
+  // When a command is a prompt to a user in the terminal, it's good practice to not run commands that have a "name" that exists on "Deno.get(name)" and to treat the return value of the env variable as the value you'd expect to return from the user prompting command.
+  for (const cmd of cmds) {
+    let result = await cmd.command(cmd.message, cmd.values)
+    result = result ?? cmd.defaultValue
+    cmd.handler?.(result)
+  }
+}
+
+async function setupCommands(options: ParseOptions) {
+  const parsedArgs = parseArgs(Deno.args, options)
+  console.log('Parsed Args:', parsedArgs)
+  await runCommands(commands)
+}
+
+if (import.meta.main) {
+  setupCommands({ boolean: ['help'], string: ['config'], alias: { h: 'help' } })
+}
+```
+
+## 8) Understand the Extras
 
 ### Module Metadata
 import.meta can provide information on the context of the module.
@@ -226,10 +462,10 @@ The string import.meta.dirname will give you the fully resolved path to the dire
 The import.meta.resolve allows you to resolve specifier relative to the current module. This function takes into account an import map (if one was provided on startup).
 The string Deno.mainModule will give you the URL of the main module entry point, i.e. the module invoked by the deno runtime.
 
-### Formatting
+### Code Formatting
 The Deno CLI comes with a built-in formatter which can be accessed using `deno fmt` but can also be configured to be used by VS Code in ".vscode/settings.json" and adding "editor.defaultFormatter": "denoland.vscode-deno".
 
-### Workspaces and Monorepos
+### Code Workspaces and Monorepos
 Deno supports [Deno Documentation - Workspaces](https:/docs.deno.com/runtime/fundamentals/workspaces), also known as "monorepos", which allow you to manage multiple related and interdependent packages simultaneously. A "workspace" is a collection of folders containing deno.json or deno.jsonc configuration file. The root configuration file defines the workspace:
 ```
 // deno.jsonc
@@ -238,8 +474,8 @@ Deno supports [Deno Documentation - Workspaces](https:/docs.deno.com/runtime/fun
 }
 ```
 
-### Publish JSR Packages With Deno
-A simple Github action that uses `deno publish` on any commits to main:
+### Code Publishing and Releasing
+To publish a JSR packages with Deno there is a simple Github action that uses `deno publish` on any commits to main:
 ```
 # .github/workflows/publish.yml
 
