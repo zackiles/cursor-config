@@ -260,6 +260,8 @@ jobs:
       - uses: actions/checkout@v4
       - run: npx jsr publish
 ```
+- **Badges for README.md:** are available for Deno. See [JSR Documentation - Badges](https://jsr.io/docs/badges).
+- **JSR API:** if needed a full HTTP API is available for interacting with JSR. See [JSR Documentation - API](https://jsr.io/docs/api).
 - **Full Documentation for Deno CLI's `publish` Command:** [Deno CLI Documentation - Publish Command](https://docs.deno.com/runtime/reference/cli/publish/).
   - Flags supported by `deno publish`: --allow-dirty, --allow-slow-types, --dry-run, --no-provenance, --set-version, --token, --config, --no-config, --check, --no-check.
 - **Full Deno Publishing Documentation:** [JSR Documentation - Publishing Packages](https://github.com/jsr-io/jsr/blob/main/frontend/docs/publishing-packages.md).
