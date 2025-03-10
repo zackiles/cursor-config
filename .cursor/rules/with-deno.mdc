@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Deno 2.0 Project Best Practices 
 This project uses the latest Deno 2
-Full documentation for the Deno namespace is at [https://docs.deno.com/api/deno/~/Deno](mdc:https:/docs.deno.com/api/deno/~/Deno). You must adhere to the best practices for Deno.
+Full documentation for the Deno namespace is at [Deno Documentation](https:/docs.deno.com/api/deno/~/Deno). You must adhere to the best practices for Deno.
 
 ## Deno Rules
 ### 1) Prefer Deno Methods
@@ -15,7 +15,7 @@ Full documentation for the Deno namespace is at [https://docs.deno.com/api/deno/
 - **File System**: `Deno.chown`, `Deno.chmod`, `Deno.create`, `Deno.mkdir`, `Deno.realpath`, `Deno.remove`, `Deno.rename`, `Deno.umask`, `Deno.utime`, `Deno.watchFs`, `Deno.writeTextFile`, `Deno.stat`
 - **Networking**: `Deno.connect`, `Deno.connectQuic`, `Deno.connectTls`, `Deno.listen`, `Deno.listenDatagram`, `Deno.listenTls`, `Deno.networkInterfaces`, `Deno.resolveDns`, `Deno.startTls`
 - **Runtime**: `Deno.addSignalListener`, `Deno.bench`, `Deno.chdir`, `Deno.chmod`, `Deno.chmodSync`, `Deno.chown`, `Deno.chownSync`, `Deno.consoleSize`, `Deno.copyFile`, `Deno.copyFileSync`, `Deno.create`, `Deno.createHttpClient`, `Deno.createSync`, `Deno.cron`, `Deno.cwd`, `Deno.dlopen`, `Deno.execPath`, `Deno.exit`, `Deno.gid`, `Deno.hostname`, `Deno.inspect`, `Deno.kill`, `Deno.link`, `Deno.linkSync`, `Deno.loadavg`, `Deno.lstat`, `Deno.lstatSync`, `Deno.makeTempDir`, `Deno.makeTempDirSync`, `Deno.makeTempFile`, `Deno.makeTempFileSync`, `Deno.memoryUsage`, `Deno.mkdir`, `Deno.mkdirSync`, `Deno.open`, `Deno.openKv`, `Deno.openSync`, `Deno.osRelease`, `Deno.osUptime`, `Deno.refTimer`, `Deno.removeSignalListener`, `Deno.startTls`, `Deno.stat`, `Deno.statSync`, `Deno.systemMemoryInfo`, `Deno.uid`, `Deno.unrefTimer`, `Deno.utime`, `Deno.utimeSync`, `Deno.version` 
-- **Process and Commands**: CRITICAL: ALWAYS USE `Deno.command`. There is also `Deno.ChildProcess`. [Full documentation can be found here](mdc:https:/docs.deno.com/api/deno/~/Deno.Command)
+- **Process and Commands**: CRITICAL: ALWAYS USE `Deno.command`. There is also `Deno.ChildProcess`. [Deno Documentation - Deno.command](https:/docs.deno.com/api/deno/~/Deno.Command)
 
 
 ### 2) Prefer `@std` Libraries
@@ -60,17 +60,17 @@ export default {
   },
 } satisfies Deno.ServeDefaultExport;
 ```
-[Full documentation on Deno.serve](mdc:https:/docs.deno.com/runtime/fundamentals/http_server)
+[Full documentation on Deno.serve](https:/docs.deno.com/runtime/fundamentals/http_server)
 
 ### Deno Native APIs
-[Full documentation of Deno Native APIs](mdc:https:/docs.deno.com/api/deno/~/Deno).
+[Full documentation of Deno Native APIs](https:/docs.deno.com/api/deno/~/Deno).
 
 #### Example Deno Native API Classes
 Deno.AtomicOperation, Deno.ChildProcess, Deno.Command, Deno.FsFile, Deno.HttpClient, Deno.Kv, Deno.KvListIterator, Deno.KvU64, Deno.Permissions, Deno.PermissionStatus, Deno.QuicEndpoint, Deno.UnsafeCallback, Deno.UnsafeFnPointer, Deno.UnsafePointer, Deno.UnsafePointerView, Deno.UnsafeWindowSurface
 
 
 ### Web APIs
-[Full documentation of Deno Web APIs](mdc:https:/docs.deno.com/api/web).
+[Full documentation of Deno Web APIs](https:/docs.deno.com/api/web).
 
 #### Supported Web APIs:
 AbortController, AbortSignal, addEventListener, atob, Blob, btoa, BroadcastChannel, caches, CacheStorage, clearInterval, clearTimeout, console, createImageBitmap, crypto, Crypto, CryptoKey, CustomEvent, DOMException, ErrorEvent, Event, EventSource, EventTarget, fetch, File, FileReader, FormData, Headers, localStorage, location, MessageChannel, MessageEvent, MessagePort, navigator, offscreenCanvas, Performance, performance, removeEventListener, Request, Response, setInterval, setTimeout, Storage, TextDecoder, TextEncoder, URL, URLSearchParams, WebSocket, Worker, WritableStream, ReadableStream, TransformStream, XMLHttpRequest
@@ -110,7 +110,7 @@ Deno.test("database operations", async (t) => {
 })
 ```
 
-### Filter Tests with Test Steps
+### Deno Filter Tests with Test Steps
 Deno allows you to run specific tests or groups of tests using the --filter option on the command line. This option accepts either a string or a pattern to match test names. Filtering does not affect steps; if a test name matches the filter, all of its steps are executed. Example:
 
 ```
@@ -147,8 +147,8 @@ deno test --reporter=dot
 deno test --reporter=junit
 ```
 
-### Mocking Spying and Complicated Testing
-Must use [@std/testing](mdc:https:/jsr.io/@std/testing/doc)
+### Mocking Spying and Complicated Testing in Deno
+Must use [@std/testing](https:/jsr.io/@std/testing/doc)
 ```
 import { describe, it } from "@std/testing/bdd"
 import { assertEquals } from "@std/assert"
@@ -166,7 +166,7 @@ greetSpy()
 assertSpyCalls(greetSpy, 1)
 ```
 
-### Documentation Tests
+### Deno Testing and Linting Documentation
 Deno supports both type-checking evaluating your documentation examples. This makes sure that examples within your documentation are up to date and working.
 
 #### Example
@@ -230,13 +230,51 @@ The string Deno.mainModule will give you the URL of the main module entry point,
 The Deno CLI comes with a built-in formatter which can be accessed using `deno fmt` but can also be configured to be used by VS Code in ".vscode/settings.json" and adding "editor.defaultFormatter": "denoland.vscode-deno".
 
 ### Workspaces and Monorepos
-Deno supports [workspaces](mdc:https:/docs.deno.com/runtime/fundamentals/workspaces), also known as "monorepos", which allow you to manage multiple related and interdependent packages simultaneously. A "workspace" is a collection of folders containing deno.json or deno.jsonc configuration file. The root configuration file defines the workspace:
+Deno supports [Deno Documentation - Workspaces](https:/docs.deno.com/runtime/fundamentals/workspaces), also known as "monorepos", which allow you to manage multiple related and interdependent packages simultaneously. A "workspace" is a collection of folders containing deno.json or deno.jsonc configuration file. The root configuration file defines the workspace:
 ```
 // deno.jsonc
 {
   "workspace": ["./add", "./subtract"]
 }
 ```
+
+### Publish JSR Packages With Deno
+A simple Github action that uses `deno publish` on any commits to main:
+```
+# .github/workflows/publish.yml
+
+name: Publish
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # The OIDC ID token is used for authentication with JSR.
+    steps:
+      - uses: actions/checkout@v4
+      - run: npx jsr publish
+```
+- **Full Documentation for Deno CLI's `publish` Command:** [Deno CLI Documentation - Publish Command](https://docs.deno.com/runtime/reference/cli/publish/).
+  - Flags supported by `deno publish`: --allow-dirty, --allow-slow-types, --dry-run, --no-provenance, --set-version, --token, --config, --no-config, --check, --no-check.
+- **Full Deno Publishing Documentation:** [JSR Documentation - Publishing Packages](https://github.com/jsr-io/jsr/blob/main/frontend/docs/publishing-packages.md).
+  - A `jsr.json` is optional and a simple `deno.json` or `deno.jsonc` will suffice if `jsr.json` doesn't exist.
+
+### Building and Testing With Deno Docker Image
+When absoloutely needed or if the user requests it, a Docker image is available for Deno that is maintained by the docker team. More info can be found at: [https://hub.docker.com/r/denoland/deno](https://hub.docker.com/r/denoland/deno)
+
+- **Start Deno REPL**: `docker run -it denoland/deno:2.2.3 repl`  
+- **Shell into the Deno container**: `docker run -it denoland/deno:2.2.3 sh`  
+- **Run `main.ts` from the working directory**: `docker run -it -p 1993:1993 -v $PWD:/app denoland/deno:2.2.3 run --allow-net /app/main.ts`  
+  - `-p 1993:1993` maps port `1993` from container to host  
+  - `-v $PWD:/app` mounts host working directory to `/app` in container  
+  - `--allow-net /app/main.ts` grants network access and runs `main.ts`
+- **Note On Docker User**: Dockerfiles provide a USER deno and DENO_DIR is set to /deno-dir/ (which can be overridden).
 
 ### Compiler Options / Typescript Options
 `deno.json` or `deno.jsonc` configuration files can specify a `compilerOptions`. The full possible list of compiler options someone could choose are:
