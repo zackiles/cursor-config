@@ -1,5 +1,9 @@
 # cursor-config
-My opinionated [Cursor Rules](https://docs.cursor.com/context/rules-for-ai). For now these only support backend Javascript/Typescript work (Sorry my React/Golang crew).
+
+My opinionated [Cursor Rules](https://docs.cursor.com/context/rules-for-ai) and general Cursor configuration. For now these only support backend Javascript/Typescript work (Sorry my React/Golang crew).
+
+> [!NOTE]  
+> Checkout [How Cursor Rules Work](how-cursor-rules-work.md) for an undocumented deep-dive on how Cursor uses them internally.
 
 ## How to Use Rules
 
