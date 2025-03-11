@@ -1,102 +1,59 @@
-# cursor-config
+# **zackiles/cursor-config**
 
-My opinionated [Cursor Rules](https://docs.cursor.com/context/rules-for-ai) and general Cursor configuration. For now these only support backend Javascript/Typescript work (Sorry my React/Golang crew).
+An opinionated set of modern [Cursor Rules](https://docs.cursor.com/context/rules-for-ai) and general Cursor configuration. Battle-tested and leveraging best practices of prompt design. Optimized for agent-mode.
 
 > [!NOTE]  
 > Checkout [How Cursor Rules Work](how-cursor-rules-work.md) for an undocumented deep-dive on how Cursor uses them internally.
 
-## How to Use Rules
+## **How To Use These Rules**
 
-1. Copy the global rules from `./RULES_FOR_AI.md` into your **Cursor Settings**.
-2. For new projects, copy the entire `.cursor` folder into the root of your project’s workspace in Cursor. Once moved, they'll be detected in your **Cursor Settings**. You can also edit the actual rules in the `.mdc` rule files in `./cursor/rules/file.mdc` or add your own as you wish. These files are written in [MDC Syntax](https://github.com/nuxt-modules/mdc) and can be edited in a regular text editor or within Cursor for an enhanced MDC editing experience.
-3. Read more on [Cursor's Documentation](https://docs.cursor.com/context/rules-for-ai) or check out community-contributed rules on the [cursor.directory](https://cursor.directory/).
-4. Global rules apply to all chats. However, for the rules in `.cursor/rules`, they will either:  
-   - **Have a glob specified** and will run automatically any time the glob is detected for a file in its context window.  
-   - **Have no glob specified**, in which case the rule will only run when triggered manually in your chats and prompts using the [@ command](https://docs.cursor.com/context/@-symbols/basic).
+Run the following command in the root of the project you want to install to the rules to. If you have similar name rules they will not be overwritten.
 
-## Available @ Rules
-
-All rules can be triggered using the @ command, though some activate automatically based on configuration in `RULES_FOR_AI.md` or when relevant files are added to the chat that match the rule's glob pattern.
-
-## 1. Development and Code Generation
-
-General purpose and frequently used rules for code generation. Battle tested, and frequently updated. Can be added anywhere in the prompt, or added to the end. Can be used in Agent or Chat mode
-
-| Rule | Trigger Type | Description |
-|------|--------------|-------------|
-| **`with-javascript.mdc`** | Semi-Manual | Enforces coding standards for JavaScript/TypeScript files. Applies to `.js` or `.ts` files, promoting best practices in naming, syntax, and documentation. |
-| **`with-javascript-vibe.mdc`** | Manual | Alternative to standard JS rules for "bleeding edge" coding styles. *Use with caution.* |
-| **`with-deno.md`** | Semi-Manual | Provides Deno 2-specific best practices from official documentation. Triggers manually or when a `deno.json{c}` file was added to the context. |
-| **`with-mcp.md`** | Semi-Manual | Provides context on the [Model Context Protocol](https://spec.modelcontextprotocol.io/specification/draft/) for writing MCP Servers using the MCP Typescript SDK. See: [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk/tree/main). Triggers manually or when a `mcp-schema.json` file was added to the context. |
-| **`create-mcp-server.md`** | Semi-Manual | Prompts the AI to generate a complete [Model Context Protocol](https://spec.modelcontextprotocol.io/specification/draft/) server using the MCP Typescript SDK. See: [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk/tree/main). You can provide your own instructions along with the prompt. Triggers manually or when a `mcp-schema.json` file was added to the context. |
-| **`finalize.mdc`** | Semi-Automatic | Ensures the AI fully completes it's previous work. Outlines cleanup steps after code generation or modifications to ensure the changes they made to the codebase are clean, functional, free of dead-code, and well-documented. Great to use after every code-generation prompt to help the AI close out any loose ends and double check their last changes were implemented properly. I personally use this one a LOT. Does not need additional context provided. |
-
-## 2. Testing and Debugging
-
-These rules are best to add at the end of your message to provide additional context in Agent mode.
-
-| Rule | Trigger Type | Description |
-|------|--------------|-------------|
-| **`create-tests.mdc`** | Semi-Manual | Guidelines for creating effective tests, emphasizing simplicity, locality, and reusability. Triggers manually or automatically when a file in the format `*.test.{js/ts}` has been added to the context. |
-| **`with-tests.mdc`** | Manual | Procedures for chatting about and analyzing your tests as well as running tests. Triggers manually or automatically when a file in the format `*.test.{js/ts}` has been added to the context. |
-| **`recover.mdc`** | Manual | Steps to take when facing persistent errors. Configured to be recommended by the model when appropriate, otherwise triggers manually. |
-
-### 2.1 Examples
-
-Here's an entire workflow to write tests, run them, and then recover if the test writing goes wrong:
-
-1 ) Write the tests (Agent Mode):
-
-```text
-"Add a new test to ensure graceful shutdown. @create-tests"
+```bash
+curl -fsSL https://raw.githubusercontent.com/zacharyiles/cursor-config/main/install.sh | bash
 ```
 
-2 ) Run the tests (Agent Mode):
+That's it! The rules will be automatically detected by Cursor and the [documentation for the rules](CURSOR-RULES.md) will be written to your project root for reference. If you ever want to update the rules, simply run the install script again.
 
-```text
-"Great tests. Now run them and debug any errors in the output. @with-tests"
-```
+## Available Rules
 
-3 ) Run the tests (Agent Mode):
+The following rules are available: `with-javascript`, `with-javascript-vibe`, `with-deno`, `with-mcp`, `create-mcp-server`, `finalize`, `create-tests`, `with-tests`, `recover`, `prepare`, `propose`, `create-prompt`
 
-```text
-"You keep introducing errors into the tests! @recover"
-```
+> [!NOTE]  
+> For full documentation and examples for each of these rules see [CURSOR-RULES.md](CURSOR-RULES.md).
 
-## 3. Planning and Documentation
+## Editing Rules
 
-These rules are for Chat mode only, and are best added at the end of your message to provide additional context.
+Rules are written in [MDC Syntax](https://github.com/nuxt-modules/mdc) and can be edited in a regular text editor or within Cursor for an enhanced MDC editing experience. They're stored in `./cursor/rules/*.mdc`.
 
-| Rule | Trigger Type | Description |
-|------|--------------|-------------|
-| **`prepare.md`** | Manual | Prompts the model to perform thorough research and preparation before making changes to maintain code cohesiveness. |
-| **`propose.md`** | Manual | Structures brainstorming sessions and question-answering without direct code changes. Results can be exported via @summary or implemented in composer mode. |
-| **`create-prompt.mdc`** | Semi-Automatic | Guidelines for creating comprehensive AI prompts with clear objectives and examples. Activates when prompt generation is requested. |
+Read more on [Cursor's Documentation](https://docs.cursor.com/context/rules-for-ai) or check out community-contributed rules on the [cursor.directory](https://cursor.directory/).
 
-### 3.1 Examples
+## Manual vs Automatic Rules
 
-Here's an entire workflow to plan an implement a big sweeping change!
+Automatic rules apply to all chats. However, for the rules in `.cursor/rules`, they will either:  
 
-1 ) Plan a great proposal first, and iron out the details. Combine `@prepare` with `@create-prompt` if you want for the best proposal:
+- **Have a glob specified** and will run automatically any time the glob is detected for a file in its context window.  
+- **Have no glob specified**, in which case the rule will only run when triggered manually in your chats and prompts using the [@ command](https://docs.cursor.com/context/@-symbols/basic).
 
-```text
-"Review the files I've shared and write a proposal to refactor the code to be more DRY. @propose @prepare"
-```
+## Other Configurations In This Project
 
-2 ) Then after the proposal looks good:
+### Cursor Global Prompt (Optional)
 
-```text
-"Great proposal, now and generate a prompt to implement it. @create-prompt"
-```
+The file [CURSOR-GLOBAL-PROMPT.md](CURSOR-GLOBAL-PROMPT.md) can be copy and pasted directly into the `User Rules` box in `Cursor Settings -> Rules`. Anything placed there acts as the global prompt/rule applied to all interactions with the agent. It's a great place to set broad rules and context, especially to provide guidance on how to use the rules themselves found in `.cursor/rules`.
 
----
+[CURSOR-GLOBAL-PROMPT.md](CURSOR-GLOBAL-PROMPT.md) is optimized to work best with the rules provided, but it's optional if you want to add it or not to your Cursor settings.
 
-## .cursorignore & .cursorindexignore
+### .cursorignore & .cursorindexignore
 
-**NOTE:** I've provided my example `.cursorignore` and `.cursorignoreindex` files. They illustrate that I typically ignore many files that are documentation or configuration unless they're prefixed with "AI-". Instead, when needed, I'll manually specify those files or folders when needed. That way, by default, I don't pollute Cursor’s [index](https://docs.cursor.com/context/codebase-indexing) or the model's context window in quick chats or prompts with the contents of every single file in the codebase. It has the side benefit of not confusing the model if it accidentally includes outdated markdown documentation that describes the codebase differently than it currently is (a real pain to debug). Those files can always be manually included in a Cursor chat using `@` commands if really needed.
+I've provided my example `.cursorignore` and `.cursorignoreindex` files. They illustrate that I typically ignore many files that are documentation or configuration unless they're prefixed with "AI-". Instead, when needed, I'll manually specify those files or folders when needed. That way, by default, I don't pollute Cursor's [index](https://docs.cursor.com/context/codebase-indexing) or the model's context window in quick chats or prompts with the contents of every single file in the codebase. It has the side benefit of not confusing the model if it accidentally includes outdated markdown documentation that describes the codebase differently than it currently is (a real pain to debug). Those files can always be manually included in a Cursor chat using `@` commands if really needed.
 
-### Differences
+#### Differences
 
 **.cursorignore:** For completely ignoring files in cursor. Note: things in `.gitignore` are already automatically ignored. I'll often use this to temporarily ignore files that might confused the AI based on work I'm doing. 
 
 **.cursorignoreindex:** For files you want available to cursor, but only when manually provided to it. These files will NOT be indexed. Note: things in `.gitignore` are already automatically ignored. I'll often use this to not index code that may confused the AI unless I provide it manually with specific context, such as a large schema file or random project notes and documentation. A typical file you'll want to ignore is lock files.
+
+## TODO
+
+- Add general purpose MCP servers
+- Add AI docs to be used with Cursors `@doc` system. See [Cursor @Docs](https://docs.cursor.com/context/@-symbols/@-docs).
