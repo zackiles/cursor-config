@@ -57,6 +57,7 @@ These rules are for Chat mode only, and are best added at the end of your messag
 |------|--------------|-------------|
 | **`prepare.md`** | Manual | Prompts the model to perform thorough research and preparation before making changes to maintain code cohesiveness. |
 | **`propose.md`** | Manual | Structures brainstorming sessions and question-answering without direct code changes. Results can be exported via @summary or implemented in composer mode. |
+| **`create-commit-message.mdc`** | Semi-Automatic | Enforces the [conventional-commit](https://www.conventionalcommits.org/en/v1.0.0/) standard of commit messages in Agent mode. |
 | **`create-prompt.mdc`** | Semi-Automatic | Guidelines for creating comprehensive AI prompts with clear objectives and examples. Activates when prompt generation is requested. |
 
 ### 3.1 Examples
