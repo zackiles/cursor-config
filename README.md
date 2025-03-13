@@ -1,6 +1,6 @@
 # **zackiles/cursor-config**
 
-An opinionated set of modern [Cursor Rules](https://docs.cursor.com/context/rules-for-ai) and general Cursor configuration. Battle-tested and leveraging best practices of prompt design. Optimized for agent-mode.
+An opinionated suite of general-purpose, and modern [Cursor Rules](https://docs.cursor.com/context/rules-for-ai) as well as global Cursor configuration that compliments these rules. Battle-tested and leverages best practices of prompt design. Optimized for agent-mode.
 
 > [!NOTE]  
 > Checkout [How Cursor Rules Work](how-cursor-rules-work.md) for an undocumented deep-dive on how Cursor uses them internally.
@@ -17,7 +17,7 @@ That's it! The rules will be automatically detected by Cursor and the [documenta
 
 ## Available Rules
 
-The following rules are available: `with-javascript`, `with-javascript-vibe`, `with-deno`, `with-mcp`, `create-mcp-server`, `finalize`, `create-tests`, `with-tests`, `recover`, `prepare`, `propose`, `create-prompt`
+The following rules are available: `with-javascript`, `with-javascript-vibe`, `with-deno`, `with-mcp`, `create-mcp-server`, `finalize`, `create-tests`, `with-tests`, `create-commit-message`, `recover`, `prepare`, `propose`, `create-prompt`
 
 > [!NOTE]  
 > For full documentation and examples for each of these rules see [CURSOR-RULES.md](CURSOR-RULES.md).
