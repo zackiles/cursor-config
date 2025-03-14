@@ -16,7 +16,7 @@ TMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 # GitHub raw content base URL
-REPO_URL="https://raw.githubusercontent.com/zacharyiles/cursor-config/main"
+REPO_URL="https://raw.githubusercontent.com/zackiles/cursor-config/main"
 
 # Download CURSOR-RULES.md
 echo "Downloading CURSOR-RULES.md..."
@@ -45,8 +45,10 @@ download_rule() {
 
 # List of rule files to download
 RULE_FILES=(
+    "create-commit-message.mdc"
     "create-mcp-server.mdc"
     "create-prompt.mdc"
+    "create-release.mdc"
     "create-tests.mdc"
     "finalize.mdc"
     "prepare.mdc"
