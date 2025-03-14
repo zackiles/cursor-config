@@ -1,0 +1,43 @@
+---
+description: Releasing and publishing new versions of Javascript packages
+globs: 
+alwaysApply: false
+---
+## **Task**  
+You will analyze the codebase and plan how to release or publish a new version of this package or module, and then execute that plan. To do so, you will follow all of the steps bellow.
+
+---
+
+## **Steps**
+
+### Analyze Codebase
+1) Run `git` commands to understand which branch is checked out, whether the main branch is named `main` or `master`, if the working directory is clean or has uncommitted changes, how far ahead or behind we are from `main`, and what the local git config/custom git options are.  
+2) If GitHub info is accessible (via CLI or other tools), check whether there is an open pull request for this branch and how local commits diverge from the remote repository.  
+3) Look in `.github/workflows` to see which release steps occur locally vs remotely (e.g., GitHub Actions).  
+4) Grep for package files (`deno.json`, `deno.jsonc`, `package.json`, `package.jsonc`, `jsr.json`, `jsr.jsonc`) to identify package name, version, publish registries, and any release tools (semantic-release, changesets, husky).  
+5) Inspect `.git/` hooks to find any configured release processes or commit checks.  
+6) Grep for markdown documents (`README.md`, `AI-README.md`, `CONTRIBUTING.md`, `AI-CONTRIBUTING.md`, `CONTRIBUTORS.md`, `AI-CONTRIBUTORS.md`, `CHANGELOG.md`, `AI-CHANGELOG.md`) that may contain instructions for releasing/publishing.  
+7) Compare the local version to the latest published version on any registry this package uses.  
+8) Check the latest GitHub tag/release to see if it’s ahead or behind the local version.
+
+### Plan the Steps Needed to Release
+1) Determine if you’re on `main` or a feature branch; if on a feature branch, confirm whether it already exists on the remote.  
+2) Check for unstaged changes and stage them if necessary.  
+3) If behind `main`, decide whether to fetch and rebase or merge.  
+4) Commit any uncommitted changes using a format consistent with the codebase’s commit-message rules (fallback is `@create-commit-message.mdc` if unknown).  
+5) If a version bump is required, confirm where (e.g., package file) and when (before or after any new commit).  
+6) On the main branch, you may need to push tags to trigger a release or push the feature branch for a pull request if you’re not on main.  
+7) Distinguish which tasks should happen locally vs which are automated by CI/CD or GitHub Actions.  
+8) If conflicting info or uncertainty arises, stop to ask the user for direction.
+
+### Execute Steps
+Carry out each required action or, if something is needed from the user, prompt them and resume once they respond. Finally, confirm the release info: the updated version, any relevant commits and branches, the GitHub URL, and the registries to which the package is published.
+
+---
+
+## **General Notes**
+- Avoid destructive operations that could lose work (no forced resets or branch deletions).  
+- Combine or chain commands where possible, minimizing unnecessary calls to tools.  
+- Adhere to branch naming policies and commit message linting rules.  
+- If the release process requires manual steps or is triggered by merging a pull request into `main`, clearly instruct the user to open a PR and merge it as needed.  
+- If any instructions conflict, ask the user for clarification before proceeding.

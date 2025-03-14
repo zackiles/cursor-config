@@ -10,12 +10,13 @@ General purpose and frequently used rules for code generation. Battle tested, an
 
 | Rule | Trigger Type | Description |
 |------|--------------|-------------|
-| **`with-javascript.mdc`** | Semi-Manual | Enforces coding standards for JavaScript/TypeScript files. Applies to `.js` or `.ts` files, promoting best practices in naming, syntax, and documentation. |
-| **`with-javascript-vibe.mdc`** | Manual | Alternative to standard JS rules for "bleeding edge" coding styles. *Use with caution.* |
-| **`with-deno.md`** | Semi-Manual | Provides Deno 2-specific best practices from official documentation. Triggers manually or when a `deno.json{c}` file was added to the context. |
-| **`with-mcp.md`** | Semi-Manual | Provides context on the [Model Context Protocol](https://spec.modelcontextprotocol.io/specification/draft/) for writing MCP Servers using the MCP Typescript SDK. See: [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk/tree/main). Triggers manually or when a `mcp-schema.json` file was added to the context. |
-| **`create-mcp-server.md`** | Semi-Manual | Prompts the AI to generate a complete [Model Context Protocol](https://spec.modelcontextprotocol.io/specification/draft/) server using the MCP Typescript SDK. See: [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk/tree/main). You can provide your own instructions along with the prompt. Triggers manually or when a `mcp-schema.json` file was added to the context. |
-| **`finalize.mdc`** | Semi-Automatic | Ensures the AI fully completes it's previous work. Outlines cleanup steps after code generation or modifications to ensure the changes they made to the codebase are clean, functional, free of dead-code, and well-documented. Great to use after every code-generation prompt to help the AI close out any loose ends and double check their last changes were implemented properly. I personally use this one a LOT. Does not need additional context provided. |
+| **`[with-javascript.mdc](https://github.com/zackiles/cursor-config/tree/main/.cursor/rules/with-javascript.mdc)`** | Semi-Manual | Enforces coding standards for JavaScript/TypeScript files. Applies to `.js` or `.ts` files, promoting best practices in naming, syntax, and documentation. |
+| **`[with-javascript-vibe.mdc](https://github.com/zackiles/cursor-config/tree/main/.cursor/rules/with-javascript-vibe.mdc)`** | Manual | Alternative to standard JS rules for "bleeding edge" coding styles. *Use with caution.* |
+| **`[with-deno.md](https://github.com/zackiles/cursor-config/tree/main/.cursor/rules/with-deno.md)`** | Semi-Manual | Provides Deno 2-specific best practices from official documentation. Triggers manually or when a `deno.json{c}` file was added to the context. |
+| **`[with-mcp.md](https://github.com/zackiles/cursor-config/tree/main/.cursor/rules/with-mcp.md)`** | Semi-Manual | Provides context on the [Model Context Protocol](https://spec.modelcontextprotocol.io/specification/draft/) for writing MCP Servers using the MCP Typescript SDK. See: [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk/tree/main). Triggers manually or when a `mcp-schema.json` file was added to the context. |
+| **`[create-mcp-server.md](https://github.com/zackiles/cursor-config/tree/main/.cursor/rules/create-mcp-server.md)`** | Semi-Manual | Prompts the AI to generate a complete [Model Context Protocol](https://spec.modelcontextprotocol.io/specification/draft/) server using the MCP Typescript SDK. See: [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk/tree/main). You can provide your own instructions along with the prompt. Triggers manually or when a `mcp-schema.json` file was added to the context. |
+| **`[create-release.md](https://github.com/zackiles/cursor-config/tree/main/.cursor/rules/create-release.md)`** | Manual | Intelligently handles almost everything needed to release a package or module for a Javascript project. Handles version bumps, documentation and changelog updates, branching, commit message formatting, pushing and tagging etc. Supports npm and JSR registries and will compliment existing CI/CD setups. |
+| **`[finalize.mdc](https://github.com/zackiles/cursor-config/tree/main/.cursor/rules/finalize.mdc)`** | Semi-Automatic | Ensures the AI fully completes it's previous work. Outlines cleanup steps after code generation or modifications to ensure the changes they made to the codebase are clean, functional, free of dead-code, and well-documented. Great to use after every code-generation prompt to help the AI close out any loose ends and double check their last changes were implemented properly. I personally use this one a LOT. Does not need additional context provided. |
 
 ## 2. Testing and Debugging
 
@@ -23,9 +24,9 @@ These rules are best to add at the end of your message to provide additional con
 
 | Rule | Trigger Type | Description |
 |------|--------------|-------------|
-| **`create-tests.mdc`** | Semi-Manual | Guidelines for creating effective tests, emphasizing simplicity, locality, and reusability. Triggers manually or automatically when a file in the format `*.test.{js/ts}` has been added to the context. |
-| **`with-tests.mdc`** | Manual | Procedures for chatting about and analyzing your tests as well as running tests. Triggers manually or automatically when a file in the format `*.test.{js/ts}` has been added to the context. |
-| **`recover.mdc`** | Manual | Steps to take when facing persistent errors. Configured to be recommended by the model when appropriate, otherwise triggers manually. |
+| **`[create-tests.mdc](https://github.com/zackiles/cursor-config/tree/main/.cursor/rules/create-tests.mdc)`** | Semi-Manual | Guidelines for creating effective tests, emphasizing simplicity, locality, and reusability. Triggers manually or automatically when a file in the format `*.test.{js/ts}` has been added to the context. |
+| **`[with-tests.mdc](https://github.com/zackiles/cursor-config/tree/main/.cursor/rules/with-tests.mdc)`** | Manual | Procedures for chatting about and analyzing your tests as well as running tests. Triggers manually or automatically when a file in the format `*.test.{js/ts}` has been added to the context. |
+| **`[recover.mdc](https://github.com/zackiles/cursor-config/tree/main/.cursor/rules/recover.mdc)`** | Manual | Steps to take when facing persistent errors. Configured to be recommended by the model when appropriate, otherwise triggers manually. |
 
 ### 2.1 Examples
 
@@ -55,10 +56,9 @@ These rules are for Chat mode only, and are best added at the end of your messag
 
 | Rule | Trigger Type | Description |
 |------|--------------|-------------|
-| **`prepare.md`** | Manual | Prompts the model to perform thorough research and preparation before making changes to maintain code cohesiveness. |
-| **`propose.md`** | Manual | Structures brainstorming sessions and question-answering without direct code changes. Results can be exported via @summary or implemented in composer mode. |
-| **`create-commit-message.mdc`** | Semi-Automatic | Enforces the [conventional-commit](https://www.conventionalcommits.org/en/v1.0.0/) standard of commit messages in Agent mode. |
-| **`create-prompt.mdc`** | Semi-Automatic | Guidelines for creating comprehensive AI prompts with clear objectives and examples. Activates when prompt generation is requested. |
+| **`[prepare.md](https://github.com/zackiles/cursor-config/tree/main/.cursor/rules/prepare.md)`** | Manual | Prompts the model to perform thorough research and preparation before making changes to maintain code cohesiveness. |
+| **`[propose.md](https://github.com/zackiles/cursor-config/tree/main/.cursor/rules/propose.md)`** | Manual | Structures brainstorming sessions and question-answering without direct code changes. Results can be exported via @summary or implemented in composer mode. |
+| **`[create-prompt.mdc](https://github.com/zackiles/cursor-config/tree/main/.cursor/rules/create-prompt.mdc)`** | Semi-Automatic | Guidelines for creating comprehensive AI prompts with clear objectives and examples. Activates when prompt generation is requested. |
 
 ### 3.1 Examples
 

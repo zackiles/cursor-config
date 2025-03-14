@@ -17,7 +17,7 @@ That's it! The rules will be automatically detected by Cursor and the [documenta
 
 ## Available Rules
 
-The following rules are available: `with-javascript`, `with-javascript-vibe`, `with-deno`, `with-mcp`, `create-mcp-server`, `finalize`, `create-tests`, `with-tests`, `create-commit-message`, `recover`, `prepare`, `propose`, `create-prompt`
+**The following rules are available**: `with-deno`, `with-javascript`, `with-javascript-vibe`, `with-mcp`, `with-tests`, `create-mcp-server`, `create-prompt`, `create-release`, `create-tests`, `finalize`, `prepare`, `propose`, `recover`
 
 > [!NOTE]  
 > For full documentation and examples for each of these rules see [CURSOR-RULES.md](CURSOR-RULES.md).
