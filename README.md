@@ -10,7 +10,7 @@ An opinionated suite of general-purpose, and modern [Cursor Rules](https://docs.
 Run the following command in the root of the project you want to install to the rules to. If you have similar name rules they will not be overwritten.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zacharyiles/cursor-config/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/zackiles/cursor-config/main/install.sh | bash
 ```
 
 That's it! The rules will be automatically detected by Cursor and the [documentation for the rules](CURSOR-RULES.md) will be written to your project root for reference. If you ever want to update the rules, simply run the install script again.
