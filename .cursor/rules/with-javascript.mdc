@@ -144,3 +144,81 @@ this.on('some action', eventHandler)
 - Employ structured logging (e.g., JSON-based logs) to facilitate clear and consistent log management.
 - Enable stack traces for detailed error reporting during development.
 - Limit logging in production to critical events to avoid performance degradation.
+
+
+## Writing and Writing Code For Readability, Cleanliness, and Maintainability
+- Review all lines of code you've edited or will be editing or generating to ensure all the rules mentioned to you below are applied.
+- When rewriting previous code, also apply these rules while ensuring the overall coding standards of this codebase are maintained if these rules conflict with the current standard.
+
+### Rules for Clean Code
+
+- Always try to reduce the amount of code or lines of code needed to do the same thing
+- If multiple variables are required and shared in a method or module, consider grouping them into logcal objects and hoisting them so they can be accessed, instead of declaring multiple variables over several lines of code. This will ensure less code is needed to do the same thing.
+- Avoid repeated or deeply nested try/catch or if/else blocks inside module or class methods. Instead find ways to compose the code in more a more functional manner such as chaining or hoisting nested arrow functions within methods so that it improves readability, reduces the amount of code needed to do accomplish what we need, and reduces deep nesting inside module or class methods.
+- When refactoring, find alternative solutions, patterns, methods and code that can be used instead of the current code that would reduce the total amount of code or lines of code if it was used instead. Always look to redopportunities to 
+- Only define large multi-line strings at the top of files instead of inside methods.
+- Define important static variables and configuration at the highest points reasonable to their scope, such as the top of the method or the top of a class or file (but after imported or module jsdoc descriptions).
+
+### Rules for Maintainable Code
+- **Keep similar code together**: Function callers and callees should be kept close.
+- **Scrutinize inline comments**: Keep only the most well-written and useful inline comments. Review previews comments for accuracy and usefullness. Only comment things that have business logic complexity. Comments are an apology for difficult to understand code, not a requirement. Good code mostly documents itself.
+- Export only the methods of a module that will be used by other modules unless you've been asked to export them or another file relies on them.
+- Methods of a class are private by default unless it's obvious they'd need to be used by consumers.
+- If your class/object name tells you something, don't repeat that in your variable name. Don't add uneeded context. For example, if a class is named `Car`, don't add a variable to it named `Car.carHorn`, instead use just `Car.horn`.
+- Use default parameters instead of short circuiting or conditionals.
+- **Function arguments**: use two or fewer ideally. If many arguments are required consider using one or two arguments that contain multiple arguments inside them. Examples: GOOD `function create({data: 'hello'}, options = {})`, BAD `function create (data, name, time, options)`
+- Remove duplicate or reptitive code by consolidating.
+- Remove dead code. If something is not being used remove it or comment it out if you think removing it might break something or frustrate the user.
+- **Open/Closed Principle (OCP)**: software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification
+- **Liskov Substitution Principle (LSP)**: If S is a subtype of T, then objects of type T may be replaced with objects of type S (i.e., objects of type S may substitute objects of type T) without altering any of the desirable properties of that program (correctness, task performed, etc.).
+- **Interface Segregation Principle (ISP)**: Clients should not be forced to depend upon interfaces that they do not use. Interfaces are implicit contracts in JavaScript because of duck typing. An example if ISP: not requiring clients to setup huge amounts of options is beneficial, because most of the time they won't need all of the settings. Making them optional helps prevent having a "fat interface".
+
+### Rules for Readable Code
+Simple, compact, and elegant code is easier for the reader to read as it doesn't force them to scroll or read many lines of the code to understand what's going on. Some examples:
+
+- Use arrow functions for concise callbacks and implicit returns:  
+  ```
+  const add = (a, b) => a + b
+  ```  
+- Apply default and destructured parameters to reduce boilerplate:  
+  ```
+  function greet({ name = 'Guest' } = {}) {
+    return `Hello, ${name}`
+  }
+  ```  
+- Employ higher-order functions for composability:  
+  ```
+  const compose = (...fns) => x => fns.reduceRight((v, f) => f(v), x)
+  ```  
+- Embrace point-free style to reduce explicit parameters:  
+  ```
+  const double = x => x * 2
+  const increment = x => x + 1
+  const process = compose(increment, double)
+  ```  
+- Use partial application or currying for reusability:  
+  ```
+  const partialAdd = a => b => a + b
+  const addFive = partialAdd(5)
+  addFive(10)
+  ```  
+- Prefer immutable operations (map, filter, reduce) over loops:  
+  ```
+  const squares = [1,2,3].map(x => x*x)
+  ```  
+- Leverage optional chaining for safe property access:  
+  ```
+  const streetName = person?.address?.street
+  ```  
+- In TypeScript, exploit type inference and generics to minimize annotations:  
+  ```
+  function identity<T>(value: T): T {
+    return value
+  }
+  ```  
+- Combine utility types (Partial, Pick, Omit) to reduce type verbosity:  
+  ```
+  type PartialUser = Partial<User>
+  ```  
+- Export small, focused modules rather than monolithic ones to keep code modular and concise  
+
