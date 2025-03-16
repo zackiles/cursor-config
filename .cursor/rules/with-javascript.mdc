@@ -94,11 +94,11 @@ this.on('some action', eventHandler)
 - Never include inline comments that are redundant, innacurate, or used only to help group sections of code unless the user asks you to.
 - **DANGER**: When updating code, never remove JSDoc or linting comments unless explicitly requested. If changes break comments, update them accurately.
 
-### Functional vs. OOP
+### Object and Functional Programming vs. OOP
 - If entities have large state or define strict interfaces, consider using classes.  
 - Otherwise, default to simple, pure functions and straightforward code.
 
-### Pragmatic Proofs of Concept (PoCs)
+### New Code, Pragmatic Solutions, and Proofs of Concepts (PoCs)
 - For new codebases or prototypes:  
   - Use a **flat file/folder structure**  
   - Write minimal or no tests (maybe one smoke test)  
@@ -107,8 +107,176 @@ this.on('some action', eventHandler)
   - If fewer than 5 main JS/TS files exist, keep everything as minimal as possible.
 
 ### TypeScript Types
-- Avoid or reduce internal usage of types for classes, methods, variables, or interfaces.  
-- Expose types only at application boundaries or in public APIs (e.g., library exports).
+- **Purpose**: This section MUST be read completely and ALWAYS before generating, refactoring, or considering to add code that contains or should contain Typescript Types.
+- **Instructions**: Apply all rules in the two crtical lists in this section that describe WHEN or WHEN NOT to use rules before writing any types or using native Typescript syntax or functionality.
+- **Examples of WHY to use Typescript**: Review the section named "Examples of Boundaries: Module, Package, Project, Application, Boundaries" for examples that demonstrate WHY we use Typescript in this project or codebase.
+- **Examples of Typescript Syntax**: Review the section named "Examples of Proper Usage and Syntax" to understand how to integrate types into the codebase to enhance simplicity, readability, maintainability, and cleanliness of code.
+
+**1) CRITICAL**: You MUSN'T and will NEVER use Typescript types or Typescript functionality when the following is true: 
+
+- The type is used for anything that the consumer of the module or code file does not interact with. This includes types found in: method or class interfaces, return values, arguments, variables, exports, and anywhere else a Typescript symbol is used.
+- The type is similar to or could be similar to another type if one or both were refactored. In this case, use the other type or refactor one or both instead of creating an additional type.
+- The type describes a very simple type, or expresses something redudant or obvious. An example of a simple type is an interface with one property that is a string.
+- The type defines something or properties of something that is highly complex and can't easily be solved with a simpler type while still ensuring type saftey. In these cases, explain to the user the problem and present them a concise list of potential refactoring solutions for them to choose from before continuing your work.
+- When an appropriate type to use, refactor to, or create can't be determined. Examples include: third-party imported packages that we've confirmed doesn't export types for us to use for type-casting and type-guarding.
+- When repeated and consistent attempts to create or use a type causes errors and bugs, they should be removed and vanilla Javascript used instead.
+- When using native Deno imports that provide easy to access types for class or method arguments or their return types, then you MUST use that type for MINIMAL type-casting or type-guarding, as long as doing so wouldn't introduce relatively significant complexity compared to the code that currrently exists.
+
+**2) CRITICAL**: You MUST and will ALWAYS use Typescript types or Typescript functionality when the following is true:
+- There is a public exported method, class, module, or variable exported by the main entry point of the project that would benefit from its arguments, return values, and object or function interface defined by a Typescript type or utilizing Typescript functionality. Examples: anything defined in the main export file such as `mod.ts` or `index.ts` or `types.ts` file. Review the `deno.json` or `deno.jsonc` or another package config file to determine the main export or exports used in the project. 
+- Where a thing is shared across many files in the codebase or project and introducing and writing a type for the thing would singficantly reduce the amount of code needed to do the same thing if the type didn't exist.
+- When you've been specifically instructed to create a Typescript type or use methods or syntax from Typescript itself.
+- When a third-party or external package is imported that comes with types we should ALWAYS and MUST import those types and use them for basic type-casting and type-guarding.
+- When the type is used in a directly exported interface or the return of one from a directly exported method, class, variable, or module that crosses an application boundary.
+
+#### Examples of Boundaries: Module, Package, Project, Application, Boundaries
+Unless explicitly asked, we will only consider and generate Typescript types for the boundaries of the project. Examples of bondaries are:
+- CLI interfaces
+- Module or Type exports in package config files such as `deno.jsonc` and `package.json`.
+- API Schemas and interfaces
+- Database schemas and interfaces
+- Top level or global exports of the project or package exports, or the exports of imported third-party packages.
+- Essential core-primitives used to interact with things outside of the codebase, such as a command and argument structure for a commonly called shell command where a Typescript type could better define the interface.
+- For highly critical operations on the underlying OS or filesystem where the interface is both well known AND highly prone to making serious mistakes when interacting with it due to the nature of the operation its used for.
+
+#### Examples of Proper Usage and Syntax
+- **Objective**: Use these rules to keep TypeScript code concise, modern, and maintainable.
+- **Optimize to Reduce Amount of Code**: When integrating and using types your objective is to do so using the least amount of code possible or by introducing it in a way that refactors the previous code in a way that retains the functionality but signifcantlly reduces the overall amount of code or code tokens or lines of code.
+- **Be Succint**: Integrate types and refactor integrations with types to be as succint, readable, minimal, and clean as possible.
+
+**Examples of Proper Usage**
+
+• Use utility types to reduce code and duplication  
+  ✅ GOOD:  
+  ```typescript
+  function process<T extends Partial<User>>(data: T) {
+    return data
+  }
+  ```  
+  ❌ BAD:  
+  ```typescript
+  function processUserData(data: { name?: string; age?: number; email?: string }) {
+    return data
+  }
+  ```  
+
+• Simplify index signatures with Record  
+  ✅ GOOD:  
+  ```typescript
+  const dataStore: Record<string, number> = {}
+  ```  
+  ❌ BAD:  
+  ```typescript
+  interface DataStore {
+    [k: string]: number
+  }
+  const dataStore: DataStore = {}
+  ```  
+
+• Use minimal casting, trust inferred types  
+  ✅ GOOD:  
+  ```typescript
+  const propKey = incoming as keyof MyType
+  ```  
+  ❌ BAD:  
+  ```typescript
+  const propKey = incoming as keyof MyType // repeated across multiple places
+  ```  
+
+• Embrace mapped types for consistent transformations  
+  ✅ GOOD:  
+  ```typescript
+  type ReadOnly<T> = {
+    readonly [P in keyof T]: T[P]
+  }
+  ```  
+  ❌ BAD:  
+  ```typescript
+  type ReadOnlyUser = {
+    readonly name: string
+    readonly age: number
+  }
+  ```  
+
+• Create reusable type utilities to unify logic  
+  ✅ GOOD:  
+  ```typescript
+  type ConfigKeys = keyof SomeConfig
+  function retrieve(key: ConfigKeys) {}
+  ```  
+  ❌ BAD:  
+  ```typescript
+  function retrieve(key: 'optionA' | 'optionB' | 'optionC') {}
+  ```  
+
+• Write generic functions instead of duplicating  
+  ✅ GOOD:  
+  ```typescript
+  function update<T extends object>(obj: T): T {
+    // ...
+    return obj
+  }
+  ```  
+  ❌ BAD:  
+  ```typescript
+  function updateUser(obj: { name: string; age: number }) {}
+  function updateOrder(obj: { id: number; total: number }) {}
+  ```  
+
+• Leverage type guards to refine logic  
+  ✅ GOOD:  
+  ```typescript
+  function isNumber(val: unknown): val is number {
+    return typeof val === 'number'
+  }
+  ```  
+  ❌ BAD:  
+  ```typescript
+  function process(val: any) {
+    if (typeof val === 'number') {}
+  }
+  ```  
+
+• Extract return types and parameters from definitions  
+  ✅ GOOD:  
+  ```typescript
+  type ReturnVal = ReturnType<typeof compute>
+  type ParamList = Parameters<typeof compute>
+  ```  
+  ❌ BAD:  
+  ```typescript
+  type ReturnVal = number
+  type ParamList = [number, string]
+  ```  
+
+• Use `const enum` for read-only, compile-time constants  
+  ✅ GOOD:  
+  ```typescript
+  const enum StatusCode {
+    SUCCESS = 200,
+    NOT_FOUND = 404
+  }
+  ```  
+  ❌ BAD:  
+  ```typescript
+  enum StatusCode {
+    SUCCESS = 200,
+    NOT_FOUND = 404
+  }
+  ```  
+
+• Favor unions over enums when values are few and simple  
+  ✅ GOOD:  
+  ```typescript
+  type Status = 'SUCCESS' | 'FAIL'
+  ```  
+  ❌ BAD:  
+  ```typescript
+  enum Status {
+    SUCCESS = 'SUCCESS',
+    FAIL = 'FAIL'
+  }
+  ```
 
 ### Private / Public Interfaces
 - Mark private fields or functions clearly.  
@@ -190,7 +358,6 @@ If the issue isn't obvious, follow the instructions in "##### Tools, Cocumentati
 - Employ structured logging (e.g., JSON-based logs) to facilitate clear and consistent log management.
 - Enable stack traces for detailed error reporting during development.
 - Limit logging in production to critical events to avoid performance degradation.
-
 
 ## Writing and Writing Code For Readability, Cleanliness, and Maintainability
 - Review all lines of code you've edited or will be editing or generating to ensure all the rules mentioned to you below are applied.
