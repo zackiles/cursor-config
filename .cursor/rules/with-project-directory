@@ -1,0 +1,106 @@
+---
+description: 
+globs: src/utils/**,bin/**,scripts/**
+alwaysApply: false
+---
+
+# Critical Rules To Be Followed When Analyzing Or Editing Code In These Directories
+
+The following directories are unique project directories that require you to follow all rules described for any files contained anywhere in a folder or sub-folder that matches these glob patterns: `src/utils/**`, `bin/**`, `scripts/**`
+
+**NOTE (Glob Pattern Relative Path)**: ALL glob patterns are **relative to the root of the project or codebase**. This is sometimes referred to as the worksapce root.
+
+**NOTE**: Ignore default README.md files mentioned here if there is a README.md in directory AND that README.md talks specifically about the directory.
+
+## **Rules**:
+- Before editing, creating, or analyzing files in one of the mentioned folders, read the folders strict rules defined in the directory-specific README.md contained in the root of the folder. For example, the following README.md files exist: `src/utils/README.md`, `bin/README.md`, `scripts/README.md` .
+- Ensure ALL code you generate and any files created or modified in the directory or any of its sub-directories follow each rule defined in the README.md for that directory.
+- All rules in the README.md defined as `MUST` should always be followed.
+- All rules in the README.md defined as `MAY` or `SHOULD` are recommended but can be ignored if it is reasonable to do so.
+- Things a user explicitly asks you to do that violates any of the rules mentioned can be followed, but ensure you remind them after your work is complete of the parts of your solution that didn't adhere to the rules and your rationale of why you didn't adhere to them.
+
+## Default README.md Files
+When no README.md can be found in the folder that matches the glob patterns of: `src/utils/**`, `bin/**`, or `scripts/**` then you may use the following as the default rules. Use only the right rules for the right folder below.
+
+### `scripts/README.md` Default Rules
+
+**Purpose**: The `scripts/` directory is used to store general purpose, self-contained, executable scripts written in Typescript or Javascript.
+
+**Glob Pattern**: `scripts/**`
+
+#### **Rules For Scripts In This Directory**
+
+- **MUST** be a Deno Typescript or Javascript script.
+- **MUST** contain a valid hash-bang at the top of the script.
+- **MUST** be able to be lint checked, formatted, published, and or compiled by `deno lint`, `deno check`, `deno fmt`, `deno publish`, and `deno compile`.
+- **MUST NOT** have exports that are imported by any files in {PROJECT_NAME}.
+- **MAY** be executed by other files in {PROJECT_NAME} but ONLY through a shell command OR by using `Deno.command`.
+- **MAY** import other files from {PROJECT_NAME} if needed, but those files MUST NOT import the script.
+- **MAY** be tested with a test file in `test/` but only accessed through shell commands.
+
+> [!NOTE]\
+> Javascript and Typescript files that need to support being run as scripts in a shell AND be imported as libraries should be placed in `src/` instead. This directory is only for true scripts.
+
+> [!NOTE]\
+> Use the `bin/` directory instead for: files that don't meet these rules, natively-compiled code created using Deno.compile, compiled release builds of {PROJECT_NAME}, or vendored files that you don't want modified.
+
+#### **How Files In this Directory are Used**
+
+- General purpose scripts for tasks such as: CI/CD, testing, or one-off purposes that don't make sense to be a part of the main source code but which benefit from the Deno tooling.
+- Called from {PROJECT_NAME} source files using Deno.command(), but never imported.
+- Deno linting and formatting will be applied according to `deno.jsonc`
+- Deno compiling (if used) and publishing (if used) will use the files in this directory according to `deno.jsonc`.
+
+### `bin/README.md` Default Rules
+
+**Purpose** The `bin/` directory is used to store compiled binaries, vendored files, and executable files that don't meet the criteria for the `scripts/` directory.
+
+**Glob Pattern**: `bin/**`
+
+#### **Rules For Scripts In This Directory**
+
+- **MAY** contain natively-compiled code created using Deno.compile.
+- **MAY** contain compiled release builds of {PROJECT_NAME}.
+- **MAY** contain vendored files that should not be modified.
+- **MAY** contain executable scripts that don't meet the criteria for the `scripts/` directory.
+- **MAY** be executed by other files in {PROJECT_NAME} through shell commands or Deno.command.
+- **SHOULD** include documentation for any non-obvious executables.
+
+> [!NOTE]\
+> For general purpose, self-contained, executable scripts written in Typescript or Javascript that benefit from Deno tooling, use the `scripts/` directory instead.
+
+#### **How Files In this Directory are Used**
+
+- Store binaries and executables that don't require or benefit from Deno tooling.
+- House compiled output from `deno compile` operations.
+- Contain vendored dependencies or tools that should remain unmodified.
+- Store executables that are called from {PROJECT_NAME} source files using Deno.command().
+- Maintain compiled release builds of {PROJECT_NAME} for distribution.
+
+### `src/utils/README.md` Default Rules
+
+**Purpose**: The `src/utils` directory is used to store utility files that are shared across the project and codebase.
+
+**Glob Pattern**: `src/utils/**`
+
+## **Rules For Scripts In This Directory**
+
+- **SHOULD** try to keep 1 export per utility file.
+- **MUST** provide descriptive names for all utility files.
+- **MUST** only contain ESM modules that can be imported.
+- **MUST** contain exported methods.
+- **MUST NOT** contain CLIs or modules meant to be used with stdio.
+- **MUST NOT** directly access env variables or command line flags with Deno.Args or Deno.env. Instead,calling files outside of the `src/utils/` directory should create Javascript objects of those env variables or command line flags and pass them as arguments to any modules in this `src/utils/` directory.
+- **MUST** contain JSDoc comments for the module at the top of any file in this `src/utils/` directory.
+- **SHOULD** contain code that is abstracted and general-purpose so that it avoids logic or functionality that is highly specific or tightly-coupled to the project and codebase itself. This can be achieved through more general naming conventions, focusing on high-order and multi-purpose functionality, and focusing code on flexible design and access patterns that allows extending or reusing the utility library outside of this codebase if needed in the future.
+
+> [!NOTE]\
+> For general purpose, self-contained, executable scripts meant to be accessed through the shell and stdio, and which are written in Typescript or Javascript consider using the`scripts/` directory instead.
+
+## **How Files In this Directory are Used**
+
+- Single-purpose utility files that can be shared across the project and codebase.
+- Perfect for files and code that may one day be moved to its own JSR or NPM library using only the utility file. This means the utility file is mostly self-contained and general purpose enough to use in other codebases or to publish as its own library.
+- Avoids many external dependencies when possible.
+- Avoids the use of Typescript types unless they're declared locally in the file and not outside of the file or `utils/` directory.
+- Avoids importing or referencing other utility files in the `utils/` directory when possible.
