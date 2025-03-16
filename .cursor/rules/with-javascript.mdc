@@ -6,17 +6,30 @@ alwaysApply: false
 ## CODING STYLE GUIDE - JAVASCRIPT AND TYPESCRIPT (MANDATORY OR STRONGLY ENCOURAGED)
 
 ### Naming
-- **snake_case** for file names.  
-- **camelCase** for instance names.  
-- **PascalCase** for class and symbol names.  
-- **UPPER_SNAKE_CASE** for constants.
+- **snake_case**: for file names.  
+- **camelCase**: for instance names.  
+- **PascalCase**: for class and symbol names.  
+- **UPPER_SNAKE_CASE**: for constants.
+- **Consistent**: When naming things, always review the naming patterns and conventions of similar this and follow that those
+- **Evolve Names Over Time**: When refactoring previous code, look for opporutnities to rename not only the things you're working on but related things where renaming both would provide an overall better pattern, convention, or abstraction for the broader code base.
+
+#### Naming Specificity
+- Broad or abstracted names for top-level things such as: namespaces, classes, types shared by multiple files, or global conceps and terms.
+- Narrow or specific or descriptive names for local or specific things, or when other rules, instructions, or consistency in the codebase requires it.
+
+#### Renaming and Refactoring Names
+- **IMPORTANT**: Avoid renaming the following unless explicitly asked to: environment or global cinfug variable names, project or package names, import paths, file names, module names.
+- After renaming things, find any JSDoc or inline comments that refer to the things that were named and update them to use the new names.
+- After renaming things, ensure similar things that are named in a way that is similar to the previous name are also refactored to remain consistent naming patterns, conventions, and abstracions.
+- Avoid renaming things in a way that would directly violate any instruction or rule provided to you, or indirectly cause side-effects in the final code that would violate other rules or instructions provided to you.
 
 ### Code Ordering
+When generating, refactoring, or reviewing code files, you will prefer the following ordering of its top-level items:
 - **Remote Imports**  
 - **Local Imports**  
 - **Hoisted Variables and References**  
 - **Methods**  
-- **Exports**
+- **Exports**: should be declared according to the rules and instructions defined in the "### Exports" section.
 
 ### Syntax
 - Favor modern ECMAScript features and patterns:  
@@ -104,12 +117,45 @@ this.on('some action', eventHandler)
 
 ### Imports
 - Understand what is being imported to leverage the latest ESM features (e.g., `import type`, import maps, import attributes).
-- Imports should be cordered according to the rules about imports in "### Code Ordering".
+- **Ordering**: Always order imports according to the rules in the `### Code Ordering` section.
+- If a single import from a file or package includes both types and othr things, prefer to import them on separate lines like the following:
+  ```
+  import {someMethod, SomeClass} from '@scope/package'
+  import type {someMethod, SomeClass} from '@scope/package'
+  ```
+- **Importing JSON**: use the ESM import `type` specifier like the following example: `import file from "./file.json" with { type: "json" }`
+
+#### Debugging Import Lint Errors and Bugs
+Receiving lint errors for imports likely means one of three things:
+
+1) You need to use the short-hand name for the module or package as specified and need to review the the `cdeno.jsonc` or `deno.json` file for the import map or proper import name to use.
+
+2) You have a declared but unused import, and need to investigate if there was a recent regression that removed code intended to use that import. If there is no use for that import than you need to remove it.
+
+3) You're hallcuinaing and have imported an incorrectly named or declared module name, path, or exported method. You will need to investigate using tools, documentation, and debugging approaches to determine where you've made a mistake so you can fix it.
+
+If the issue isn't obvious, follow the instructions in "##### Tools, Cocumentation, and Cebugging Approaches to Import Lint Errors and Bugs"
+
+##### Tools, Cocumentation, and Cebugging Approaches to Import Lint Errors and Bugs
+- **[`deno info`](https://docs.deno.com/runtime/reference/cli/info/)**: Run the shell command to get context on a module and its depedencies.
+- **Registry Documentation**: Find and review documentation for the import on its usage. Examples:
+  ```text
+  1) JSR Packages: read the documentation for the package on the website using the format of: `https://jsr.io/@scope/packageName/doc`. For example: `https://jsr.io/@std/fs/doc`
+  2) NPM Packages: read the documentation for the package on the website using the format of: `https://www.npmjs.com/package/packageName` or if it has a scope then `https://www.npmjs.com/package/scope/packageName``. For example: `https://www.npmjs.com/package/@ai-sdk/google`
+  3) Github Packages: read the documentation for the package on its README.md found on Github's website using the format of: `https://raw.githubusercontent.com/orgName/packageName/refs/heads/main/README.md`. For example: `https://raw.githubusercontent.com/microsoft/playwright/refs/heads/main/README.md`. Note: sometimes `orgName` in the URL is the `scopeName` without the "@" symbol, and sometimes its not and you'll have to search online what the repo is for a given package.
+  4) Local Imports: Search the following for documentation, type or object descriptions: other files in the codebase that use the same package, your own Documenation collection, any MCP servers that provide related documentation or package analysis and introspection.
+  5) **FALLBACK**: If the errors persist or now documentation can be found to fix it, stop and ask the user to provide a URL to documentation for the import so you can fix the errors before continuing your work.
+  ```
 
 ### Exports
 - Exports should always be declared at the bottom of code files and never in the middle.
 - Exports delcarations should be as free of logic as possible.
 - Prefer simple object exports such as `export {someMethod, anotherMethod}`.
+- If exports include types AND other things, prefer to export them on separate lines like the following:
+  ```
+  export {someMethod, SomeClass}
+  export type {SomeType, SomeInterface}
+  ```
 
 ### Error Handling Strategy
 - Discourage deeply nested try/catch blocks; prefer flat promise chains and modular error handling.
@@ -158,6 +204,10 @@ this.on('some action', eventHandler)
 - When refactoring, find alternative solutions, patterns, methods and code that can be used instead of the current code that would reduce the total amount of code or lines of code if it was used instead. Always look to redopportunities to 
 - Only define large multi-line strings at the top of files instead of inside methods.
 - Define important static variables and configuration at the highest points reasonable to their scope, such as the top of the method or the top of a class or file (but after imported or module jsdoc descriptions).
+
+### KEEP IT SIMPLE STUPID (K.I.S.S)
+- **Less Code is Better**: When generating, reviewing, or refactoring code, almost aim for the simplest solution in terms of overall code or lines of code needed to implement.
+- **Avoid Inline Comments**: 
 
 ### Rules for Maintainable Code
 - **Keep similar code together**: Function callers and callees should be kept close.
