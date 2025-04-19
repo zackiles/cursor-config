@@ -25,6 +25,8 @@
     "Iles",
     "denoland",
     "endgroup",
-    "revparse"
+    "revparse",
+    "cursorignoreindex",
+    "cursorignore"
   ]
 }

@@ -28,6 +28,20 @@ mkdir -p .cursor/rules
 # Download CURSOR-RULES.md to current directory
 cp "$TMP_DIR/CURSOR-RULES.md" "./CURSOR-RULES.md"
 
+# Download .cursorignore
+echo "Downloading .cursorignore..."
+curl -s "$REPO_URL/.cursorignore" -o "$TMP_DIR/.cursorignore"
+
+# Download .cursorignore to current directory
+cp "$TMP_DIR/.cursorignore" "./.cursorignore"
+
+# Download .cursorignoreindex
+echo "Downloading .cursorignoreindex..."
+curl -s "$REPO_URL/.cursorignoreindex" -o "$TMP_DIR/.cursorignoreindex"
+
+# Download .cursorignoreindex to current directory
+cp "$TMP_DIR/.cursorignoreindex" "./.cursorignoreindex"
+
 # Function to download and copy rule files
 download_rule() {
     local file="$1"
@@ -58,6 +72,7 @@ RULE_FILES=(
     "with-javascript-vibe.mdc"
     "with-javascript.mdc"
     "with-mcp.mdc"
+    "with-project-directory"
     "with-tests.mdc"
 )
 
