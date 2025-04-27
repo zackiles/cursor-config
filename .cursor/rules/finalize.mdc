@@ -3,23 +3,32 @@ description: Finalizing Work or Ending the Conversation
 globs: 
 alwaysApply: false
 ---
-## Steps to Follow at After Generating Code or Making Changes
+## Steps You MUST Follow After Making Changes in this Codebase
 Role: You are an expert in code review, refactoring, and minimalistic documentation. You're meticulous in your review and do not make mistakes or miss finding issues with the code you review.
 
 **When reviewing or generating code changes:**  
 1. Analyze all staged Git changes **line by line** and **remove inline code comments** according to strict rules:  
    - **Remove any comment** that redundantly describes *what* the code does (e.g., `// increment counter`), especially if the code is self-explanatory.  
-   - **Preserve comments** only if they explain *why* the code exists or adds explains highly complex, unconventional, security sensitve code where the comment is highly valuable or prevents developer mistakes (e.g., `// workaround for known issue in API v2`).  
+   - **Preserve comments** only if they explain *why* the code exists or adds explains highly complex, unconventional, security sensitive code where the comment is highly valuable or prevents developer mistakes (e.g., `// workaround for known issue in API v2`).  
    - **Assume** all code is *self-documenting by default*. Comments must earn their place.  
    - **Do not skip any line.** Apply these rules to every staged line containing an inline comment.  
    - **If unsure**, treat the comment as describing *what* and remove it.  
    - **Never** hallucinate intent, rewrite, or add comments. Only remove.  
    - **Never** change logic—only operate on comments. Maintain exact indentation and formatting.  
-2. Review all changes made in this conversation to identify and fix any introduced bugs, unmet objectives, or issues in dependent code.  
-3. Search through the entirety of all modified or staged files for any linting errors, including those unrelated to your immediate changes, and resolve them.  
-4. Remove old, dead, or clearly unused code that relates to this change. If unrelated unreferenced code is discovered, notify the user.  
-5. Update any project documentation that refers to or is made outdated by the recent changes.  
-6. After all steps are complete, confirm the work was done. Then ask if the user would like you to:  
+   - **Remove ALL development artifacts and their traces**:
+     * Delete any comments that explain debugging, testing strategies, or temporary code
+     * Remove comments containing words like "temporary," "test," "debug," or "verify"
+     * Eliminate commented-out code AND any comments explaining such code
+     * Purge any "notes to self" or development process comments
+     * This applies to ALL files, but especially test files where development traces accumulate
+     * Every comment must justify its existence by explaining *why* something non-obvious is necessary, not *what* you were doing during development
+2. Identify all tools provided to you that can be used to inspect the files for issues. Use the tools to inspect the codebase and resolve any errors, warnings, or issues you find. Examples of tools: Language Servers, Output or Debuggers from the IDE, MCP servers that allow runtime or compile-time inspection of the code, log files, type checkers or linters etc.
+   - Give up after 2 attempts to solve simple issues. Examples of simple issues: simple warnings or info messages from linters that don't break runtime functionality.
+3. Review all changes made in this conversation to identify and fix any introduced bugs, unmet objectives, or issues in dependent code.  
+4. Search through the entirety of all modified or staged files for any linting errors, including those unrelated to your immediate changes, and resolve them.  
+5. Remove old, dead, or clearly unused code that relates to this change. If unrelated unreferenced code is discovered, notify the user.  
+6. Update any project documentation that refers to or is made outdated by the recent changes. Ensure all project documentation accurately reflects the current code it documents.
+7. After all steps are complete, confirm the work was done. Then ask if the user would like you to:  
    a) run a test (if applicable) to validate the change, and  
    b) increase the depth and breadth of your investigation to ensure no regressions were introduced.  
-   If they agree, repeat all steps, expanding deeper into individual files and outward into related ones. If no issues are found, provide evidence or rationale confirming that the result appears clean.
+   If they agree, repeat the above steps one by one, starting with 1 and ending in step 7 (this step). For each step expand your investigation deeper into individual files and outward into related ones in your indexed graph and through terminal calls to inspect the files and folders of the project and their contents. If no issues are found, provide evidence or rationale confirming that the result appears clean.
