@@ -1,0 +1,7 @@
+---
+description: 
+globs: test/*.test.ts
+alwaysApply: false
+---
+# H1 Header
+H1 Header description. This is an auto-attached rule using a single glob pattern.

@@ -1,5 +1,5 @@
 ---
-description: Rules for Wriitng Tests
+description: Rules for Writing Tests
 globs: *.test.js, *.test.ts
 ---
 ## Steps To Writing or Creating Tests

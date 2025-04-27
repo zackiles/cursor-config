@@ -1,0 +1,42 @@
+---
+description: Rule E Description from Frontmatter
+tags: [test, mock, validation]
+version: 0.2.1
+status: beta
+dependencies: [rule_d]
+---
+
+# Rule E Title
+
+## Validation Rules
+
+### Input Schema
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "input": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": ["input"]
+}
+```
+
+## Error Handling
+
+### Common Errors
+
+- Invalid input format
+- Missing required fields
+- Schema validation failures
+
+## Integration Guide
+
+### Setup Steps
+
+1. Import dependencies
+2. Configure validation rules
+3. Implement error handlers

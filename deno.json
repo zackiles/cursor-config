@@ -1,0 +1,68 @@
+{
+  "name": "@zackiles/cursor-config",
+  "version": "0.0.2",
+  "description": "An opinionated suite of general-purpose, and modern Cursor Rules as well as global Cursor configuration that compliments these rules.",
+  "license": "MIT",
+  "author": "Zachary Iles <zack.iles@gmail.com>",
+  "homepage": "https://github.com/zackiles/cursor-config",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zackiles/cursor-config.git"
+  },
+  "lock": true,
+  "tasks": {
+    "build": "deno run -A scripts/build.ts",
+    "test": "deno test -A",
+    "fmt": "deno fmt",
+    "lint": "deno lint",
+    "lint:rules": "deno run -A src/linter.ts .cursor/rules/*.mdc"
+  },
+  "fmt": {
+    "lineWidth": 100,
+    "useTabs": false,
+    "indentWidth": 2,
+    "singleQuote": true,
+    "proseWrap": "preserve",
+    "semiColons": false,
+    "include": [
+      "deno.json",
+      "src/**/*.ts",
+      "scripts/**/*.ts",
+      "test/**/*.ts",
+      "./mod.ts"
+    ],
+    "exclude": [
+      "test/mocks/**"
+    ]
+  },
+  "lint": {
+    "include": [
+      "deno.json",
+      "src/**/*.ts",
+      "scripts/**/*.ts",
+      "test/**/*.ts",
+      "./mod.ts",
+      "*.md"
+    ],
+    "exclude": [
+      "test/mocks/**"
+    ]
+  },
+  "imports": {
+    "@std/assert": "jsr:@std/assert@1",
+    "@std/fmt": "jsr:@std/fmt@1",
+    "@std/fs": "jsr:@std/fs@1",
+    "@std/path": "jsr:@std/path@1",
+    "@std/cli": "jsr:@std/cli@^1.0.17",
+    "@std/yaml": "jsr:@std/yaml@1"
+  },
+  "exports": {
+    ".": "./mod.ts"
+  },
+  "compilerOptions": {
+    "lib": [
+      "deno.window"
+    ],
+    "strict": true
+  }
+}

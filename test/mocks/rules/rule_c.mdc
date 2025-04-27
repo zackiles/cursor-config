@@ -1,0 +1,28 @@
+---
+description: Rule C Description from Frontmatter
+tags: [test, mock]
+version: 1.0.0
+---
+
+# Rule C Title
+
+## Overview
+
+This is an overview section for Rule C.
+
+## Implementation Details
+
+### Subsection 1
+
+Details about implementation.
+
+### Subsection 2
+
+More implementation details.
+
+## Examples
+
+```typescript
+const example = 'test';
+console.log(example);
+```

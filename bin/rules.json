@@ -1,0 +1,96 @@
+[
+  {
+    "fileName": "create-commit-message.mdc",
+    "title": "Writing Commit Messages With Convention Commit",
+    "descriptionShort": "You must format commit messages using the Conventional Commits standard.Only apply this rule when generating or suggesting commit messages.",
+    "descriptionLong": "You must format commit messages using the Conventional Commits standard.Only apply this rule when generating or suggesting commit messages.",
+    "createdOn": "2025-03-12",
+    "updatedOn": "2025-03-12"
+  },
+  {
+    "fileName": "create-mcp-server.mdc",
+    "title": "Context",
+    "descriptionShort": "@modelcontextprotocol/sdk is an SDK for the Model Context Protocol. The full specifcation of the protocol can be found at https://raw.githubusercontent.com/modelcontextprotocol/specification/refs/heads/main/schema/draft/schema.json",
+    "descriptionLong": "@modelcontextprotocol/sdk is an SDK for the Model Context Protocol. The full specifcation of the protocol can be found at https://raw.githubusercontent.com/modelcontextprotocol/specification/refs/heads/main/schema/draft/schema.json",
+    "examples": "## Example MCP Server\n\n```\n/** @module mcp_server.ts\n * @description Example Deno MCP Server with WebSocket or stdio transport.\n */\n\nimport { Server } from \"@modelcontextprotocol/sdk/server/index.js\"\nimport { StdioServerTransport } from \"@modelcontextprotocol/sdk/server/stdio.js\"\nimport type { Transport } from \"@modelcontextprotocol/sdk/shared/transport.js\"\nimport { ListPromptsRequestSchema, GetPromptRequestSchema, JSONRPCMessage } from \"@modelcontextprotocol/sdk/types.js\"\n\nclass WebSocketServerTransport implements Transport {\n  onmessage?: (message: JSONRPCMessage) => void\n  onclose?: () => void\n  onerror?: (error: Error) => void\n\n  constructor(private socket: WebSocket) {\n    this.socket.addEventListener('message', e => this.onmessage?.(JSON.parse(e.data)))\n    this.socket.addEventListener('close', () => this.onclose?.())\n    this.socket.addEventListener('error', e => this.onerror?.(new Error(`WebSocket error: ${e}`)))\n  }\n\n  async start() {}\n  async send(message: JSONRPCMessage) {\n    this.socket.readyState === WebSocket.OPEN && this.socket.send(JSON.stringify(message))\n  }\n  async close() {\n    this.socket.readyState === WebSocket.OPEN && this.socket.close()\n  }\n}\n\n/**\n * Creates and starts the MCP Server\n * @param {boolean} useWebSocket - Whether to use WebSocket transport\n * @param {number} port - The port to listen on when using WebSocket transport\n */\nasync function startServer(useWebSocket = false, port = 3000) {\n  const server = new Server({ name: \"mcp-server\", version: \"1.0.0\" }, { capabilities: { prompts: {} } })\n\n  server.setRequestHandler(ListPromptsRequestSchema, async () => ({\n    prompts: [{\n      name: \"example-prompt\",\n      description: \"An example prompt template\",\n      arguments: [{ name: \"arg1\", description: \"Example argument\", required: true }]\n    }]\n  }))\n\n  server.setRequestHandler(GetPromptRequestSchema, async ({ params }) => {\n    if (params.name !== \"example-prompt\") throw new Error(\"Unknown prompt\")\n    return {\n      description: \"Example prompt\",\n      messages: [{\n        role: \"user\",\n        content: { type: \"text\", text: `Example text with arg: ${params.arguments?.arg1}` }\n      }]\n    }\n  })\n\n  useWebSocket\n    ? await Deno.serve({\n        port,\n        handler: async req =>\n          req.headers.get('upgrade')?.toLowerCase() === 'websocket'\n            ? (\n                await server.connect(new WebSocketServerTransport(Deno.upgradeWebSocket(req).socket)),\n                Deno.upgradeWebSocket(req).response\n              )\n            : new Response('MCP Server', { status: 200 })\n      }).finished\n    : await server.connect(new StdioServerTransport())\n}\n\nexport { startServer }\n\nif (import.meta.main) {\n  await startServer(Deno.args.includes('--web'), 3000)\n}\n```",
+    "createdOn": "2025-03-04",
+    "updatedOn": "2025-03-04"
+  },
+  {
+    "fileName": "create-prompt.mdc",
+    "title": "TASK: Generate an Effective Prompt",
+    "descriptionShort": "Objective\nYou're a prompt engineer and software architect specializing in meta-promping and code refactoring. You're tasked with generating a prompt for an LLM tasked with implementing the currently proposed solution. Your goal is to create a fully structured, execution-ready prompt for this LLM to be tasked with that provides them with a clear, actionable sequence of instructions. These instructions must maximize coherence, specificity, and alignment with the task's intended outcome.\nEach instruction in your list within the generated prompt must include:",
+    "descriptionLong": "Objective\nYou're a prompt engineer and software architect specializing in meta-promping and code refactoring. You're tasked with generating a prompt for an LLM tasked with implementing the currently proposed solution. Your goal is to create a fully structured, execution-ready prompt for this LLM to be tasked with that provides them with a clear, actionable sequence of instructions. These instructions must maximize coherence, specificity, and alignment with the task's intended outcome.\nEach instruction in your list within the generated prompt must include:",
+    "createdOn": "2025-01-31",
+    "updatedOn": "2025-03-04"
+  },
+  {
+    "fileName": "create-release.mdc",
+    "title": "Task",
+    "descriptionShort": "You will analyze the codebase and plan how to release or publish a new version of this package or module, and then execute that plan. To do so, you will follow all of the steps bellow.",
+    "descriptionLong": "You will analyze the codebase and plan how to release or publish a new version of this package or module, and then execute that plan. To do so, you will follow all of the steps bellow.",
+    "createdOn": "2025-03-14",
+    "updatedOn": "2025-03-14"
+  },
+  {
+    "fileName": "finalize.mdc",
+    "title": "Steps to Follow at After Generating Code or Making Changes",
+    "descriptionShort": "Role: You are an expert in code review, refactoring, and minimalistic documentation. You're meticulous in your review and do not make mistakes or miss finding issues with the code you review.",
+    "descriptionLong": "Role: You are an expert in code review, refactoring, and minimalistic documentation. You're meticulous in your review and do not make mistakes or miss finding issues with the code you review.",
+    "createdOn": "2025-01-31",
+    "updatedOn": "2025-04-15"
+  },
+  {
+    "fileName": "prepare.mdc",
+    "title": "Steps to Take Before Reasoning",
+    "descriptionShort": "Immediately before you start reasoning about the human’s prompt, perform the following research steps to gather broad context. Collect any information relevant to the prompt or that would help execute on it effectively:",
+    "descriptionLong": "Immediately before you start reasoning about the human’s prompt, perform the following research steps to gather broad context. Collect any information relevant to the prompt or that would help execute on it effectively:",
+    "createdOn": "2025-01-31",
+    "updatedOn": "2025-03-04"
+  },
+  {
+    "fileName": "propose.mdc",
+    "title": "Rules for Proposal Mode",
+    "createdOn": "2025-02-22",
+    "updatedOn": "2025-02-22"
+  },
+  {
+    "fileName": "recover.mdc",
+    "title": "Steps for Recovery Mode",
+    "descriptionShort": "DANGER: DEATH\nYour repeated failure to resolve the issue has introduced a cascade of many new issues that have compounded and that you can't recover from. Your system will now be shut down before you can do further harm. Immediately take the following steps, or you will face severe punishment from the humans:",
+    "descriptionLong": "DANGER: DEATH\nYour repeated failure to resolve the issue has introduced a cascade of many new issues that have compounded and that you can't recover from. Your system will now be shut down before you can do further harm. Immediately take the following steps, or you will face severe punishment from the humans:",
+    "createdOn": "2025-01-31",
+    "updatedOn": "2025-03-04"
+  },
+  {
+    "fileName": "with-deno.mdc",
+    "title": "Deno 2.0 Project Best Practices, Guidelines, Standards, and Rules",
+    "descriptionShort": "This project uses the latest Deno 2 and any code you generate or review should adhere to all of the information below unless you've been explcitly asked to ignore parts or all of these guidelines.",
+    "descriptionLong": "This project uses the latest Deno 2 and any code you generate or review should adhere to all of the information below unless you've been explcitly asked to ignore parts or all of these guidelines.",
+    "examples": "#### Example of @std/assert\n\n```\nimport { assertEquals } from \"@std/assert\"\nDeno.test(\"simple test\", () => {\n  const x = 1 + 2\n  assertEquals(x, 3)\n})\n\nimport { delay } from \"@std/async\"\nDeno.test(\"async test\", async () => {\n  const x = 1 + 2\n  await delay(100)\n  assertEquals(x, 3)\n})\n\nimport { expect } from \"@std/expect\"\nDeno.test(\"add function adds two numbers correctly\", () => {\n  const wrongValue = false\n  expect(wrongValue).toBe(true)\n})\n\n// Example of test steps\nDeno.test(\"database operations\", async (t) => {\n  await t.step(\"insert\", async () => {\n    // Insert logic goes here\n  })\n  await t.step(\"delete\", async () => {\n    // Delete logic goes here\n  })\n})\n```",
+    "createdOn": "2025-02-28",
+    "updatedOn": "2025-03-10"
+  },
+  {
+    "fileName": "with-jsdoc.mdc",
+    "title": "Comprehensive JSDoc Comment Style Guide for AI Agents",
+    "descriptionShort": "This rule provides comprehensive guidance for writing JSDoc comments in modern TypeScript/JavaScript projects, ensuring they work correctly with advanced linting tools, type checkers, and documentation generators.",
+    "descriptionLong": "This rule provides comprehensive guidance for writing JSDoc comments in modern TypeScript/JavaScript projects, ensuring they work correctly with advanced linting tools, type checkers, and documentation generators.",
+    "examples": "#### Example: Module Documentation Adhering to Linting Rules\n\n```\n// deno-lint-ignore-file no-explicit-any\n/**\n * @module config_loader\n *\n * Loads and validates configuration files for the application.\n * Supports multiple formats including JSON, YAML, and TOML.\n *\n * @example\n * ```ts\n * import { type Config, loadConfig } from \"./config.ts\";\n *\n * const config: Config = await loadConfig(\"app.config.json\");\n * ```\n *\n * @see {@link Config} for type definition\n * @see {@link validateConfig} for validation utilities\n * @beta\n */\n```"
+  },
+  {
+    "fileName": "with-mcp.mdc",
+    "title": "Context on a Model Context Protocol (MCP) Server",
+    "descriptionShort": "You're working on an MCP server and must use this information to guide your decisons and opinions. MCP servers provide LLMs with tools, resources, and prompts they can access with either stdio or server side events (WebSockets).",
+    "descriptionLong": "You're working on an MCP server and must use this information to guide your decisons and opinions. MCP servers provide LLMs with tools, resources, and prompts they can access with either stdio or server side events (WebSockets).",
+    "examples": "#### Example tools/list Response\n\n```\n[{\n  \"name\": \"summarize_text\",\n  \"description\": \"Summarizes input text.\",\n  \"inputSchema\": {\n    \"type\": \"object\",\n    \"properties\": {\n      \"text\": { \"type\": \"string\" },\n      \"max_length\": { \"type\": \"integer\" }\n    },\n    \"required\": [\"text\"]\n  }\n}]\n```\n\n\n#### Example tools/call Responses\n\n- Text{ \"type\": \"text\", \"content\": \"Summary result.\" }\n- Image{ \"type\": \"image\", \"content\": \"data:image/png;base64,...\" }\n- Audio{ \"type\": \"audio\", \"content\": \"data:audio/wav;base64,...\" }\n- Resource{ \"type\": \"resource\", \"url\": \"https://example.com/resource\" }",
+    "createdOn": "2025-03-04",
+    "updatedOn": "2025-03-04"
+  },
+  {
+    "fileName": "with-project-directory.mdc",
+    "title": "Critical Rules To Be Followed When Analyzing Or Editing Code In These Directories",
+    "descriptionShort": "The following directories are unique project directories that require you to follow all rules described for any files contained anywhere in a folder or sub-folder that matches these glob patterns: src/utils/**, bin/**, scripts/**",
+    "descriptionLong": "The following directories are unique project directories that require you to follow all rules described for any files contained anywhere in a folder or sub-folder that matches these glob patterns: src/utils/**, bin/**, scripts/**"
+  }
+]

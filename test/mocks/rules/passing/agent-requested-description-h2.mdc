@@ -1,0 +1,10 @@
+---
+description: The agent can read this description and decide if it wants to include it or not
+globs: 
+alwaysApply: false
+---
+## H2 Header
+H2 header description
+
+### H3 Header
+Some h3 sub-header section

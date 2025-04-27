@@ -1,0 +1,8 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Missing alwaysApply
+
+This rule is missing the required alwaysApply field.

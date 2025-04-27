@@ -1,0 +1,8 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Invalid Combination
+
+This rule has an invalid mix of frontmatter properties.

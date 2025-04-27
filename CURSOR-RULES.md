@@ -2,6 +2,9 @@
 
 This project contains Cursor rules!
 
+> [!TIP]
+> For more details on how Cursor Rules work, please read this deep-dive guide on [How Cursor Rules Work](./how-cursor-rules-work.md).
+
 The following rules are configured in `.cursor/rules` and can be triggered using the `@` command, though some activate automatically based on configuration in `RULES_FOR_AI.md` or when relevant files are added to the chat that match the rule's glob pattern.
 
 ## 1. Development and Code Generation

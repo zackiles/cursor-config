@@ -1,4 +1,20 @@
 {
+  "deno.enable": true,
+  "deno.config": "deno.json",
+  "deno.importMap": "deno.json",
+  "deno.unstable": [
+    "net",
+    "http",
+    "fs",
+    "ffi",
+  ],
+  "deno.codeLens.implementations": true,
+  "deno.codeLens.references": true,
+  "deno.codeLens.referencesAllFunctions": true,
+  "deno.codeLens.test": true,
+  "deno.internalDebug": true,
+  "deno.internalInspect": true,
+  "deno.maxTsServerMemory": 6000,
   "files.eol": "\n",
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
@@ -6,6 +22,17 @@
   "editor.indentSize": 2,
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
+  "editor.formatOnSave": true,
+  "[json][jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[markdown][typescript][javascript]": {
+    "editor.defaultFormatter": "denoland.vscode-deno",
+    "editor.formatOnSave": true
+  },
+  "[mdc]": {
+    "editor.defaultFormatter": "pla"
+  },
   "cSpell.useGitignore": true,
   "cSpell.ignorePaths": [
     "deno.{json,jsonc}",
@@ -27,6 +54,37 @@
     "endgroup",
     "revparse",
     "cursorignoreindex",
-    "cursorignore"
-  ]
+    "cursorignore",
+    "zacharyiles",
+    "asynciterable",
+    "webgpu",
+    "onclose",
+    "Zipkin",
+    "parentbased",
+    "tracestate",
+    "traceparent",
+    "MILLIS",
+    "msvc",
+    "dotenv",
+    "swapfile",
+    "hiberfil",
+    "dconf",
+    "keyrings",
+    "dbus",
+    "dockerenv",
+    "fseventsd",
+    "modelcontextprotocol",
+    "rwxr",
+    "pids",
+    "USERPROFILE",
+    "unvalidated",
+    "somevalue",
+    "testuser",
+    "cursorindexignore",
+    "cursorrules",
+    "mdast"
+  ],
+  "workbench.editorAssociations": {
+    "*.mdc": "default"
+  }
 }

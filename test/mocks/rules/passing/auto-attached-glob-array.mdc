@@ -1,0 +1,7 @@
+---
+description: 
+globs: *.test.ts,*.md
+alwaysApply: false
+---
+# Test of Auto-Attached Glob Array
+Some really interesting rule
