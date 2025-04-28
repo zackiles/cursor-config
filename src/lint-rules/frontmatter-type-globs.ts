@@ -4,7 +4,7 @@ export const frontmatterTypeGlobs: LintRule = {
   id: 'frontmatter-type-globs',
   severity: 'error',
   description:
-    "Validates that the 'globs' field in the frontmatter, if present, is either a string or an array of strings.",
+    "Type checking for the 'globs' field: validates the data types are correct (string or array, with array elements all being strings).",
   lint: (file: MdcFile): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-type-globs',
@@ -23,13 +23,20 @@ export const frontmatterTypeGlobs: LintRule = {
     }
 
     const globsValue = file.frontmatter.parsed.globs
+
+    // Handle null values - these are valid empty globs
+    if (globsValue === null) {
+      return result
+    }
+
     const isString = typeof globsValue === 'string'
     const isArray = Array.isArray(globsValue)
 
     // If it's not a string or array, it's invalid
     if (!isString && !isArray) {
       result.passed = false
-      result.message = "The 'globs' field must be a string or an array"
+      result.message =
+        `Type error: 'globs' must be either a string or an array (found ${typeof globsValue})`
       result.offendingLines = [
         { line: file.frontmatter.startLine, content: '---' },
       ]
@@ -46,7 +53,8 @@ export const frontmatterTypeGlobs: LintRule = {
       const allStrings = globsValue.every((item) => typeof item === 'string')
       if (!allStrings) {
         result.passed = false
-        result.message = "All items in the 'globs' array must be strings"
+        result.message =
+          "Type error: Array 'globs' contains non-string elements (all elements must be strings)"
         result.offendingLines = [
           { line: file.frontmatter.startLine, content: '---' },
         ]

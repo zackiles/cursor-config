@@ -37,6 +37,21 @@ export const frontmatterAutoEmptyGlobs: LintRule = {
 
     const globsValue = file.frontmatter.parsed.globs
 
+    // Check if globs is null
+    if (globsValue === null) {
+      result.passed = false
+      result.message = 'AutoAttached rule cannot have empty globs'
+      result.offendingLines = [
+        { line: file.frontmatter.startLine, content: '---' },
+      ]
+      result.offendingValue = {
+        propertyPath: 'frontmatter.globs',
+        value: globsValue,
+      }
+      result.reason = 'The globs field must contain at least one valid glob pattern, not null'
+      return result
+    }
+
     // Check if globs is empty string
     if (typeof globsValue === 'string' && globsValue.trim() === '') {
       result.passed = false

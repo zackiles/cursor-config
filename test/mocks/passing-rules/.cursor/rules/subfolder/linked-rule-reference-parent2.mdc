@@ -1,0 +1,13 @@
+---
+description: Referencing other rules
+globs: 
+alwaysApply: false
+---
+# A Parent rule that specifies multiple references to other rules
+The following rule is one subfolder below this rule:
+
+- [linked-rule-reference-child1.mdc](mdc:.cursor/rules/linked-rule-reference-child1.mdc)
+
+The following rule is in the current subfolder:
+
+- [linked-rule-reference-child2.mdc](mdc:.cursor/rules/subfolder/linked-rule-reference-child2.mdc)

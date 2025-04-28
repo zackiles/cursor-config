@@ -1,6 +1,7 @@
 ---
 description: Recover From Repeated Failures to Resolve Errors
-globs: 
+globs:
+alwaysApply: false
 ---
 ## Steps for Recovery Mode  
 **DANGER: DEATH**  

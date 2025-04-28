@@ -24,7 +24,7 @@ Rules of this type are automatically injected into the AI's context when files m
 |---------------|------------------------------------|-----------------------------------|---------------------------------------------------------------------------|
 | `globs`       | Must contain >= 1 pattern        | Comma-separated list or single string | **IMPORTANT:** NO spaces after commas when using multiple patterns.       |
 | `alwaysApply` | `false`                            | N/A                               | Must be explicitly set to `false`.                                          |
-| `description` | `""` (Empty string)              | N/A                               | Must be empty. The rule's purpose is inferred from context/body content. |
+| `description` | Empty                            | N/A                               | Must be empty (null, undefined, or empty string). The rule's purpose is inferred from context/body content. |
 
 #### Purpose and Usage (Auto Attached Rule)
 
@@ -38,7 +38,7 @@ Rules of this type are automatically injected into the AI's context when files m
 # Correct: Comma-separated, NO spaces
 globs: **/*.ts,**/*.tsx
 alwaysApply: false
-description: ""
+description:
 ---
 
 # TypeScript Development Guidelines
@@ -61,9 +61,9 @@ These rules are made available to the AI, which decides whether to activate the 
 
 | Parameter     | Required Setting           | User Configuration                               | Notes                                                                   |
 |---------------|----------------------------|--------------------------------------------------|-------------------------------------------------------------------------|
-| `globs`       | `[]` (Empty list/string)   | N/A                                              | Must be empty.                                                          |
+| `globs`       | Empty                      | N/A                                              | Must be empty (null, undefined, or empty string).                        |
 | `alwaysApply` | `false`                    | N/A                                              | Must be explicitly set to `false`.                                      |
-| `description` | Must contain text          | Concise, specific description of activation criteria | Required. This text guides the AI on when to fetch and apply the rule. |
+| `description` | Must contain text          | Concise, specific description of activation criteria | Required. Must be a non-empty string that explains when to use the rule. |
 
 #### Purpose and Usage (Agent Attached Rule)
 
@@ -100,9 +100,9 @@ These rules are only activated when explicitly referenced by the user in the cha
 
 | Parameter     | Required Setting         | User Configuration | Notes                                                                     |
 |---------------|--------------------------|--------------------|---------------------------------------------------------------------------|
-| `globs`       | `[]` (Empty list/string) | N/A                | Must be empty.                                                            |
+| `globs`       | Empty                    | N/A                | Must be empty (null, undefined, or empty string).                          |
 | `alwaysApply` | `false`                  | N/A                | Must be explicitly set to `false`.                                        |
-| `description` | `""` (Empty string)    | N/A                | Must be empty. The rule's purpose is inferred from its body content.     |
+| `description` | Empty                    | N/A                | Must be empty (null, undefined, or empty string). The rule's purpose is inferred from its body content. |
 
 #### Purpose and Usage (Manually Attached Rule)
 
@@ -152,9 +152,9 @@ These rules are unconditionally injected into every AI context window, providing
 
 | Parameter     | Required Setting         | User Configuration | Notes                                                                     |
 |---------------|--------------------------|--------------------|---------------------------------------------------------------------------|
-| `globs`       | `[]` (Empty list/string) | N/A                | Must be empty.                                                            |
+| `globs`       | Empty                    | N/A                | Must be empty (null, undefined, or empty string).                          |
 | `alwaysApply` | `true`                   | N/A                | Must be explicitly set to `true`.                                         |
-| `description` | `""` (Empty string)    | N/A                | Must be empty. The rule's purpose is inferred from its body content.     |
+| `description` | Empty                    | N/A                | Must be empty (null, undefined, or empty string). The rule's purpose is inferred from its body content. |
 
 #### Purpose and Usage (Always Attached Rule)
 
@@ -237,7 +237,7 @@ Rules are injected into the system prompt context but aren't yet active. Whether
 
 #### Stage 2: Activation
 
-Whether a rule takes effect depends on its `description` field.
+Whether a rule takes effect depends on its `description` field and rule type.
 
 Cursor appends the following structure to the system prompt:
 
@@ -264,12 +264,17 @@ Use them if they seem useful to the user's most recent query, but do not use the
 
 #### Key Points About Activation
 
-1. `description`: The `description` defines the appropriate scenarios, and the model will evaluate the context to decide whether the rule should be applied, such as:  
-   - Always active in all situations.  
-   - Active during planning discussions.  
-   - Active for frontend projects.  
-   - Etc.  
-2. AI Intelligence Required: The model must have sufficient intelligence to properly interpret the `description`. Less capable models (e.g., GPT-4-mini) may fail to understand and apply the rules effectively.
+1. `description`: 
+   - For AgentAttached rules: The `description` must be a non-empty string that defines the activation scenarios.
+   - For all other rule types: The `description` should be empty (null, undefined, or empty string).
+   - Empty values are consistently treated as null throughout the system.
+
+2. `globs`:
+   - For AutoAttached rules: The `globs` must be a non-empty string or array of strings.
+   - For all other rule types: The `globs` should be empty (null, undefined, or empty string).
+   - Empty values are consistently treated as null throughout the system.
+
+3. AI Intelligence Required: The model must have sufficient intelligence to properly interpret the rules. Less capable models (e.g., GPT-4-mini) may fail to understand and apply the rules effectively.
 
 ---
 
@@ -277,12 +282,17 @@ Use them if they seem useful to the user's most recent query, but do not use the
 
 For Project Rules to function correctly, it's crucial to understand the **four distinct rule types** defined by their specific YAML header configurations:
 
-1. **Always Attached**: `alwaysApply: true`, `globs: []`, `description: ""`. Injected into *every* context, intended for universal guidelines. Activation is implicit due to `alwaysApply: true`.
-2. **Auto Attached**: `alwaysApply: false`, `globs: <patterns>`, `description: ""`. Injected when files matching `globs` are present. Activation depends on the AI determining the rule's body content is relevant to the current context.
-3. **Agent Attached**: `alwaysApply: false`, `globs: []`, `description: <text>`. Made available via its `description`. The AI decides whether to fetch and apply the rule based on whether the `description` matches the user's query.
-4. **Manually Attached**: `alwaysApply: false`, `globs: []`, `description: ""`. Injected *only* when explicitly invoked by the user with `@rule-name`. Activation is user-driven.
+1. **Always Attached**: `alwaysApply: true`, empty `globs`, empty `description`. Injected into *every* context, intended for universal guidelines. Activation is implicit due to `alwaysApply: true`.
 
-Understanding which rule type to use and configuring its specific YAML header correctly is key to ensuring rules are injected and activated as intended in your workflows. The combination of `alwaysApply`, `globs`, and `description` is strictly defined by the chosen rule type.
+2. **Auto Attached**: `alwaysApply: false`, non-empty `globs`, empty `description`. Injected when files matching `globs` are present. Activation depends on the AI determining the rule's body content is relevant to the current context.
+
+3. **Agent Attached**: `alwaysApply: false`, empty `globs`, non-empty `description`. Made available via its `description`. The AI decides whether to fetch and apply the rule based on whether the `description` matches the user's query.
+
+4. **Manually Attached**: `alwaysApply: false`, empty `globs`, empty `description`. Injected *only* when explicitly invoked by the user with `@rule-name`. Activation is user-driven.
+
+In all cases, empty values (null, undefined, or empty string) are treated as equivalent. The system normalizes these values for consistent handling.
+
+Understanding which rule type to use and configuring its specific YAML header correctly is key to ensuring rules are injected and activated as intended in your workflows.
 
 ---
 

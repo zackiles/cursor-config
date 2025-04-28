@@ -28,8 +28,7 @@
       "deno.json",
       "src/**/*.ts",
       "scripts/**/*.ts",
-      "test/**/*.ts",
-      "./mod.ts"
+      "test/**/*.ts"
     ],
     "exclude": [
       "test/mocks/**"
@@ -41,7 +40,6 @@
       "src/**/*.ts",
       "scripts/**/*.ts",
       "test/**/*.ts",
-      "./mod.ts",
       "*.md"
     ],
     "exclude": [
@@ -57,7 +55,7 @@
     "@std/yaml": "jsr:@std/yaml@1"
   },
   "exports": {
-    ".": "./mod.ts"
+    ".": "./src/mod.ts"
   },
   "compilerOptions": {
     "lib": [

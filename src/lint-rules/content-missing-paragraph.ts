@@ -32,11 +32,13 @@ export const contentMissingParagraph: LintRule = {
 
     if (!hasFollowingParagraph) {
       result.passed = false
-      result.message = 'No paragraph text found after the first header'
+      result.message =
+        'No paragraph text found after the first header. Empty sections, markdown components, lists (numbered or bulleted), or other non-paragraph elements are not considered sentence or paragraphs.'
       result.offendingLines = [
         { line: firstHeader.line, content: file.rawLines[firstHeader.line - 1] || '' },
       ]
-      result.reason = 'The first header must be followed by at least one paragraph of text'
+      result.reason =
+        'The first header must be followed by at least one paragraph of explanatory text to provide context. This helps AI agents better understand and utilize the rule content. Lists, code blocks, or other non-paragraph elements are not sufficient.'
     }
 
     return result

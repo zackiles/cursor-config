@@ -1,12 +1,14 @@
 ---
 description: Generating code in Javascript and Typescript files
-globs: *.ts, *.js
+globs: *.ts,*.js
 alwaysApply: false
+category: Code Generation
 ---
-## CODING STYLE GUIDE - JAVASCRIPT AND TYPESCRIPT (MANDATORY OR STRONGLY ENCOURAGED)
+## CODING STYLE GUIDE, RULES, AND STANDARDS (JAVASCRIPT AND TYPESCRIPT)
+Follow the below coding standards, rules, best practices and style guides.
 
-### Naming
-- **snake_case**: for file names.  
+### Naming and Casing
+- **kebab-case**: for file names.  
 - **camelCase**: for instance names.  
 - **PascalCase**: for class and symbol names.  
 - **UPPER_SNAKE_CASE**: for constants.
@@ -439,3 +441,6 @@ Simple, compact, and elegant code is easier for the reader to read as it doesn't
   ```  
 - Export small, focused modules rather than monolithic ones to keep code modular and concise  
 
+### Summary
+
+This document provides coding standards for generating and refactoring JavaScript and TypeScript code, targeting optimal readability, cleanliness, and maintainability. **Key Directives Include**: Prioritize modern ECMAScript features (ESM, functional patterns, composition over inheritance). Strictly follow naming conventions (kebab-case files, camelCase instances, PascalCase classes/symbols, UPPER_SNAKE_CASE constants) and code ordering (imports, hoisted elements, methods, bottom-exports). **Crucially**, apply TypeScript types *only* at well-defined boundaries (e.g., public module interfaces, essential core primitives) or where they significantly simplify code complexity; *avoid* internal, overly simple, or redundant types. Adhere to specific guidelines for ESM imports/exports (including `import type`), flat error handling patterns (avoid nested try/catch), immutable data structures (`structuredClone`), concurrency management (`Atomics`, Workers), minimal integration testing strategy, secure crypto usage (`crypto.subtle`), and structured logging. The overarching goal is consistent, high-quality, modern code generation adhering to these rules.

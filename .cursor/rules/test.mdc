@@ -1,0 +1,19 @@
+---
+description: Finalizing Work or Ending the Conversation
+globs: 
+alwaysApply: false
+---
+# A rule that specifies multiple local `@` command links.
+
+Files in the local codebase:
+[README.md](mdc:README.md)
+[LICENSE](mdc:LICENSE)
+[build.test.ts](mdc:test/build.test.ts)
+[frontmatter-missing-category.ts](mdc:src/lint-rules/frontmatter-missing-category.ts)
+
+
+Cursor Rules in the local codebase:
+[create-prompt.mdc](mdc:.cursor/rules/create-prompt.mdc)
+[with-tests.mdc](mdc:.cursor/rules/with-tests.mdc)
+[with-jsdoc.mdc](mdc:.cursor/rules/with-jsdoc.mdc)
+[test2.mdc](mdc:.cursor/rules/subfolder/test2.mdc)

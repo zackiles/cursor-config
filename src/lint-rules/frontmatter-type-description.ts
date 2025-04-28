@@ -4,7 +4,7 @@ export const frontmatterTypeDescription: LintRule = {
   id: 'frontmatter-type-description',
   severity: 'error',
   description:
-    "Validates that the 'description' field in the frontmatter, if present, is a string.",
+    "Validates that the 'description' field in the frontmatter, if present, is a string, null, or undefined.",
   lint: (file: MdcFile): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-type-description',
@@ -23,9 +23,16 @@ export const frontmatterTypeDescription: LintRule = {
     }
 
     const descriptionValue = file.frontmatter.parsed.description
+
+    // Null is explicitly allowed as a valid value for description
+    if (descriptionValue === null) {
+      return result
+    }
+
+    // Allow string, null, or undefined values for description
     if (typeof descriptionValue !== 'string') {
       result.passed = false
-      result.message = "The 'description' field must be a string."
+      result.message = "The 'description' field must be a string or null."
       result.offendingLines = [
         { line: file.frontmatter.startLine, content: '---' },
       ]
@@ -33,7 +40,7 @@ export const frontmatterTypeDescription: LintRule = {
         propertyPath: 'frontmatter.description',
         value: descriptionValue,
       }
-      result.reason = `Found ${typeof descriptionValue} instead of string.`
+      result.reason = `Found ${typeof descriptionValue} instead of string or null.`
     }
 
     return result

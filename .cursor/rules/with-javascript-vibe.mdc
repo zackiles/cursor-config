@@ -1,6 +1,6 @@
 ---
 description: Vibe coding for bleeding-edge Javascript and Typescript code generation
-globs: *.ts, *.js
+globs: *.ts,*.js
 alwaysApply: false
 ---
 ## CODING STYLE GUIDE - JAVASCRIPT AND TYPESCRIPT (MANDATORY OR STRONGLY ENCOURAGED)

@@ -3,7 +3,6 @@ description:
 globs: src/utils/**,bin/**,scripts/**
 alwaysApply: false
 ---
-
 # Critical Rules To Be Followed When Analyzing Or Editing Code In These Directories
 
 The following directories are unique project directories that require you to follow all rules described for any files contained anywhere in a folder or sub-folder that matches these glob patterns: `src/utils/**`, `bin/**`, `scripts/**`

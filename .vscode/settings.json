@@ -82,7 +82,21 @@
     "testuser",
     "cursorindexignore",
     "cursorrules",
-    "mdast"
+    "mdast",
+    "frontmatter",
+    "SIGWINCH",
+    "SIGINT",
+    "SIGTERM",
+    "SIGKILL",
+    "SIGSTOP",
+    "SIGCONT",
+    "SIGQUIT",
+    "SIGILL",
+    "SIGTRAP",
+    "SIGABRT",
+    "SIGBUS",
+    "SIGFPE",
+    "SIGSEGV"
   ],
   "workbench.editorAssociations": {
     "*.mdc": "default"

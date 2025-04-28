@@ -37,6 +37,22 @@ export const frontmatterAgentEmptyDescription: LintRule = {
 
     const descriptionValue = file.frontmatter.parsed.description
 
+    // Check if description is null (which is not allowed for AgentAttached rules)
+    if (descriptionValue === null) {
+      result.passed = false
+      result.message = 'AgentAttached rule description cannot be empty'
+      result.offendingLines = [
+        { line: file.frontmatter.startLine, content: '---' },
+      ]
+      result.offendingValue = {
+        propertyPath: 'frontmatter.description',
+        value: descriptionValue,
+      }
+      result.reason =
+        'Found null value for description which is not allowed for AgentAttached rules'
+      return result
+    }
+
     // Check if description is not a string
     if (typeof descriptionValue !== 'string') {
       result.passed = false

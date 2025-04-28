@@ -45,9 +45,10 @@ export interface ParsedMarkdownContent {
 export interface ParsedFrontmatter {
   raw: string
   parsed: Record<string, unknown> | null // Null if YAML parsing failed
-  globs?: string | string[]
+  globs?: string | string[] | null
   alwaysApply?: boolean
-  description?: string
+  description?: string | null
+  category?: string | null
   startLine: number // 1-based
   endLine: number // 1-based
   parseError?: Error

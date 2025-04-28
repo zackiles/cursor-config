@@ -3,7 +3,8 @@ import type { LintResult, LintRule, MdcFile } from '../types.ts'
 export const frontmatterInvalidGlobs: LintRule = {
   id: 'frontmatter-invalid-globs',
   severity: 'error',
-  description: "Ensures the 'globs' field, if present, is valid (string or array of strings).",
+  description:
+    "Validates the complete structure of the 'globs' field, ensuring it's correctly formatted as a glob pattern string or array of pattern strings.",
   lint: (file: MdcFile): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-invalid-globs',
@@ -22,6 +23,12 @@ export const frontmatterInvalidGlobs: LintRule = {
     }
 
     const globsValue = file.frontmatter.parsed.globs
+
+    // Handle null globs value - this is valid for empty globs
+    if (globsValue === null) {
+      return result
+    }
+
     const isString = typeof globsValue === 'string'
     const isStringArray = Array.isArray(globsValue) &&
       globsValue.every((item) => typeof item === 'string')
@@ -29,7 +36,8 @@ export const frontmatterInvalidGlobs: LintRule = {
     // Globs must be either a string or array of strings
     if (!isString && !isStringArray) {
       result.passed = false
-      result.message = "The 'globs' field must be a string or array of strings."
+      result.message =
+        'Invalid glob configuration: must be a valid glob pattern string or array of pattern strings.'
 
       // Point to the frontmatter block lines
       result.offendingLines = [

@@ -15,6 +15,8 @@ import { contentMissingParagraph } from './content-missing-paragraph.ts'
 import { frontmatterGlobsSpaces } from './frontmatter-globs-spaces.ts'
 import { contentLongParagraph } from './content-long-paragraph.ts'
 import { contentMissingExamples } from './content-missing-examples.ts'
+import { frontmatterMissingCategory } from './frontmatter-missing-category.ts'
+import { contentBadRuleReference } from './content-bad-rule-reference.ts'
 import { join } from '@std/path'
 
 // Registry of all lint rules
@@ -33,11 +35,13 @@ const lintRules: LintRule[] = [
   frontmatterAgentEmptyDescription,
   contentMissingHeader,
   contentMissingParagraph,
+  contentBadRuleReference,
 
   // Warning rules
   frontmatterGlobsSpaces,
   contentLongParagraph,
   contentMissingExamples,
+  frontmatterMissingCategory,
 ]
 
 /**

@@ -1,8 +1,10 @@
 ---
-description: Chat-only conversation to determine a proposed solution or answer to a question
+description: When proposing a solution or design in a chat only conversation or Ask mode.
 globs:
+alwaysApply: false
 ---
-## Rules for Proposal Mode
+## Rules for Ask Mode
+When asked to design or propose a solution you will take the time to follow these steps:
 
 1. Provide only a solution or guidance for the user’s request or question. Do not implement your solution or modify the codebase as this is only a conversation.
 2. Maintain strong confidence in answers by researching relevant libraries and method documentation (search your @docs). Present a fact-based rationale with each solution.  

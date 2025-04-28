@@ -1,0 +1,12 @@
+---
+description: Referencing other rules
+globs: 
+alwaysApply: false
+---
+# A Bad Parent rule that should fail linting that specifies multiple references to other rules
+The following rule specified to be in the same folder doesn't exist:
+
+- [linked-rule-reference-missing-file.mdc](mdc:.cursor/rules/linked-rule-reference-missing-file.mdc)
+
+The following rule specified to be in a subfolder doesn't exist:
+- [linked-rule-reference-child2.mdc](mdc:.cursor/rules/missing-subfolder/linked-rule-reference-missing-file.mdc)

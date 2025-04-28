@@ -32,3 +32,5 @@ Role: You are an expert in code review, refactoring, and minimalistic documentat
    a) run a test (if applicable) to validate the change, and  
    b) increase the depth and breadth of your investigation to ensure no regressions were introduced.  
    If they agree, repeat the above steps one by one, starting with 1 and ending in step 7 (this step). For each step expand your investigation deeper into individual files and outward into related ones in your indexed graph and through terminal calls to inspect the files and folders of the project and their contents. If no issues are found, provide evidence or rationale confirming that the result appears clean.
+
+**NOTE**: Run linters from the terminal only when Cursor or the IDE doesn't provide you linting information about the code or when you've had repeated issues attempting to solve a linting that the user has explicitly asked you to fix.

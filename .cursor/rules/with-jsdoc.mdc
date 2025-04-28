@@ -14,7 +14,7 @@ This rule provides comprehensive guidance for writing JSDoc comments in modern T
 Before writing JSDoc comments, ALWAYS check for and respect the project's linting configuration in:
 
 - `deno.json` or `deno.jsonc`
-- `package.json` (eslint configuration)
+- `package.json` or `package.jsonc` (eslint configuration)
 - `.eslintrc.js`, `.eslintrc.json`, or `.eslintrc.yaml`
 - `biome.json`
 - `.vscode/settings.json`
@@ -337,6 +337,50 @@ async function processDataV2(data: any): Promise<any> {
  */
 ```
 
+### Section 11: Avoiding Type Duplication in TypeScript Projects
+
+When working with TypeScript (especially in Deno), avoid duplicating type information between JSDoc and TypeScript annotations:
+
+- **Omit JSDoc Type Annotations** when TypeScript types are present in the code
+  ```typescript
+  /**
+   * Process data from the source.
+   * 
+   * ❌ BAD:
+   * @param {DataSource} source - The data source to process
+   * 
+   * ✅ GOOD:
+   * @param source - The data source to process
+   */
+  function processData(source: DataSource): void
+  ```
+
+- **Focus on describing purpose and constraints** in JSDoc rather than structure
+  ```typescript
+  /**
+   * @param options - Configuration options (default: { timeout: 1000 })
+   * @param options.timeout - Maximum time in milliseconds before operation cancels
+   */
+  function fetchData(options: FetchOptions = { timeout: 1000 }): Promise<Data>
+  ```
+
+- **For parameter documentation**, describe behavior, constraints, defaults, and edge cases without repeating types
+  ```typescript
+  /**
+   * Renders a component with the given properties.
+   * 
+   * @param props - Component properties
+   * @param props.visible - Whether component should be initially visible
+   * @param props.onClose - Called when the component is dismissed
+   */
+  function RenderComponent(props: ComponentProps): JSX.Element
+  ```
+
+- **Use TypeScript for structure, JSDoc for semantics** - Let TypeScript handle the "what" while JSDoc explains the "why" and "how"
+
+This approach prevents linting errors like "JSDoc types may be moved to TypeScript types" while maintaining comprehensive documentation.
+
+
 ### Notes on Implementing and Maintaining JSDoc Standards
 
 - This rule should be applied to all new code and documentation
@@ -346,6 +390,5 @@ async function processDataV2(data: any): Promise<any> {
 
 ### Cross-Referenced Related Style Guide Rules
 
-- `with-typescript` - TypeScript documentation specifics
-- `with-javascript` - JavaScript documentation specifics
-- `with-tests` - Test documentation specifics
+- [with-javascript.mdc](mdc:.cursor/rules/with-javascript.mdc) Some notes about JavaScript and TypeScript documentation specifics
+- [with-tests.mdc](mdc:.cursor/rules/with-tests.mdc) - Some notes about Test documentation specifics

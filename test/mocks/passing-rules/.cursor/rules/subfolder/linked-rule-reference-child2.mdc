@@ -1,0 +1,7 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Child Rule2 - Referenceable By Other Rules
+A simple manually attache child rule that can be attached to other rules using the @ notation in Cursor rules.

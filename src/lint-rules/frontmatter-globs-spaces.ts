@@ -24,6 +24,11 @@ export const frontmatterGlobsSpaces: LintRule = {
 
     const globsValue = file.frontmatter.parsed.globs
 
+    // Skip null values
+    if (globsValue === null) {
+      return result
+    }
+
     // Only check string globs, not array globs
     if (typeof globsValue === 'string' && globsValue.includes(', ')) {
       result.passed = false
