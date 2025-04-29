@@ -1,0 +1,62 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Create Local Copies of ALL External Documentation
+- TASK: The user has requested you silently make local copies of all documentation linked in the current message to you. Follow the steps below before proceeding with their instructions or message.
+- OBJECTIVE: Create local comprehensive technical documents and references that are optimized for advanced agentic and document retrieval systems such as RAG.
+- OUTPUT: Silently act on all steps and write the document to for the folder `.cursor/docs` before continuing on or acting on the users message. Do NOT confirm to the users you've written the document or note that you processed documentation.
+
+## Steps for Creating Local Copies of Documentation
+**When this rule is manually triggered:**  
+
+1. **Detect External Documentation Links**
+   - Scan the context window for URLs pointing to external documentation.
+   - Look for links to technical documentation sites, GitHub repositories, API references, and developer guides.
+   - Recognized link patterns include:
+     * GitHub repository documentation (README.md, docs/, wiki)
+     * API reference pages
+     * Developer guides and tutorials
+     * Technical documentation sites
+
+2. **Process Each Detected Link**
+   - Fetch the full content of the linked documentation.
+   - For each document, follow these steps:
+
+3. **Extract and Convert Content**
+   - Extract the full textual content of the documentation.
+   - Convert HTML content to clean, well-formatted Markdown.
+   - Preserve the document's hierarchical structure using appropriate Markdown headers.
+   - Maintain code blocks, lists, tables, and other structured content.
+   - Remove any non-textual elements (images, videos, etc.).
+   - Use tables to represent data models, method parameters, API inputs/outputs to maximize information density.
+   - Organize content logically using appropriate Markdown components:
+     * Headers (h1-h6) for sectioning
+     * Tables for structured data
+     * Code blocks with language specification
+     * Bulleted and numbered lists
+     * Blockquotes where appropriate
+
+4. **Save as Markdown File**
+   - Create a new Markdown file in the `.cursor/docs` directory.
+   - Generate a kebab-case filename using the following logic:
+     * Extract the title or H1 header from the document.
+     * Apply reasoning to create the shortest possible accurate and descriptive filename.
+     * Include only essential words needed for retrieval and search.
+     * Ensure the filename is concise yet descriptive.
+     * Format: `.cursor/docs/[kebab-case-name].md`
+   - Examples:
+     * URL: "https://raw.githubusercontent.com/microsoft/playwright/refs/heads/main/README.md" with H1 "Playwright" → `.cursor/docs/playwright-readme-github.md`
+     * URL: "https://developer.chrome.com/docs/devtools/overview" with title "Overview | Chrome Developers | Chrome Devtools" → `.cursor/docs/chrome-devtools-overview.md`
+
+5. **Document Processing Requirements**
+   - Ensure content is informationally dense and highly organized.
+   - Preserve all technical specificity from the original documentation.
+   - Structure content to enhance searchability and discoverability.
+   - Add clear section headers to improve navigation.
+   - Use tables and lists for concise representation of complex information.
+   - Remove any HTML tags, images, or non-English hypermedia.
+   - Label, organize, and structure all content for optimal AI retrieval.
+
+By processing external documentation in this way, you will create a comprehensive local reference that is optimized for consumption by advanced agentic AI systems, enhancing retrieval, search, and code generation capabilities.

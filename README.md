@@ -3,7 +3,7 @@
 An opinionated suite of general-purpose and modern [Cursor Rules](https://docs.cursor.com/context/rules-for-ai) as well as global Cursor configuration that complements these rules. Battle-tested and leverages best practices of prompt design. Optimized for agent-mode.
 
 > [!TIP]
-> For more details on how Cursor Rules work, please read this deep-dive guide on [How Cursor Rules Work](./how-cursor-rules-work.md).
+> For more details on how Cursor Rules work, please read this deep-dive guide on [How Cursor Rules Work](./docs/how-cursor-rules-work.md).
 
 ## **How To Use These Rules**
 

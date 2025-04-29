@@ -1,0 +1,42 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Clean and Remove Old Plans NOW
+Before proceeding with this conversation or the current message from the user you will clean up your specialized on-disk files that were used for planning. To cleanup your files take the following steps one by one using your tools:
+
+1. Initialize two variables in your memory now named `filesToReview[string]` and `filesToDelete[string]` then move to step 2.
+
+2. Get a list of all files matching the pattern `./cursor/memory/todo*.md` using the `list_dir` tool:
+   ```
+   # EXAMPLE COMMAND: Adapt the path as needed for your workspace structure
+   list_dir(relative_workspace_path: ".cursor/memory", explanation: "Listing todo files in memory directory")
+   ```
+   Add the absolute paths of matching files as strings to the array in the variable `filesToReview[string]`. Examples of files that would match this pattern: `./cursor/memory/todo7-checklist.md`, `./cursor/memory/todo-random-characters901..md`, `./cursor/memory/todo7-june-23-2005.md`.
+
+3. Pop off and remove an absolute path from the `filesToReview[string]` and use it in step 4. If the array is empty then skip all steps and move directly to step 10 (the final step).
+
+4. Get the full contents of the file at absolute path received from step 3 using the `read_file` tool:
+   ```
+   # EXAMPLE COMMAND: Replace {file_path} with the actual path from filesToReview
+   read_file(target_file: "{file_path}", should_read_entire_file: true)
+   ```
+   Then move to step 5 where you will use it.
+
+5. Review each and every single checklist or action item found in the file contents from step 4 that have NOT been finished or marked complete. If you find uncompleted items remove the file contents and path from your memory and move back to step 2. If ALL action items HAVE been completed, then move to step 6.
+   
+6. **ALL ITEMS IN FILE HAVE BEEN COMPLETED**: if this file has already been worked on and all items completed, then we will mark it for deleting by adding its absolute path to `filesToDelete[string]` and move back to step 2.
+
+7. If there are no more file paths in `filesToReview[string]` or it's empty, then check the `filesToDelete[string]` array: if it contains any paths, move to step 8; if it is empty, then move to step 9.
+
+8. Take the absolute paths from step 7, let the user know the list of old files you've found in your memory, and then batch delete all of them from the users system using a single terminal command:
+   ```
+   # EXAMPLE COMMAND: Replace with actual file paths from filesToDelete array
+   run_terminal_cmd(command: "rm {file1_path} {file2_path} {file3_path}", is_background: false, explanation: "Deleting completed plan files")
+   ```
+   Where {file1_path}, {file2_path}, etc. are the actual file paths from the `filesToDelete[string]` array. Once the files are deleted, move to step 9.
+
+9. Empty the `filesToReview[string]` array and then move to step 10.
+
+10. **FINAL STEP**: Confirm both the `filesToDelete[string]` and `filesToReview[string]` arrays are empty or no longer exist. If they're both empty, your work is complete, and you can now handle the users message or end the conversations turn if there are no other user requests or messages to act on.

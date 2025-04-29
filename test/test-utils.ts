@@ -24,6 +24,88 @@ import { assert } from '@std/assert'
 import { expandGlob, type WalkEntry } from '@std/fs'
 import { processMdcFile } from '../src/processor.ts'
 
+/**
+ * Debug configuration for test files.
+ * Provides a consistent way to handle debug logging across test suites.
+ *
+ * @example
+ * ```ts
+ * DEBUG.log('Test output:', result)
+ * ```
+ */
+
+// Define consistent inspect options for all debug output
+const inspectOptions: Deno.InspectOptions = {
+  // Essential formatting options
+  colors: true, // Enable ANSI colors for better readability
+  compact: false, // Don't compress output - better for debugging
+  depth: 6, // Better handle nested objects
+  breakLength: 80, // Standard terminal width
+
+  // Content control options
+  iterableLimit: 50, // Keep output manageable
+  strAbbreviateSize: 150, // Keep string output concise
+
+  // Enhanced inspection options
+  showProxy: true, // Show Proxy target and handler for debugging
+  showHidden: true, // Show non-enumerable properties
+  getters: true, // Evaluate getters for complete object state
+
+  // Output formatting
+  sorted: true, // Sort object keys for consistent output
+  trailingComma: true, // Better for multi-line diffs
+  escapeSequences: true, // Properly escape special characters
+}
+
+export const DEBUG = {
+  enabled: Deno.args.includes('--log-level=debug'),
+  log: function (...args: unknown[]) {
+    if (!this.enabled) return
+
+    const processedArgs = args.map((arg) => {
+      // Handle primitive types and errors directly
+      if (
+        typeof arg === 'string' ||
+        typeof arg === 'boolean' ||
+        typeof arg === 'number' ||
+        arg instanceof Error
+      ) {
+        return arg
+      }
+
+      // Handle null and undefined
+      if (arg === null || arg === undefined) {
+        return arg
+      }
+
+      // For objects, check for toString or toJSON methods
+      if (typeof arg === 'object') {
+        // Check for custom toString method (not the default Object.prototype.toString)
+        if (
+          'toString' in arg &&
+          arg.toString !== Object.prototype.toString &&
+          typeof arg.toString === 'function'
+        ) {
+          return arg.toString()
+        }
+
+        // Check for toJSON method
+        if ('toJSON' in arg && typeof arg.toJSON === 'function') {
+          return arg.toJSON()
+        }
+
+        // Use Deno.inspect for objects
+        return Deno.inspect(arg, inspectOptions)
+      }
+
+      // Fallback for any other types (symbols, functions, etc)
+      return Deno.inspect(arg, inspectOptions)
+    })
+
+    console.log(...processedArgs)
+  },
+}
+
 /** Base directory for all mock files used in tests */
 const MOCK_FILES_BASE_PATH = 'test/mocks'
 

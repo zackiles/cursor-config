@@ -72,17 +72,18 @@ function formatLintResult(
     : `${Characters.STATUS.WARNING.VOLTAGE}` // Already 2 chars wide visually
   const status = severityColor(`${statusSymbol} ${statusText}`)
 
-  // Define spacing around the status text
-  const statusPrefix = ' ' // One space before the status symbol
+  // No space before the status symbol for the rule ID line - start at the leftmost position
+  const statusPrefix = '' // Was: ' ' (one space)
   const statusPostfix = ' ' // One space after the status text
 
-  // Calculate the starting column for the rule ID (after status + spacing)
-  // Lengths: prefix(1) + symbol(2) + space(1) + text(4) + postfix(1) = 9
-  const ruleIdPosition = 1 + 2 + 1 + 4 + 1
+  // Calculate the starting column for the message lines (after status + rule ID spacing)
+  // With the status now at the leftmost position, we count from the beginning of the line
+  // Lengths: symbol(2) + space(1) + text(4) + postfix(1) = 8
+  const ruleIdPosition = 2 + 1 + 4 + 1 // Was: 1 + 2 + 1 + 4 + 1 = 9 (had an extra space prefix)
   const continuationIndent = ' '.repeat(ruleIdPosition)
 
-  // Rule ID part with trailing space
-  const ruleIdPart = `${result.ruleId}: `
+  // Rule ID part with trailing colon
+  const ruleIdPart = `${result.ruleId}:`
 
   // The original message (not dimmed) - we'll dim each fragment of text as we use it
   let originalMessage = result.message || ''
@@ -108,40 +109,30 @@ function formatLintResult(
   // Prepare output lines array
   const outputLines: string[] = []
 
-  // The prefix for the very first line (status part)
+  // The prefix for the rule ID line - now starting at the leftmost position
   const firstLinePrefix = `${statusPrefix}${status}${statusPostfix}`
 
-  // Configuration for wrapping the main message
+  // Add the rule ID line starting at the leftmost position
+  outputLines.push(`${firstLinePrefix}${bold(severityColor(ruleIdPart))}`)
+
+  // Configuration for the message box that will start on the next line
   const messageBoxOptions = {
-    leftMargin: ruleIdPosition, // Align with rule ID start (character-based margin)
+    leftMargin: ruleIdPosition, // Align with the position after status + space + text
     rightMargin: '20%', // Keep 20% padding on the right
     minContentWidth: 20, // Ensure minimum content width for very narrow terminals
     ellipsis: Characters.ELLIPSIS.HORIZONTAL, // Use the standard horizontal ellipsis
   }
 
-  // Wrap the main message content
+  // Wrap the message content
   const wrappedMessageLines = wrapTextInBoundingBox(
     originalMessage,
     consoleWidth,
     messageBoxOptions,
   )
 
-  // Add the first line (status + rule id + first part of message)
-  if (wrappedMessageLines.length > 0) {
-    outputLines.push(
-      `${firstLinePrefix}${bold(severityColor(ruleIdPart))}${gray(wrappedMessageLines[0])}`,
-    )
-  } else if (originalMessage.trim()) {
-    // Handle case where message exists but wrapping resulted in no lines (should be rare)
-    outputLines.push(`${firstLinePrefix}${bold(severityColor(ruleIdPart))}${gray(originalMessage)}`)
-  } else {
-    // If no message, just show status and rule ID
-    outputLines.push(`${firstLinePrefix}${bold(severityColor(ruleIdPart))}`)
-  }
-
-  // Add subsequent message lines, indented
-  for (let i = 1; i < wrappedMessageLines.length; i++) {
-    outputLines.push(`${continuationIndent}${gray(wrappedMessageLines[i])}`)
+  // Add all message lines with proper indentation
+  for (const line of wrappedMessageLines) {
+    outputLines.push(`${continuationIndent}${gray(line)}`)
   }
 
   // Add a blank line for spacing if there's a message AND verbose info will follow

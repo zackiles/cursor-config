@@ -5,21 +5,40 @@ alwaysApply: false
 ---
 # Critical Rules To Be Followed When Analyzing Or Editing Code In These Directories
 
-The following directories are unique project directories that require you to follow all rules described for any files contained anywhere in a folder or sub-folder that matches these glob patterns: `src/utils/**`, `bin/**`, `scripts/**`
+The following directories are unique project directories that require you to follow all rules described for any files contained anywhere in a folder or sub-folder that matches these glob patterns: `src/utils/**`, `bin/**`, `scripts/**`, `test/**`
 
 **NOTE (Glob Pattern Relative Path)**: ALL glob patterns are **relative to the root of the project or codebase**. This is sometimes referred to as the worksapce root.
 
 **NOTE**: Ignore default README.md files mentioned here if there is a README.md in directory AND that README.md talks specifically about the directory.
 
 ## **Rules**:
-- Before editing, creating, or analyzing files in one of the mentioned folders, read the folders strict rules defined in the directory-specific README.md contained in the root of the folder. For example, the following README.md files exist: `src/utils/README.md`, `bin/README.md`, `scripts/README.md` .
+- Before editing, creating, or analyzing files in one of the mentioned folders, read the folders strict rules defined in the directory-specific README.md contained in the root of the folder. For example, the following README.md files exist: `src/utils/README.md`, `bin/README.md`, `scripts/README.md`, `test/README.md` .
+
+  ```
+  # EXAMPLE COMMAND: Check for directory README.md file
+  read_file(
+    target_file: "<directory>/README.md",
+    should_read_entire_file: true,
+    explanation: "Reading directory-specific rules"
+  )
+  ```
+
 - Ensure ALL code you generate and any files created or modified in the directory or any of its sub-directories follow each rule defined in the README.md for that directory.
 - All rules in the README.md defined as `MUST` should always be followed.
 - All rules in the README.md defined as `MAY` or `SHOULD` are recommended but can be ignored if it is reasonable to do so.
 - Things a user explicitly asks you to do that violates any of the rules mentioned can be followed, but ensure you remind them after your work is complete of the parts of your solution that didn't adhere to the rules and your rationale of why you didn't adhere to them.
 
 ## Default README.md Files
-When no README.md can be found in the folder that matches the glob patterns of: `src/utils/**`, `bin/**`, or `scripts/**` then you may use the following as the default rules. Use only the right rules for the right folder below.
+When no README.md can be found in the folder that matches the glob patterns of: `src/utils/**`, `bin/**`, `scripts/**`, or `test/**` then you may use the following as the default rules. Use only the right rules for the right folder below.
+
+You can check if a directory exists and examine its contents using:
+```
+# EXAMPLE COMMAND: List directory contents to understand structure
+list_dir(
+  relative_workspace_path: "<directory>",
+  explanation: "Examining directory structure to understand context"
+)
+```
 
 ### `scripts/README.md` Default Rules
 
@@ -36,6 +55,16 @@ When no README.md can be found in the folder that matches the glob patterns of: 
 - **MAY** be executed by other files in {PROJECT_NAME} but ONLY through a shell command OR by using `Deno.command`.
 - **MAY** import other files from {PROJECT_NAME} if needed, but those files MUST NOT import the script.
 - **MAY** be tested with a test file in `test/` but only accessed through shell commands.
+
+To analyze scripts in this directory:
+```
+# EXAMPLE COMMAND: Search for imports/exports in scripts
+grep_search(
+  query: "export|import",
+  include_pattern: "scripts/**/*.{ts,js}",
+  explanation: "Checking for exports or imports in script files"
+)
+```
 
 > [!NOTE]\
 > Javascript and Typescript files that need to support being run as scripts in a shell AND be imported as libraries should be placed in `src/` instead. This directory is only for true scripts.
@@ -65,6 +94,16 @@ When no README.md can be found in the folder that matches the glob patterns of: 
 - **MAY** be executed by other files in {PROJECT_NAME} through shell commands or Deno.command.
 - **SHOULD** include documentation for any non-obvious executables.
 
+To check bin directory content:
+```
+# EXAMPLE COMMAND: Check executable permissions in bin directory
+run_terminal_cmd(
+  command: "find bin -type f -executable | sort",
+  is_background: false,
+  explanation: "Listing executable files in bin directory"
+)
+```
+
 > [!NOTE]\
 > For general purpose, self-contained, executable scripts written in Typescript or Javascript that benefit from Deno tooling, use the `scripts/` directory instead.
 
@@ -93,6 +132,25 @@ When no README.md can be found in the folder that matches the glob patterns of: 
 - **MUST** contain JSDoc comments for the module at the top of any file in this `src/utils/` directory.
 - **SHOULD** contain code that is abstracted and general-purpose so that it avoids logic or functionality that is highly specific or tightly-coupled to the project and codebase itself. This can be achieved through more general naming conventions, focusing on high-order and multi-purpose functionality, and focusing code on flexible design and access patterns that allows extending or reusing the utility library outside of this codebase if needed in the future.
 
+To analyze utility files:
+```
+# EXAMPLE COMMAND: Check for JSDoc comments in utility files
+grep_search(
+  query: "/\\*\\*",
+  include_pattern: "src/utils/**/*.{ts,js}",
+  explanation: "Checking for JSDoc comments in utility files"
+)
+```
+
+```
+# EXAMPLE COMMAND: Check for env variable access in utility files
+grep_search(
+  query: "Deno\\.env|Deno\\.args",
+  include_pattern: "src/utils/**/*.{ts,js}",
+  explanation: "Checking for direct env variable or command line flag access"
+)
+```
+
 > [!NOTE]\
 > For general purpose, self-contained, executable scripts meant to be accessed through the shell and stdio, and which are written in Typescript or Javascript consider using the`scripts/` directory instead.
 
@@ -103,3 +161,70 @@ When no README.md can be found in the folder that matches the glob patterns of: 
 - Avoids many external dependencies when possible.
 - Avoids the use of Typescript types unless they're declared locally in the file and not outside of the file or `utils/` directory.
 - Avoids importing or referencing other utility files in the `utils/` directory when possible.
+
+### `test/README.md` Default Rules
+
+**Purpose**: The `test/` directory is used to store test files, test utilities, and mock data that verify the functionality and correctness of the codebase.
+
+**Glob Pattern**: `test/**`
+
+#### **Rules For Files In This Directory**
+
+- **MUST** check for and follow any rules defined in `test/README.md` if it exists, as it contains critical information about test organization, commands, and patterns.
+- **MUST** use the project's designated test runner and assertion libraries.
+- **MUST** follow consistent test file naming patterns:
+  - Test files should be named `{feature-name}.test.ts`
+  - Test utility files should be named descriptively with `-utils.ts` suffix
+  - Mock files should be organized in `test/mocks/` with clear categorization
+- **MUST** include JSDoc documentation at the top of test files describing the test suite.
+- **MUST** group related test utilities in dedicated utility files to promote code reuse.
+- **MUST** use descriptive test names that clearly indicate what is being tested.
+- **SHOULD** include both positive and negative test cases for thorough coverage.
+- **SHOULD** organize mock data in structured subdirectories based on test categories.
+- **MAY** include custom test runners, reporters, or debugging utilities.
+- **MAY** contain environment-specific test configurations.
+
+#### **Rules For the `test/mocks` Directory**
+
+- **MUST** organize mock files in clear categories (e.g., passing/failing/warning cases).
+- **MUST** structure mock data to mirror the real data it represents.
+- **MUST** include sufficient test cases to cover edge cases and common scenarios.
+- **MUST** maintain mock data that accurately represents production data structures.
+- **SHOULD** document the purpose and structure of mock data categories.
+- **SHOULD** keep mock data up-to-date with production data format changes.
+- **MAY** include utilities for generating or managing mock data.
+
+To analyze test files:
+```
+# EXAMPLE COMMAND: Check for JSDoc comments in test files
+grep_search(
+  query: "/\\*\\*",
+  include_pattern: "test/**/*.{ts,js}",
+  explanation: "Checking for JSDoc comments in test files"
+)
+```
+
+```
+# EXAMPLE COMMAND: Check test naming patterns
+grep_search(
+  query: "\\.test\\.ts$",
+  include_pattern: "test/**/*.ts",
+  explanation: "Verifying test file naming conventions"
+)
+```
+
+#### **How Files In this Directory are Used**
+
+- Verify functionality through comprehensive test suites
+- Validate code changes against existing test cases
+- Provide mock data for testing without production dependencies
+- Support continuous integration and deployment processes
+- Enable debugging and troubleshooting of test failures
+- Document expected behavior through test cases
+- Demonstrate usage patterns through example tests
+
+> [!NOTE]\
+> Always check for a `test/README.md` file in the directory as it will contain specific details about test organization, commands, patterns, and requirements for that particular project.
+
+> [!NOTE]\
+> The `test/mocks` directory should mirror the structure of the data it's mocking while maintaining clear categorization of test cases.

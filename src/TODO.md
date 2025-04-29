@@ -63,28 +63,6 @@ function setupResizeListener(options: BoundingBoxOptions) {
 
 **Benefit:** Enables responsive UIs that reflow content gracefully on terminal resize across various environments.
 
-## 2. Unicode/Grapheme Awareness
-
-**Goal:** Correctly handle and measure characters that aren't single code points or single column width (emojis, CJK, combining marks).
-
-**Risks of Not Implementing:**
-*   Relies on `string.length` and basic `\s+` splitting, which is incorrect for visual width and grapheme units.
-*   **Failure Modes:**
-    *   Incorrect Wrapping (Lines break wrong): **High Probability** (esp. user content, emoji).
-    *   Visual Glitches (Overlap/Gaps): **Medium-High Probability**.
-    *   Broken Graphemes (Splitting emojis): **Medium Probability**.
-    *   Incorrect Truncation/Ellipsis: **High Probability**.
-
-**Solution:**
-*   Use a grapheme splitting library (e.g., `grapheme-splitter`) to treat visual units atomically.
-*   Integrate character width calculation (e.g., `eastasianwidth`) for accurate measurement.
-
-```typescript
-// Example import
-import { splitGraphemes } from 'https://deno.land/x/grapheme_splitter/mod.ts';
-// Need width calculation library too
-```
-
 ## 3. Bidirectional Text (RTL) Support
 
 **Goal:** Correctly render text containing Right-to-Left languages (Arabic, Hebrew) and handle mixed LTR/RTL content.
@@ -230,85 +208,64 @@ The above design provides:
 
 This approach makes typical use cases extremely concise while maintaining all the flexibility of the original design.
 
-## 7. ANSI Escape Sequence Awareness (Refined)
+## 7. Utilize `indent.left` in Consumers (`linter.ts`)
 
-**Goal:** Correctly handle ANSI color codes and terminal formatting (e.g., `\x1B[31m`, `\x1B[1m`) within the text being wrapped, ensuring that these non-printing characters do not interfere with line length calculations, wrapping points, or visual alignment.
+**Goal:** Refactor consumers of `bounding-box.ts` (like `linter.ts`) to use the built-in `indent.left` option instead of manually prepending spaces after wrapping.
 
-**Risks of Not Implementing:**
-*   Current implementation counts ANSI escape sequences as visible characters.
-*   **Failure Modes:**
-    *   **Premature Line Wrapping:** Lines containing ANSI codes will wrap earlier than visually expected because the escape sequences contribute to the calculated length. **High Probability**.
-    *   **Incorrect Width Calculation:** The calculated `availableWidth` will be consumed by invisible ANSI characters, leading to less visible text fitting on a line than intended. **Guaranteed**.
-    *   **Visual Formatting Errors:** If a wrap occurs *within* an ANSI sequence (less likely with simple word splitting but possible if `preserveWholeWords` is false or with very long sequences), it breaks the formatting. More commonly, formatting (like color) might not be correctly reset or reapplied on the new line if the wrapping logic doesn't handle the state. **High Probability**.
-    *   **Broken Formatting Spans:** An ANSI sequence starting on one line might have its corresponding reset code (`\x1B[0m`) wrapped to the next, causing the formatting to incorrectly "bleed" across lines or terminate unexpectedly. **High Probability**.
+**Rationale:** The `linter.ts` currently calculates required indentation and passes it as `leftMargin` to `wrapTextInBoundingBox`, then manually prepends spaces to the wrapped lines. Using the `indent.left` option directly within `wrapTextInBoundingBox` is the intended way to achieve this, simplifying the consumer's code and relying on the bounding box's internal logic.
 
-**Proposed Solution (Custom Implementation):**
+**Before Output (Visual):**
+```
+Rule:  path/to/some-rule.mdc
+Type:  RuleType
+────────────────────────────────────────
+  ✖ FAIL rule-id: This is the main message describing the failure which might be quite long and require wrapping. (line 42)
+                 This is the continuation of the wrapped message.
+                 
+                 ▶ Offending content:
+                 Line 42: Some offending code here
+                 ▶ Reason:
+                 A detailed explanation of why this failed which can also be long and needs wrapping.
+                 This is the continuation of the reason.
+```
 
-1.  **Measure Visual Length:** Implement a function to calculate the *display* width of a string, ignoring ANSI escape sequences.
-    ```typescript
-    // Removes ANSI escape codes to get the printable character count.
-    function visualLength(str: string): number {
-      // Basic regex for common CSI (Control Sequence Introducer) sequences.
-      // May need refinement for more complex ANSI types (e.g., OSC).
-      // Source for regex: General understanding + https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
-      return str.replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, '').length;
-    }
-    ```
-2.  **Modify Wrapping Logic:** Update `wrapTextPreservingAlignment` (and potentially `splitIntoWordsAndSpaces`) to use `visualLength` for all width calculations. The splitting logic needs to ensure ANSI sequences are kept intact with the word or space they modify, or handled as zero-width units that don't affect wrapping decisions directly but are included in the final output lines. A more robust splitter might be needed:
+**After Output (Visual):** (Identical to Before)
+```
+Rule:  path/to/some-rule.mdc
+Type:  RuleType
+────────────────────────────────────────
+  ✖ FAIL rule-id: This is the main message describing the failure which might be quite long and require wrapping. (line 42)
+                 This is the continuation of the wrapped message.
+                 
+                 ▶ Offending content:
+                 Line 42: Some offending code here
+                 ▶ Reason:
+                 A detailed explanation of why this failed which can also be long and needs wrapping.
+                 This is the continuation of the reason.
+```
 
-    ```typescript
-    // Example of a more aware split approach (conceptual)
-    function splitAware(text: string): Array<{ chunk: string; visualWidth: number; isAnsi: boolean }> {
-      // Logic to split text while keeping ANSI sequences attached to words
-      // or treating them as separate zero-width chunks.
-      // ... complex implementation ...
-      return []; // Placeholder
-    }
+**Downsides:** None. Cleaner implementation in the consumer (`linter.ts`).
 
-    // In wrapTextPreservingAlignment:
-    // ... loop through chunks from splitAware ...
-    const wordVisualWidth = chunk.visualWidth; // Use visual width
-    if (currentLineVisualWidth + wordVisualWidth > availableWidth) {
-       // wrap line
-    } else {
-       currentLine += chunk.chunk; // Append the raw chunk (with ANSI)
-       currentLineVisualWidth += wordVisualWidth;
-    }
-    // ...
-    ```
+**Effort:** Low. Modify calls to `wrapTextInBoundingBox` in `linter.ts` to use `indent: { left: ... }` instead of `leftMargin: ...` and remove manual space prepending.
 
-**Robustness Analysis of Proposed Solution:**
-*   The proposed `visualLength` function, using a regex to strip ANSI codes, is generally effective for *calculating* the visual width and addresses the "Premature Line Wrapping" and "Incorrect Width Calculation" risks **effectively**, provided the regex is comprehensive enough for the expected ANSI codes.
-*   However, simply stripping codes for measurement doesn't solve the "Visual Formatting Errors" or "Broken Formatting Spans" risks on its own. The core wrapping logic (`wrapTextPreservingAlignment`) needs significant modification to track and preserve these codes correctly across line breaks. It needs to understand that adding an ANSI sequence doesn't consume `availableWidth`.
-*   **Flexibility:** This custom approach is flexible, as the regex and wrapping logic can be tailored. However, correctly handling *all* ANSI variations (CSI, OSC, different parameter forms) and maintaining formatting state across lines (e.g., ensuring a color started on one line is implicitly continued on the next wrapped line) can become extremely complex and error-prone. It might not be *completely* robust against all edge cases without significant effort.
+## 8. Consolidate Ellipsis Style in Consumers (`linter.ts`)
 
-**Alternative Solution (Using Existing Library):**
+**Goal:** Use a consistent ellipsis style (`HORIZONTAL` or `MIDDLE`) when wrapping different types of content in consumers like `linter.ts`.
 
-Instead of manually parsing and handling ANSI codes, we can leverage existing libraries designed for this purpose. A good candidate available via Deno/JSR is `strip-ansi` which is part of the Deno standard library (`fmt`). While `strip-ansi` primarily *removes* codes, which is useful for getting raw text length, a library specifically for *calculating visual string width* considering ANSI and Unicode characters would be ideal (like Node's `string-width`).
+**Rationale:** `linter.ts` currently uses `HORIZONTAL` ellipsis (`…`) for main messages and `MIDDLE` ellipsis (`...`) for verbose content (like code snippets or paths). While `MIDDLE` can be useful for preserving start/end context, using two different styles might feel visually inconsistent. Consolidating to one style would create a more uniform appearance.
 
-*   **Library:** We can use `@std/fmt/strip-ansi` for basic stripping, or look for/adapt a more specialized width calculation library if needed.
-    ```typescript
-    import stripAnsi from "jsr:@std/fmt/strip-ansi";
-    // Or import a hypothetical displayWidth function if available/adapted
-    // import { displayWidth } from "some-deno-display-width-lib";
+**Before Output (Ellipsis Examples):**
+*   Main message: `This is a very long message that gets truncated…`
+*   Verbose content: `Very/long/path/or/code/snip...that/gets/truncated`
 
-    function visualLengthWithStdLib(str: string): number {
-        // Option 1: Simple stripping (less accurate for complex Unicode but handles ANSI)
-        return stripAnsi(str).length;
-        // Option 2: Use a dedicated display width library (preferred if available)
-        // return displayWidth(str);
-    }
-    ```
-*   **Integration:** Replace `.length` calls in `wrapTextPreservingAlignment` with `visualLengthWithStdLib(string)` or `displayWidth(string)` for width calculations.
+**After Output (Using HORIZONTAL):**
+*   Main message: `This is a very long message that gets truncated…`
+*   Verbose content: `Very/long/path/or/code/snippet/that/gets/tr…`
 
-**Robustness Analysis of Alternative:**
-*   Using a dedicated library (like `strip-ansi` or a hypothetical `displayWidth`) is **highly robust** for calculating visual width compared to a custom regex. These libraries handle various ANSI sequences and potentially Unicode complexities (fullwidth, combining characters) more reliably. This directly solves "Premature Line Wrapping" and "Incorrect Width Calculation".
-*   **Ease of Use:** This approach is significantly **easier** to implement correctly for width calculation.
-*   **Completeness:** It **does not inherently solve** the "Visual Formatting Errors" or "Broken Formatting Spans" related to *maintaining formatting state* across lines. The wrapping logic *still* needs awareness to avoid breaking sequences and potentially re-apply styles. However, accurate width calculation is crucial and prevents many errors.
+**After Output (Using MIDDLE):**
+*   Main message: `This is a very long mess...hat gets truncated`
+*   Verbose content: `Very/long/path/or/code/snip...that/gets/truncated`
 
-**Comparison and Recommendation:**
+**Downsides:** Minor visual change. If `MIDDLE` ellipsis is specifically preferred for verbose content readability, changing it might be slightly detrimental.
 
-*   **Custom Solution:** High control, high complexity, high risk of bugs/edge cases.
-*   **Library Solution:** Simpler, more reliable for width calculation (the core issue). Leverages community expertise.
-
-**Recommendation:** **Start by integrating a robust library function** (`strip-ansi` from `@std/fmt` or a more specialized display width calculator if found/adapted) to handle visual width calculation. This provides the most immediate and reliable fix for the primary risks. Address the more complex issue of formatting state preservation across lines as a subsequent refinement if necessary. The priority is accurate width calculation.
+**Effort:** Low. Update the `ellipsis` property in the `BoundingBoxOptions` used within `linter.ts`'s `formatLintResult` function to use a single, consistent character (e.g., `Characters.ELLIPSIS.HORIZONTAL`).

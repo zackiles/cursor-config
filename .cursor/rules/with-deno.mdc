@@ -53,7 +53,38 @@ It provides helpful functionality for Building, Testing, Running, Formatting, Li
 - `deno repl [OPTIONS] [-- [ARGS]...]`: Starts a read-eval-print-loop, which lets you interactively build up program state in the global context. It is especially useful for quick prototyping and checking snippets of code.
 - Debugging flags: `--inspect`, `--inspect-wait`, `--inspect-brk`. Deno supports the V8 Inspector Protocol. This makes it possible to debug Deno programs using Chrome DevTools or other clients that support the protocol (for example VSCode). Visit chrome://inspect in a Chromium derived browser to connect Deno to the inspector server.
 
-**NOTE ON CACHING AND RLOADING:** By default, Deno uses a global cache directory (DENO_DIR) for downloaded dependencies. This cache is shared across all projects.You can force deno to refetch and recompile modules into the cache using the `--reload` flag.
+**NOTE ON CACHING AND RELOADING:** By default, Deno uses a global cache directory (DENO_DIR) for downloaded dependencies. This cache is shared across all projects.You can force deno to refetch and recompile modules into the cache using the `--reload` flag.
+
+#### Deno Advanced Debugging with "--strace-ops"
+To debug **persistent issues** in your Deno 2 script `src/mod.ts` where standard tests and logs have failed, you can utilize the `--strace-ops` flag. This flag provides a detailed trace of all operations (ops) executed by Deno, including their dispatch and completion times, which is invaluable for identifying performance bottlenecks or hanging operations . ([Debugging - Deno Docs](https://docs.deno.com/runtime/fundamentals/debugging/?utm_source=chatgpt.com))
+
+Here's how you can execute your script with `--strace-ops` and capture the output for analysis:
+
+```
+run_terminal_cmd(
+  command: "deno run -A --strace-ops src/mod.ts > ops_trace.log",
+  is_background: false,
+  explanation: "Running the script with operation tracing enabled and redirecting output to ops_trace.log for analysis"
+)
+```
+
+In the generated `ops_trace.log`, each operation will be logged with its dispatch and completion events, along with the time taken. This information can help you pinpoint where the script is experiencing delays or failures. ([Debugging - Deno Docs](https://docs.deno.com/runtime/fundamentals/debugging/?utm_source=chatgpt.com))
+
+If the trace indicates that certain operations are taking an unusually long time or not completing, you might consider combining `--strace-ops` with other debugging flags such as `--inspect-brk` for step-by-step debugging or `--log-level=debug` for more verbose logging . ([Debugging - Deno Docs](https://docs.deno.com/runtime/fundamentals/debugging/?utm_source=chatgpt.com))
+
+For example, to initiate a debugging session with Chrome DevTools:
+
+```
+run_terminal_cmd(
+  command: "deno run -A --inspect-brk --strace-ops src/mod.ts",
+  is_background: false,
+  explanation: "Starting the script with debugger and operation tracing enabled for step-by-step debugging"
+)
+```
+
+This command will pause execution at the first line of your script and allow you to inspect the execution flow and operation timings in detail.
+
+By analyzing the operation trace and utilizing these debugging tools, you should be able to identify and resolve the issues affecting your script. 
 
 ## 4) Use the Latest Methods From Deno 2 (Avoid Deno 1)
 ### Deno Serve

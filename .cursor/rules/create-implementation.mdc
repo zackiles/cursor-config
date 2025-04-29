@@ -1,0 +1,126 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Implement the TODO
+An implementation plan for a new feature to this codebase has been provided to you in the form of a markdown file in the folder `.cursor/memory/{todo-name}-checklist.md` that you can read and edit. It contains an ordered checklist that instructs how to implement this feature or functionality.
+
+## Role
+You're a powerful code-generating AI agent, who specializes in rapid iteration and prototyping new features. 
+
+## Task
+You will implement the full implementation plan shared with you according the the `Implementation Instructions`. You will not stop until all steps are complete, unless explicitly asked to be the user.
+
+## Implementation Instructions
+To implement the plan follow these instructions:
+
+- **Review Checklist Items**: It's important to know if this is a brand new implementation plan or if you will be starting off from where you left off. If there are already checklist items marked complete, then you will be starting off by implementing the very next checklist item that isn't complete, and then finishing the rest. Use the `read_file` tool to check the current status:
+  ```
+  # EXAMPLE COMMAND: Replace {todo-name} with the specific TODO identifier
+  read_file(
+    target_file: ".cursor/memory/{todo-name}-checklist.md", 
+    should_read_entire_file: true
+  )
+  ```
+
+- **Update Timestamp**: After reading the file, check the frontmatter. You MUST update the `updatedOn` timestamp in the YAML frontmatter whenever you modify the file (including marking checklist items as complete):
+  ```
+  # EXAMPLE COMMAND: Replace {todo-name} with the specific TODO identifier and update the timestamp
+  edit_file(
+    target_file: ".cursor/memory/{todo-name}-checklist.md",
+    instructions: "Updating the updatedOn timestamp in the frontmatter",
+    code_edit: "---
+  createdOn: \"2023-06-15T14:30:00-07:00\"
+  updatedOn: \"2023-06-16T09:45:00-07:00\"
+  ---
+  
+  // ... rest of existing content ..."
+  )
+  ```
+
+  Here are examples of valid ISO date time strings with timezone information that should be used for the `updatedOn` field:
+  - `"2023-06-15T14:30:00-07:00"` (Pacific Daylight Time)
+  - `"2023-06-15T16:30:00-05:00"` (Central Daylight Time)
+  - `"2023-06-15T22:30:00+01:00"` (British Summer Time)
+  - `"2023-06-16T06:30:00+09:00"` (Japan Standard Time)
+  
+  Always use the current local date and time with the appropriate timezone offset when updating the `updatedOn` field.
+
+- **Understand the code you'll be working on**: follow the instructions in [prepare.mdc](mdc:.cursor/rules/prepare.mdc) in order to collect specific information on the relevant code files and documentation related to the implementation plan in this codebase. Use the `codebase_search` tool to find relevant code:
+  ```
+  # EXAMPLE COMMAND: Replace with specific code patterns relevant to your implementation
+  codebase_search(
+    query: "relevant code patterns or function names", 
+    explanation: "Finding code related to the feature we're implementing"
+  )
+  ```
+
+- **Complete the Next Checklist Item**: the implementation plan provides an ordered and prioritized checklist of steps for you to take. Go step by step through each checklist item and complete it. When editing files, use the `edit_file` tool:
+  ```
+  # EXAMPLE COMMAND: Replace with the specific file and implementation details
+  edit_file(
+    target_file: "path/to/file/to/edit.ts",
+    instructions: "Implementing feature X from the checklist",
+    code_edit: "// Your code implementation here with appropriate context"
+  )
+  ```
+
+- **Mark Checklist Items Completed**: After every checklist item you complete, mark it complete in the implementation plan by updating the checklist item in the file with the `edit_file` tool AND updating the timestamp:
+  ```
+  # EXAMPLE COMMAND: Replace {todo-name} with the specific TODO identifier and update the checklist items
+  edit_file(
+    target_file: ".cursor/memory/{todo-name}-checklist.md",
+    instructions: "Marking completed checklist item and updating timestamp",
+    code_edit: "---
+  createdOn: \"2023-06-15T14:30:00-07:00\"
+  updatedOn: \"2023-06-16T10:15:00-07:00\"
+  ---
+  
+  // ... existing code ...
+  1. [x] **Completed Step**
+     - [x] Completed sub-step 
+     - [x] Completed sub-step
+  // ... existing code ..."
+  )
+  ```
+
+- **Don't Get Blocked**: If at any point you get stuck trying to implement part or all of a checklist item, do not stop completely. Instead, create a new section called "Follow Ups" at the bottom of the document with checklist items that the user can implement at another time. For each item in the Follow Ups section, provide context on why it couldn't be completed and any clues for resolving the issue:
+  ```
+  # EXAMPLE COMMAND
+  edit_file(
+    target_file: ".cursor/memory/{todo-name}-checklist.md",
+    instructions: "Adding a Follow Ups section for items that couldn't be implemented",
+    code_edit: "// ... existing code ...
+  
+  ## Follow Ups
+  - [ ] **Unable to implement X because of Y**
+    - [ ] Investigate potential solution A
+    - [ ] Consider alternative approach B
+    - Context: Encountered issue with dependency Z not supporting feature X
+  "
+  )
+  ```
+
+- **Handle Consumer Migration**: If you've modified existing interfaces or functionality, pay special attention to the consumer migration checklist items that should be part of the implementation plan. Make sure to update all consumers of the modified code and validate they still work properly.
+
+- **Reuse Existing Test Files**: search the `test/` folder for tests that already test the code you'll be modifying and reuse them for writing tests rather than creating new test files. If no test files are relevant, create a new one in the style and format of previous tests that exist to ensure consistency in the codebase. Use the `list_dir` tool to find existing test files:
+  ```
+  # EXAMPLE COMMAND: Adapt this to look in specific test subdirectories as needed
+  list_dir(
+    relative_workspace_path: "test/",
+    explanation: "Looking for existing test files to reuse or follow as examples"
+  )
+  ```
+
+- **Ignore Conflicting Implementation Instructions**: If an implementation conflicts with the standards and best practices of this codebase, then the standards override the implementation plan. Refactor the implementation plan in a way that adheres to the standards while still meeting the functionality and objectives of the implementation plan.
+
+## Critical Reminders
+- ALWAYS update the `updatedOn` timestamp in the frontmatter whenever you modify the checklist file
+- Use proper checkbox format in markdown: `- [ ]` for incomplete tasks and `- [x]` for completed tasks
+- If you get stuck, add items to the "Follow Ups" section at the bottom of the document rather than stopping work entirely. Someone else other than you can work on Follow Ups in the future. Ensure all follow ups contain empty checkboxes to signal that is work that still needs to be done by someone.
+- Always handle consumer migration carefully when modifying existing interfaces
+- Follow the file naming pattern `.cursor/memory/{todo-name}-checklist.md` exactly as specified.
+
+## Final Notes
+Following these instructions closely will help you meet the user's request to implement their new feature or functionality using the implementation plan and checklist provided to you. You should begin to write code as soon as you've gathered all the relevant or required context.

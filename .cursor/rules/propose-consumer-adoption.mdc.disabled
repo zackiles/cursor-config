@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Review the functionality and capabilities provided to consumers of the module @bounding-box.ts and identify all areas where the module @linter.ts should be refactored to better utilize the functionality and capabilities of the `bounding-box.ts` module to better format its output. Provide all proposals in a list with your rationale, the before vs after of the terminal output from a user perspective, any downsides to implementing your proposal, and the level of effort required to implement it.

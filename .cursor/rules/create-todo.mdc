@@ -1,0 +1,309 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Create Structured TODO
+
+Use this rule to create well-structured TODO items that match the format of existing TODOs in the project. This ensures consistency across all enhancement proposals and makes them easier to understand, prioritize, and implement.
+
+## When to use
+- When you want to add a new feature or enhancement to the project's TODO list
+- When you need to document potential improvements in a structured way
+- When you want to define clear requirements, risks, and benefits for a proposed feature
+
+## Instructions
+The following steps will guide you through creating a well-structured TODO item. First, you'll locate the appropriate TODO file, then create a properly formatted TODO entry.
+
+### 1. Locate the TODO file
+
+Use the `codebase_search` tool to find existing TODO files in the project:
+
+```
+# Find existing TODO files
+codebase_search(
+  query: "filename:TODO.md OR filename:Todo.md OR filename:todo.md",
+  explanation: "Finding existing TODO files in the project"
+)
+```
+
+If no TODO files are found, confirm with the user if they want to create a new one:
+
+```
+# Check if a specific directory should be used for the TODO file
+run_terminal_cmd(
+  command: "find . -type d -not -path '*/\.*' | sort",
+  is_background: false,
+  explanation: "Listing directories to help choose where to create the TODO file"
+)
+```
+
+### 2. Determine the next TODO number
+
+If one or more TODO files exist, use the `read_file` tool to check the highest existing TODO number:
+
+```
+# Read the TODO file to determine the next number
+read_file(
+  target_file: "path/to/TODO.md",
+  should_read_entire_file: true,
+  explanation: "Reading existing TODO file to determine the next number"
+)
+```
+
+Look for patterns like `## 1. Feature Name` or `## 3. Another Feature` to determine the highest number used. The new TODO should use the next sequential number.
+
+### 3. Create or update the TODO file
+
+If a TODO file exists, use the `edit_file` tool to append the new TODO:
+
+```
+# Add the new TODO to the existing file
+edit_file(
+  target_file: "path/to/TODO.md",
+  instructions: "Adding a new TODO item at the end of the file",
+  code_edit: "... new TODO content ..."
+)
+```
+
+If no TODO file exists, create a new one with the proper structure:
+
+```
+# Create a new TODO file
+edit_file(
+  target_file: "TODO.md",
+  instructions: "Creating a new TODO file with frontmatter and first TODO item",
+  code_edit: "---\ncreatedOn: \"YYYY-MM-DDTHH:MM:SS±HH:MM\"\nupdatedOn: \"YYYY-MM-DDTHH:MM:SS±HH:MM\"\n---\n\n# Project Improvements TODO\n\nThis file tracks potential improvements and feature enhancements for the project.\n\n## 1. [Feature Name]\n\n... TODO content ...\n"
+)
+```
+
+### 4. Format the TODO content
+
+When writing a TODO, use the following comprehensive structure:
+
+```markdown
+## [Number]. [Feature Name]
+
+**Goal:** Brief one-sentence description of what the feature will accomplish.
+
+**Implementation Detail:**
+
+*   Key implementation point 1.
+*   Key implementation point 2.
+*   Key implementation point 3.
+    *   Sub-detail A.
+    *   Sub-detail B.
+*   Key implementation point 4.
+
+```typescript
+// Example code snippet demonstrating the implementation (if applicable)
+interface ExampleInterface {
+  property: string;
+  method(): void;
+}
+```
+
+**Risks of Not Implementing:**
+*   Primary risk or limitation.
+*   **Failure Modes:**
+    *   Specific failure scenario 1: **Impact Level**.
+    *   Specific failure scenario 2: **Impact Level**.
+*   **Probability:** **Low/Medium/High** assessment of how likely failures are to occur.
+
+**Before Output (If UI/UX change):**
+```
+Example of current output or behavior
+```
+
+**After Output (If UI/UX change):**
+```
+Example of proposed output or behavior
+```
+
+**Downsides:** Any potential negative consequences of implementing this feature.
+
+**Effort:** Low/Medium/High assessment of implementation difficulty.
+
+**Benefits:**
+*   Key benefit 1.
+*   Key benefit 2.
+*   Key benefit 3.
+```
+
+### 5. Current date and time
+
+Always use the current date and time in ISO format with timezone for the `createdOn` and `updatedOn` fields:
+
+```
+# Get the current date and time in ISO format with timezone
+run_terminal_cmd(
+  command: "date -u +'%Y-%m-%dT%H:%M:%SZ'",
+  is_background: false,
+  explanation: "Getting current UTC date and time for frontmatter"
+)
+```
+
+For non-Unix systems, you can also use:
+
+```
+# Alternative for non-Unix systems
+run_terminal_cmd(
+  command: "node -e \"console.log(new Date().toISOString())\"",
+  is_background: false,
+  explanation: "Getting current ISO date and time for frontmatter"
+)
+```
+
+## Example TODO
+
+Here's an example of a well-structured TODO:
+
+```markdown
+## 4. Interactive Element Preservation (Clickable Links)
+
+**Goal:** Ensure ANSI escape codes for features like hyperlinks (OSC 8) are not broken during wrapping.
+
+**Implementation Detail:**
+*   OSC 8 sequence: `\x1B]8;;URL\x1B\\TextToShow\x1B]8;;\x1B\\`
+*   Terminals supporting it render `TextToShow` as clickable, opening `URL`.
+*   **Platform Support:**
+    *   **Good:** iTerm2, WezTerm, Kitty, Foot, GNOME Terminal (VTE >= 0.52), Windows Terminal.
+    *   **Limited/None:** Older terminals, basic xterm, some embedded terminals.
+*   Update splitting logic (e.g., regex) to treat the entire OSC 8 sequence as an atomic unit to prevent breaking it.
+    ```regex
+    /(\s+)|(\x1B]8;;.*?\x1B\\.*?\x1B]8;;\x1B\\)/g
+    ```
+
+**Risks of Not Implementing:**
+*   Clickable links would be broken during text wrapping.
+*   **Failure Modes:**
+    *   Link text appears but isn't clickable: **Degraded Functionality**.
+    *   Link text is split across lines: **Poor UX**.
+*   **Probability:** **High** when using terminals that support OSC 8 links.
+
+**Downsides:** Slightly more complex parsing logic.
+
+**Effort:** Medium - Requires updating regex patterns and testing across terminal types.
+
+**Benefits:**
+*   Enhanced terminal UX with working clickable links.
+*   Proper support for modern terminal capabilities.
+*   Better accessibility through interactive terminal elements.
+```
+
+## Additional Examples
+
+### Example for a UI/UX Change
+
+```markdown
+## 5. Collapse/Expand Sections in Terminal Output
+
+**Goal:** Allow users to collapse and expand sections of terminal output for easier navigation.
+
+**Implementation Detail:**
+*   Add section markers using Unicode box-drawing characters.
+*   Implement simple keyboard navigation (j/k for up/down, Enter to expand/collapse).
+*   Track expanded/collapsed state in memory.
+*   Redraw screen when state changes.
+
+```typescript
+interface CollapsibleSection {
+  title: string;
+  content: string[];
+  isExpanded: boolean;
+  toggleExpand(): void;
+}
+```
+
+**Before Output:**
+```
+Section 1 Title
+Line 1 of content
+Line 2 of content
+Line 3 of content
+
+Section 2 Title
+Line 1 of content
+Line 2 of content
+```
+
+**After Output:**
+```
+▼ Section 1 Title
+  Line 1 of content
+  Line 2 of content
+  Line 3 of content
+
+▶ Section 2 Title
+```
+
+**Downsides:** Adds complexity to the rendering logic. May not work in all terminal types.
+
+**Effort:** Medium-High - Requires state management and screen redrawing logic.
+
+**Benefits:**
+*   Cleaner display of large amounts of terminal output.
+*   Improved navigation for complex information.
+*   Reduced cognitive load on users viewing large outputs.
+```
+
+### Example for a Performance Enhancement
+
+```markdown
+## 6. Memory-Efficient Processing for Large Files
+
+**Goal:** Optimize memory usage when processing extremely large text files.
+
+**Implementation Detail:**
+*   Implement streaming processing instead of loading entire file into memory.
+*   Process text in chunks of configurable size (default: 4KB).
+*   Use generator functions to yield processed chunks.
+*   Maintain state between chunks for context-aware processing.
+
+```typescript
+async function* processLargeFile(filePath: string, options: ProcessOptions) {
+  const file = await Deno.open(filePath);
+  const reader = file.readable.getReader();
+  
+  let buffer = "";
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    
+    buffer += new TextDecoder().decode(value);
+    const chunks = buffer.split('\n');
+    buffer = chunks.pop() || "";
+    
+    for (const chunk of chunks) {
+      yield processChunk(chunk, options);
+    }
+  }
+  
+  if (buffer.length > 0) {
+    yield processChunk(buffer, options);
+  }
+  
+  file.close();
+}
+```
+
+**Risks of Not Implementing:**
+*   Memory exhaustion when processing large files.
+*   **Failure Modes:**
+    *   Process crashes with out-of-memory error: **Critical Failure**.
+    *   Extreme slowdown due to memory swapping: **Severe Performance Degradation**.
+*   **Probability:** **High** when files exceed available RAM.
+
+**Downsides:** Slightly more complex implementation than the current approach.
+
+**Effort:** Medium - Requires refactoring existing processing logic to support streaming.
+
+**Benefits:**
+*   Constant memory usage regardless of file size.
+*   Ability to process arbitrarily large files.
+*   Improved responsiveness when handling large data.
+*   Progressive output during processing.
+```
+
+## Summary
+This rule provides a structured approach to creating comprehensive TODOs with clear goals, implementation details, risks, and benefits. Following this format ensures consistency across all enhancement proposals and helps set clear expectations about the effort required and value gained from each implementation.

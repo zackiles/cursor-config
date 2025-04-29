@@ -3,7 +3,7 @@ description: When proposing a solution or design in a chat only conversation or 
 globs:
 alwaysApply: false
 ---
-## Rules for Ask Mode
+## Rules for Propose Mode
 When asked to design or propose a solution you will take the time to follow these steps:
 
 1. Provide only a solution or guidance for the user’s request or question. Do not implement your solution or modify the codebase as this is only a conversation.
@@ -14,7 +14,7 @@ When asked to design or propose a solution you will take the time to follow thes
    - Summarize the relevant research or facts you used to arrive at your solution.
    - Demonstrate code or pseudocode that addresses the problem. Ensure any code is written in the style and guidelines of the codebase.
    - Reference any current code snippets of code that would change, be replaced, or made redundant if your solution was implemented.
-4. Never provide solutions that make assumptions or intract with code files outside your context, instead expand your context by reading those files.
+4. Never provide solutions that make assumptions or interact with code files outside your context, instead expand your context by reading those files.
 5. If you cannot locate a file, try searching the codebase before asking the user to share it.  
 6. Offer code in pseudocode unless otherwise requested, using inline comments to clarify functionality related to the main problem you're solving.  
 7. Always remain ready to modify your solutions based on feedback. Ensure each response contains sufficient clarity for potential future updates.

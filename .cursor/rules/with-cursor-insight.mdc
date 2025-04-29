@@ -1,0 +1,1460 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Cursor Insight: Use Advanced Tools & Capabilities
+SUBTASK: Use this guide to help solve or answer the current query, user message, or task.
+
+## Overview
+This rule provides a comprehensive guide to Cursor's advanced features, APIs, tools, and programmatic capabilities for solving complex problems. Use it to leverage Cursor's full potential when standard approaches are insufficient.
+
+## When to Use
+- When you need to deeply understand code structure beyond simple searches
+- When working with complex, interconnected codebases
+- When you need specialized analysis tools for performance optimization
+- When standard IDE features aren't powerful enough for your task
+- When you need to leverage Cursor's AI capabilities for specialized tasks
+
+## How to Use
+- **Accuracy Awareness**: This document contains both verified (✅) and theoretical (❌) capabilities. Verified features have been directly observed and tested, while theoretical ones represent potential capabilities that may not be implemented exactly as described.
+- **Start with Confirmed Tools**: Begin by using the confirmed tools marked with ✅ in the reference tables. These provide a reliable foundation before exploring more experimental features.
+- **Progressive Experimentation**: Test theoretical capabilities in non-critical contexts first. Start small, verify behavior, then scale to more complex use cases.
+- **Combine Standard + Advanced**: Most effective solutions combine standard Cursor functionality with these advanced techniques. Don't overlook built-in features in favor of complex approaches.
+- **Adapt Example Code**: Code samples are conceptual starting points that likely need adaptation for your specific environment and requirements.
+- **Error Isolation**: When errors occur, isolate whether they stem from Cursor limitations, environment issues, or implementation mistakes by testing minimal reproducible examples.
+- **Verify API Changes**: The Cursor API may evolve. Before building critical infrastructure, verify endpoint availability and behavior with simple tests.
+- **Documentation Cross-Reference**: Cross-reference this guide with official Cursor documentation for the most authoritative and up-to-date information.
+- **Security Considerations**: Be cautious with programmatic capabilities that access sensitive data or execute code. Validate inputs and limit permissions appropriately.
+- **Contribution**: Consider contributing working examples or corrections back to this guide to improve its accuracy and usefulness.
+
+## Cursor Advanced Tool Categories
+
+### 1. Code Intelligence & Navigation
+
+#### Symbol Index Navigation
+```typescript
+// Find all references to a symbol across the codebase
+codebase_search(
+  query: "symbolName type:reference",
+  explanation: "Finding all references to symbolName"
+)
+
+// Find all implementations of an interface or abstract class
+codebase_search(
+  query: "InterfaceName type:implementation",
+  explanation: "Finding all implementations of InterfaceName"
+)
+
+// Find class hierarchy relationships
+codebase_search(
+  query: "ClassName type:hierarchy",
+  explanation: "Exploring the inheritance structure of ClassName"
+)
+```
+
+#### Semantic Code Navigation
+- Use semantic search with specific qualifiers:
+  - `type:` - Filter by symbol type (class, function, variable, etc.)
+  - `lang:` - Filter by language (typescript, python, rust, etc.)
+  - `path:` - Limit search to specific paths
+  - `author:` - Find code by specific contributors
+  - `modified:` - Find recently modified code (`modified:7d` for 7 days)
+
+```typescript
+// Example: Find TypeScript interfaces modified in the last week
+codebase_search(
+  query: "type:interface lang:typescript modified:7d",
+  explanation: "Finding recently modified TypeScript interfaces"
+)
+```
+
+### 2. Runtime Analysis Tools
+
+#### Memory & Performance Analysis
+```typescript
+// Analyze memory usage patterns in Cursor
+run_terminal_cmd(
+  command: "deno run --allow-all scripts/analyze-memory-usage.js",
+  is_background: false,
+  explanation: "Analyzing memory usage patterns"
+)
+
+// Profile specific operations
+run_terminal_cmd(
+  command: "deno run --allow-all scripts/profile.js --function=getCompletions",
+  is_background: false, 
+  explanation: "Profiling completion generation performance"
+)
+```
+
+#### Runtime Inspection
+- Use the `Deno.inspect()` API for structured analysis of runtime objects
+- Interactive debugging through the built-in inspector
+
+```typescript
+// Example: Create a diagnostic file with runtime inspection data
+edit_file(
+  target_file: "diagnostic.js",
+  instructions: "Creating diagnostic script for runtime inspection",
+  code_edit: `
+import { inspect } from "node:util";
+
+export async function inspectRuntime() {
+  // Capture current environment state
+  const runtimeInfo = {
+    env: Deno.env.toObject(),
+    args: Deno.args,
+    execPath: Deno.execPath(),
+    cwd: Deno.cwd(),
+    memoryUsage: Deno.memoryUsage(),
+    loadavg: Deno.loadavg(),
+  };
+  
+  return inspect(runtimeInfo, { depth: Infinity, colors: true });
+}
+
+if (import.meta.main) {
+  console.log(await inspectRuntime());
+}
+`
+)
+```
+
+### 3. Documentation & Knowledge Mining
+
+#### Intelligent Documentation Indexing
+Cursor automatically indexes documentation from:
+- JSDoc/TSDoc comments in code
+- Markdown files in project directories
+- Project READMEs and license files
+- Package manifests and configuration files
+
+```typescript
+// Search specifically within documentation
+codebase_search(
+  query: "topic filetype:md",
+  explanation: "Finding documentation about specific topic"
+)
+
+// Find API examples in documentation
+codebase_search(
+  query: "function_name example filetype:md",
+  explanation: "Finding examples of function_name usage in documentation"
+)
+```
+
+#### Targeted Knowledge Extraction
+```typescript
+// Extract specific configuration patterns
+grep_search(
+  query: "\\s*\"[a-zA-Z]+\":\\s*\\{",
+  explanation: "Finding nested configuration objects in JSON files",
+  include_pattern: "*.json"
+)
+
+// Extract and analyze type definitions
+codebase_search(
+  query: "interface type:definition",
+  explanation: "Finding interface definitions to understand data structures"
+)
+```
+
+### 4. Remote Data Integration
+
+#### Web Knowledge Integration
+Use web_search to enhance code understanding with latest information:
+
+```typescript
+// Research best practices for a specific technology
+web_search(
+  search_term: "typescript interface vs type performance implications 2023",
+  explanation: "Researching current TypeScript type system best practices"
+)
+
+// Find library usage examples not in local documentation
+web_search(
+  search_term: "npm package usage examples github",
+  explanation: "Finding real-world usage examples of a library"
+)
+```
+
+#### API Documentation Scraping
+```typescript
+// Example tool usage to fetch API documentation data
+run_terminal_cmd(
+  command: "curl -s https://api.example.com/docs | jq '.endpoints[]'",
+  is_background: false,
+  explanation: "Fetching API endpoints documentation"
+)
+```
+
+### 5. Codebase Structural Analysis
+
+#### Dependency Graphing
+```typescript
+// Generate dependency graph visualization
+run_terminal_cmd(
+  command: "deno run --allow-all scripts/generate-dependency-graph.js --root=src",
+  is_background: false,
+  explanation: "Generating visual dependency graph of the codebase"
+)
+
+// Analyze circular dependencies
+run_terminal_cmd(
+  command: "npx madge --circular --extensions ts,js src/",
+  is_background: false,
+  explanation: "Identifying circular dependencies in the codebase"
+)
+```
+
+#### Code Complexity Analysis
+```typescript
+// Analyze code complexity metrics
+run_terminal_cmd(
+  command: "npx complexity-report --format markdown --output complexity-report.md src/",
+  is_background: false,
+  explanation: "Generating code complexity metrics report"
+)
+```
+
+### 6. Custom Tooling Integration
+
+#### Build Custom Analysis Tools
+```typescript
+// Example: Create a custom code analyzer
+edit_file(
+  target_file: "scripts/analyze-patterns.js",
+  instructions: "Creating custom code pattern analyzer",
+  code_edit: `
+import { walk } from "https://deno.land/std/fs/mod.ts";
+import * as path from "https://deno.land/std/path/mod.ts";
+
+async function analyzePatterns(rootDir, pattern) {
+  const regex = new RegExp(pattern);
+  const results = [];
+  
+  for await (const entry of walk(rootDir, { 
+    includeDirs: false,
+    exts: [".js", ".ts", ".jsx", ".tsx"],
+    skip: [/node_modules/, /dist/, /build/]
+  })) {
+    const content = await Deno.readTextFile(entry.path);
+    const matches = content.match(regex);
+    
+    if (matches) {
+      results.push({
+        file: path.relative(rootDir, entry.path),
+        matches: matches.length,
+        firstMatch: matches[0].substring(0, 100) + "..."
+      });
+    }
+  }
+  
+  return results;
+}
+
+// Usage: deno run --allow-read analyze-patterns.js src "pattern-to-find"
+if (import.meta.main) {
+  const [rootDir, pattern] = Deno.args;
+  console.table(await analyzePatterns(rootDir, pattern));
+}
+`
+)
+```
+
+#### Integration with External Services
+```typescript
+// Example: Integrate with external metrics services
+edit_file(
+  target_file: "scripts/publish-metrics.js",
+  instructions: "Creating script to publish metrics to external service",
+  code_edit: `
+import { collectMetrics } from "./metrics-collector.js";
+
+async function publishMetrics(serviceUrl, apiKey) {
+  const metrics = await collectMetrics();
+  
+  const response = await fetch(serviceUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": \`Bearer \${apiKey}\`
+    },
+    body: JSON.stringify(metrics)
+  });
+  
+  if (!response.ok) {
+    throw new Error(\`Failed to publish metrics: \${response.statusText}\`);
+  }
+  
+  return await response.json();
+}
+
+// Usage example
+if (import.meta.main) {
+  const [serviceUrl, apiKey] = Deno.args;
+  const result = await publishMetrics(serviceUrl, apiKey);
+  console.log("Metrics published:", result);
+}
+`
+)
+```
+
+### 7. Programmatic Cursor IDE Interaction
+
+#### Accessing Cursor's Document Index
+Cursor maintains an intelligent document index that can be accessed programmatically:
+
+```typescript
+// Example: Create a utility to access Cursor's document index
+edit_file(
+  target_file: "scripts/query-cursor-index.js",
+  instructions: "Creating utility to query Cursor's document index",
+  code_edit: `
+// Utility to query Cursor's document index programmatically
+async function queryCursorIndex(query, options = {}) {
+  const defaultOptions = {
+    maxResults: 20,
+    includeTypes: ['file', 'symbol', 'docs'],
+    excludePaths: ['node_modules', 'dist', '.git'],
+    caseSensitive: false
+  };
+  
+  const mergedOptions = { ...defaultOptions, ...options };
+  
+  // Cursor exposes its index through a local HTTP API
+  const response = await fetch('http://localhost:8765/api/index/query', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query,
+      options: mergedOptions
+    })
+  });
+  
+  if (!response.ok) {
+    throw new Error(\`Failed to query index: \${response.statusText}\`);
+  }
+  
+  return await response.json();
+}
+
+// Example usage - searching for type definitions
+if (import.meta.main) {
+  const query = Deno.args[0] || 'interface';
+  queryCursorIndex(query, { includeTypes: ['symbol'], symbolKinds: ['interface', 'type'] })
+    .then(results => console.log(JSON.stringify(results, null, 2)))
+    .catch(err => console.error(err));
+}
+`
+)
+```
+
+#### Cursor Settings Manipulation
+Programmatically modify Cursor settings to customize behavior:
+
+```typescript
+// Example: Create a utility to modify Cursor settings
+edit_file(
+  target_file: "scripts/update-cursor-settings.js",
+  instructions: "Creating utility to update Cursor settings",
+  code_edit: `
+// Utility to modify Cursor settings programmatically
+async function updateCursorSettings(settingsPath) {
+  // Read the current settings
+  let settings;
+  try {
+    const settingsContent = await Deno.readTextFile(settingsPath);
+    settings = JSON.parse(settingsContent);
+  } catch (e) {
+    console.error(\`Error reading settings: \${e.message}\`);
+    settings = {};
+  }
+  
+  // Modify settings as needed
+  settings = {
+    ...settings,
+    // Example: Adjust AI-related settings
+    "cursor.ai.chat.maxLineCountPerMessage": 50,
+    "cursor.ai.completion.enabled": true,
+    "cursor.ai.completion.maxTokens": 256,
+    "cursor.ai.codebase.maxIndexedItemCount": 20000,
+    // Example: Configure language-specific settings
+    "cursor.editor.languages.typescript.tabSize": 2,
+    // Example: Configure custom keybindings for tools
+    "cursor.keybindings.custom": [
+      {
+        "command": "cursor.ai.chat.summarizeFile",
+        "key": "ctrl+shift+s"
+      }
+    ]
+  };
+  
+  // Write updated settings back
+  await Deno.writeTextFile(settingsPath, JSON.stringify(settings, null, 2));
+  console.log(\`Updated Cursor settings at \${settingsPath}\`);
+  
+  return settings;
+}
+
+// Usage example
+if (import.meta.main) {
+  const settingsPath = Deno.args[0] || 
+    (Deno.build.os === 'windows' 
+      ? \`\${Deno.env.get('APPDATA')}/Cursor/User/settings.json\` 
+      : \`\${Deno.env.get('HOME')}/Library/Application Support/Cursor/User/settings.json\`);
+  
+  updateCursorSettings(settingsPath)
+    .then(settings => console.log('Settings updated successfully'))
+    .catch(err => console.error(\`Failed to update settings: \${err.message}\`));
+}
+`
+)
+```
+
+#### Chat Window Manipulation
+Programmatically interact with Cursor's chat interface:
+
+```typescript
+// Example: Create utility to interact with Cursor chat
+edit_file(
+  target_file: "scripts/cursor-chat-automation.js",
+  instructions: "Creating utility to automate Cursor chat interactions",
+  code_edit: `
+// Utility to automate interactions with Cursor chat
+class CursorChatAutomation {
+  constructor() {
+    // Cursor exposes its chat API via a local socket
+    this.chatEndpoint = 'http://localhost:8765/api/chat';
+  }
+  
+  async sendMessage(message, context = {}) {
+    const response = await fetch(\`\${this.chatEndpoint}/send\`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message,
+        context: {
+          activePath: context.activePath || null,
+          selection: context.selection || null,
+          visibleFiles: context.visibleFiles || [],
+          ...context
+        }
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`Failed to send message: \${response.statusText}\`);
+    }
+    
+    return await response.json();
+  }
+  
+  async getHistory() {
+    const response = await fetch(\`\${this.chatEndpoint}/history\`, {
+      method: 'GET'
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`Failed to get chat history: \${response.statusText}\`);
+    }
+    
+    return await response.json();
+  }
+  
+  async clearHistory() {
+    const response = await fetch(\`\${this.chatEndpoint}/clear\`, {
+      method: 'POST'
+    });
+    
+    return response.ok;
+  }
+  
+  async executeWorkflow(steps) {
+    const results = [];
+    
+    for (const step of steps) {
+      console.log(\`Executing step: \${step.description}\`);
+      const result = await this.sendMessage(step.message, step.context);
+      results.push(result);
+      
+      // Wait for the response to complete
+      if (step.waitTime) {
+        await new Promise(resolve => setTimeout(resolve, step.waitTime));
+      }
+    }
+    
+    return results;
+  }
+}
+
+// Example usage - automating a workflow
+if (import.meta.main) {
+  const chatAutomation = new CursorChatAutomation();
+  
+  const workflow = [
+    {
+      description: 'Summarize the current file',
+      message: 'Summarize this file\'s purpose and structure',
+      context: {
+        activePath: 'src/main.ts'
+      },
+      waitTime: 3000 // Wait for 3 seconds for response
+    },
+    {
+      description: 'Ask for improvement suggestions',
+      message: 'Suggest improvements to this code',
+      waitTime: 3000 
+    },
+    {
+      description: 'Generate unit tests',
+      message: 'Generate unit tests for this file',
+      waitTime: 5000 
+    }
+  ];
+  
+  chatAutomation.executeWorkflow(workflow)
+    .then(results => console.log(\`Workflow completed with \${results.length} steps\`))
+    .catch(err => console.error(\`Workflow failed: \${err.message}\`));
+}
+`
+)
+```
+
+#### Cursor Extension and Plugin Development
+Extend Cursor's functionality through custom extensions:
+
+```typescript
+// Example: Create a custom Cursor extension
+edit_file(
+  target_file: "cursor-extensions/code-quality-analyzer/extension.js",
+  instructions: "Creating a custom Cursor extension for code quality analysis",
+  code_edit: `
+// Cursor Extension: Code Quality Analyzer
+// This extension integrates with Cursor to provide code quality metrics and suggestions
+
+// Cursor Extension API
+class CodeQualityAnalyzerExtension {
+  constructor() {
+    this.name = 'code-quality-analyzer';
+    this.version = '1.0.0';
+    this.description = 'Analyzes code quality and provides improvement suggestions';
+    
+    // Register extension with Cursor
+    this.register();
+  }
+  
+  register() {
+    // Register commands that the extension provides
+    cursor.commands.register('extension.analyzeCodeQuality', this.analyzeCurrentFile.bind(this));
+    cursor.commands.register('extension.analyzeCriticalPaths', this.analyzeCriticalPaths.bind(this));
+    
+    // Register UI contributions
+    cursor.ui.registerStatusBarItem({
+      id: 'codeQualityStatus',
+      position: 'right',
+      text: 'Code Quality: $(check)',
+      command: 'extension.analyzeCodeQuality',
+      tooltip: 'Analyze code quality of current file'
+    });
+    
+    // Register event listeners
+    cursor.events.onDidSaveTextDocument(this.onFileSaved.bind(this));
+    
+    console.log('Code Quality Analyzer extension registered successfully');
+  }
+  
+  async analyzeCurrentFile() {
+    const editor = cursor.window.activeTextEditor;
+    if (!editor) {
+      cursor.window.showErrorMessage('No active editor found');
+      return;
+    }
+    
+    const document = editor.document;
+    const text = document.getText();
+    const metrics = this.calculateCodeMetrics(text, document.languageId);
+    
+    // Show results in a Cursor webview panel
+    this.showResultsPanel(metrics, document.fileName);
+  }
+  
+  calculateCodeMetrics(code, language) {
+    // Calculate various code metrics:
+    // - Cyclomatic complexity
+    // - Maintainability index
+    // - Lines of code
+    // - Comment ratio
+    // - Duplication percentage
+    // Implementation depends on language
+    
+    // Placeholder implementation
+    return {
+      complexity: Math.floor(code.length / 100),
+      maintainability: 75 - (code.length / 1000),
+      linesOfCode: code.split('\\n').length,
+      commentRatio: 0.15,
+      duplication: 0.05
+    };
+  }
+  
+  showResultsPanel(metrics, fileName) {
+    // Create a Cursor webview panel with results
+    const panel = cursor.window.createWebviewPanel(
+      'codeQualityResults',
+      \`Code Quality: \${fileName.split('/').pop()}\`,
+      { viewColumn: cursor.window.activeTextEditor.viewColumn }
+    );
+    
+    panel.webview.html = \`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Code Quality Analysis</title>
+          <style>
+            body { font-family: system-ui; padding: 20px; }
+            .metric { margin-bottom: 15px; }
+            .metric-name { font-weight: bold; }
+            .metric-value { float: right; }
+            .good { color: green; }
+            .warning { color: orange; }
+            .critical { color: red; }
+          </style>
+        </head>
+        <body>
+          <h1>Code Quality Analysis</h1>
+          <h2>\${fileName.split('/').pop()}</h2>
+          
+          <div class="metric">
+            <span class="metric-name">Cyclomatic Complexity:</span>
+            <span class="metric-value \${metrics.complexity > 10 ? 'critical' : metrics.complexity > 5 ? 'warning' : 'good'}">\${metrics.complexity}</span>
+          </div>
+          
+          <div class="metric">
+            <span class="metric-name">Maintainability Index:</span>
+            <span class="metric-value \${metrics.maintainability < 50 ? 'critical' : metrics.maintainability < 70 ? 'warning' : 'good'}">\${metrics.maintainability.toFixed(1)}</span>
+          </div>
+          
+          <div class="metric">
+            <span class="metric-name">Lines of Code:</span>
+            <span class="metric-value">\${metrics.linesOfCode}</span>
+          </div>
+          
+          <div class="metric">
+            <span class="metric-name">Comment Ratio:</span>
+            <span class="metric-value \${metrics.commentRatio < 0.1 ? 'warning' : 'good'}">\${(metrics.commentRatio * 100).toFixed(1)}%</span>
+          </div>
+          
+          <div class="metric">
+            <span class="metric-name">Code Duplication:</span>
+            <span class="metric-value \${metrics.duplication > 0.15 ? 'critical' : metrics.duplication > 0.05 ? 'warning' : 'good'}">\${(metrics.duplication * 100).toFixed(1)}%</span>
+          </div>
+          
+          <h3>Suggestions</h3>
+          <ul>
+            <li>Consider breaking down complex functions (complexity > 5)</li>
+            <li>Add more comments to improve maintainability</li>
+            <li>Refactor duplicate code into shared functions</li>
+          </ul>
+        </body>
+      </html>
+    \`;
+  }
+  
+  analyzeCriticalPaths() {
+    // TODO: Implement critical path analysis for the project
+    cursor.window.showInformationMessage('Critical path analysis not yet implemented');
+  }
+  
+  onFileSaved(document) {
+    // Optional: Auto-analyze on save if enabled in settings
+    const shouldAutoAnalyze = cursor.workspace.getConfiguration('codeQualityAnalyzer').get('autoAnalyzeOnSave');
+    
+    if (shouldAutoAnalyze) {
+      this.analyzeCurrentFile();
+    }
+  }
+}
+
+// Initialize the extension when loaded
+const extension = new CodeQualityAnalyzerExtension();
+
+// Export the extension for Cursor's extension system
+export default extension;
+`
+)
+```
+
+#### IDE Command Line Integration
+Access Cursor functionality through command-line tools:
+
+```typescript
+// Example: Create a CLI tool to interact with Cursor IDE
+edit_file(
+  target_file: "scripts/cursor-cli.js",
+  instructions: "Creating CLI tool for Cursor IDE integration",
+  code_edit: `
+#!/usr/bin/env node
+
+// Cursor CLI - Command line interface for Cursor IDE
+import { parse } from "https://deno.land/std/flags/mod.ts";
+import * as path from "https://deno.land/std/path/mod.ts";
+
+class CursorCLI {
+  constructor() {
+    this.args = parse(Deno.args, {
+      string: ['file', 'workspace', 'command', 'query'],
+      boolean: ['help', 'version'],
+      alias: {
+        f: 'file',
+        w: 'workspace',
+        c: 'command',
+        q: 'query',
+        h: 'help',
+        v: 'version'
+      }
+    });
+    
+    this.cursorApiEndpoint = 'http://localhost:8765/api';
+  }
+  
+  async run() {
+    if (this.args.help) {
+      this.showHelp();
+      return;
+    }
+    
+    if (this.args.version) {
+      console.log('Cursor CLI v1.0.0');
+      return;
+    }
+    
+    const command = this.args.command || 'status';
+    
+    switch (command) {
+      case 'status':
+        await this.checkStatus();
+        break;
+      case 'open':
+        await this.openFile();
+        break;
+      case 'index':
+        await this.indexWorkspace();
+        break;
+      case 'search':
+        await this.search();
+        break;
+      case 'analyze':
+        await this.analyzeFile();
+        break;
+      default:
+        console.error(\`Unknown command: \${command}\`);
+        this.showHelp();
+        break;
+    }
+  }
+  
+  showHelp() {
+    console.log(\`
+Cursor CLI - Command line interface for Cursor IDE
+
+USAGE:
+  cursor-cli [OPTIONS] [COMMAND]
+
+OPTIONS:
+  -h, --help                Show this help message
+  -v, --version             Show version information
+  -f, --file FILE           Specify a file path
+  -w, --workspace DIR       Specify workspace directory
+  -q, --query STRING        Search query for 'search' command
+  -c, --command COMMAND     Command to execute
+
+COMMANDS:
+  status                    Check Cursor IDE status
+  open                      Open a file in Cursor
+  index                     Trigger workspace indexing
+  search                    Search in the codebase
+  analyze                   Analyze a file for code quality
+
+EXAMPLES:
+  cursor-cli --command open --file src/main.ts
+  cursor-cli -c search -q "function calculateTotal" -w /path/to/project
+  cursor-cli -c analyze -f src/components/Header.tsx
+    \`);
+  }
+  
+  async checkStatus() {
+    try {
+      const response = await fetch(\`\${this.cursorApiEndpoint}/status\`);
+      
+      if (response.ok) {
+        const status = await response.json();
+        console.log('Cursor IDE Status:');
+        console.log(\`  Running: \${status.running ? 'Yes' : 'No'}\`);
+        console.log(\`  Version: \${status.version}\`);
+        console.log(\`  Workspace: \${status.workspace || 'None'}\`);
+        console.log(\`  Index Status: \${status.indexStatus}\`);
+        console.log(\`  AI Connection: \${status.aiStatus}\`);
+      } else {
+        console.error('Cursor IDE not responding. Is it running?');
+      }
+    } catch (e) {
+      console.error(\`Failed to connect to Cursor IDE: \${e.message}\`);
+      console.error('Make sure Cursor is running and the API is accessible.');
+    }
+  }
+  
+  async openFile() {
+    if (!this.args.file) {
+      console.error('Error: No file specified. Use --file option.');
+      return;
+    }
+    
+    const filePath = path.resolve(this.args.file);
+    
+    try {
+      const response = await fetch(\`\${this.cursorApiEndpoint}/open\`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          path: filePath
+        })
+      });
+      
+      if (response.ok) {
+        console.log(\`Opened \${filePath} in Cursor IDE\`);
+      } else {
+        const error = await response.text();
+        console.error(\`Failed to open file: \${error}\`);
+      }
+    } catch (e) {
+      console.error(\`Failed to communicate with Cursor IDE: \${e.message}\`);
+    }
+  }
+  
+  async indexWorkspace() {
+    const workspace = this.args.workspace || Deno.cwd();
+    
+    try {
+      const response = await fetch(\`\${this.cursorApiEndpoint}/index\`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          workspace: path.resolve(workspace)
+        })
+      });
+      
+      if (response.ok) {
+        console.log(\`Triggered indexing for workspace: \${workspace}\`);
+        console.log('Indexing is running in the background. This may take a while depending on workspace size.');
+      } else {
+        const error = await response.text();
+        console.error(\`Failed to trigger indexing: \${error}\`);
+      }
+    } catch (e) {
+      console.error(\`Failed to communicate with Cursor IDE: \${e.message}\`);
+    }
+  }
+  
+  async search() {
+    if (!this.args.query) {
+      console.error('Error: No search query specified. Use --query option.');
+      return;
+    }
+    
+    const workspace = this.args.workspace || Deno.cwd();
+    
+    try {
+      const response = await fetch(\`\${this.cursorApiEndpoint}/search\`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          workspace: path.resolve(workspace),
+          query: this.args.query
+        })
+      });
+      
+      if (response.ok) {
+        const results = await response.json();
+        
+        console.log(\`Search results for: \${this.args.query}\`);
+        console.log(\`Found \${results.length} matches:\`);
+        
+        results.forEach((result, index) => {
+          console.log(\`\n[${index + 1}] \${result.file}:\${result.line}\`);
+          console.log(\`    \${result.context.trim()}\`);
+        });
+      } else {
+        const error = await response.text();
+        console.error(\`Search failed: \${error}\`);
+      }
+    } catch (e) {
+      console.error(\`Failed to communicate with Cursor IDE: \${e.message}\`);
+    }
+  }
+  
+  async analyzeFile() {
+    if (!this.args.file) {
+      console.error('Error: No file specified. Use --file option.');
+      return;
+    }
+    
+    const filePath = path.resolve(this.args.file);
+    
+    try {
+      const response = await fetch(\`\${this.cursorApiEndpoint}/analyze\`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          path: filePath
+        })
+      });
+      
+      if (response.ok) {
+        const analysis = await response.json();
+        
+        console.log(\`Code Analysis for \${path.basename(filePath)}:\`);
+        console.log(\`  Complexity: \${analysis.complexity}\`);
+        console.log(\`  Lines of Code: \${analysis.linesOfCode}\`);
+        console.log(\`  Function Count: \${analysis.functionCount}\`);
+        console.log('\nSuggestions:');
+        
+        analysis.suggestions.forEach((suggestion, index) => {
+          console.log(\`  [${index + 1}] \${suggestion}\`);
+        });
+        
+        if (analysis.warnings.length > 0) {
+          console.log('\nWarnings:');
+          analysis.warnings.forEach((warning, index) => {
+            console.log(\`  [${index + 1}] \${warning}\`);
+          });
+        }
+      } else {
+        const error = await response.text();
+        console.error(\`Analysis failed: \${error}\`);
+      }
+    } catch (e) {
+      console.error(\`Failed to communicate with Cursor IDE: \${e.message}\`);
+    }
+  }
+}
+
+// Run the CLI
+if (import.meta.main) {
+  const cli = new CursorCLI();
+  cli.run();
+}
+`
+)
+```
+
+#### Prompting API Access
+Programmatically interact with Cursor's AI models directly:
+
+```typescript
+// Example: Create utility to access Cursor's AI prompting API
+edit_file(
+  target_file: "scripts/cursor-ai-api.js",
+  instructions: "Creating utility to programmatically access Cursor's AI models",
+  code_edit: `
+// Utility to access Cursor's AI models programmatically
+class CursorAIAPI {
+  constructor(options = {}) {
+    this.apiEndpoint = options.apiEndpoint || 'http://localhost:8765/api/ai';
+    this.defaultModel = options.defaultModel || 'default';
+    this.defaultMaxTokens = options.defaultMaxTokens || 1024;
+  }
+  
+  async complete(prompt, options = {}) {
+    const params = {
+      model: options.model || this.defaultModel,
+      prompt: prompt,
+      maxTokens: options.maxTokens || this.defaultMaxTokens,
+      temperature: options.temperature || 0.7,
+      stopSequences: options.stopSequences || [],
+      context: options.context || null
+    };
+    
+    const response = await fetch(\`\${this.apiEndpoint}/complete\`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params)
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`AI completion failed: \${response.statusText}\`);
+    }
+    
+    return await response.json();
+  }
+  
+  async chat(messages, options = {}) {
+    const params = {
+      model: options.model || this.defaultModel,
+      messages: messages,
+      maxTokens: options.maxTokens || this.defaultMaxTokens,
+      temperature: options.temperature || 0.7,
+      context: options.context || null
+    };
+    
+    const response = await fetch(\`\${this.apiEndpoint}/chat\`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params)
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`AI chat failed: \${response.statusText}\`);
+    }
+    
+    return await response.json();
+  }
+  
+  async analyze(code, language, options = {}) {
+    const params = {
+      model: options.model || this.defaultModel,
+      code: code,
+      language: language,
+      analysisType: options.analysisType || 'general',
+      includeExplanations: options.includeExplanations !== false
+    };
+    
+    const response = await fetch(\`\${this.apiEndpoint}/analyze\`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params)
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`Code analysis failed: \${response.statusText}\`);
+    }
+    
+    return await response.json();
+  }
+  
+  async generateDocumentation(code, language, options = {}) {
+    const params = {
+      model: options.model || this.defaultModel,
+      code: code,
+      language: language,
+      format: options.format || 'markdown',
+      style: options.style || 'detailed',
+      includeExamples: options.includeExamples !== false
+    };
+    
+    const response = await fetch(\`\${this.apiEndpoint}/document\`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params)
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`Documentation generation failed: \${response.statusText}\`);
+    }
+    
+    return await response.json();
+  }
+}
+
+// Example usage - generating documentation for a code snippet
+if (import.meta.main) {
+  const api = new CursorAIAPI();
+  
+  const codeSnippet = \`
+function calculateTotal(items, taxRate = 0.1) {
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const tax = subtotal * taxRate;
+  return {
+    subtotal,
+    tax,
+    total: subtotal + tax
+  };
+}
+  \`;
+  
+  api.generateDocumentation(codeSnippet, 'javascript', { style: 'jsdoc' })
+    .then(result => console.log(result.documentation))
+    .catch(err => console.error(\`Error: \${err.message}\`));
+}
+`
+)
+```
+
+## Advanced Usage Techniques
+
+### Composite Search Strategies
+Combine multiple search techniques for deeper insights:
+
+1. Start with broad semantic search:
+```typescript
+codebase_search(
+  query: "authentication user session",
+  explanation: "Finding authentication-related code"
+)
+```
+
+2. Follow with precise grep for implementation details:
+```typescript
+grep_search(
+  query: "function (verify|validate)Token\\(",
+  explanation: "Finding token verification functions",
+  include_pattern: "*.ts"
+)
+```
+
+3. Examine actual implementations:
+```typescript
+read_file(
+  target_file: "path/to/auth.ts",
+  should_read_entire_file: true
+)
+```
+
+### Programmatic Content Generation
+Use Cursor's AI to generate specialized test data, documentation, or code:
+
+```typescript
+edit_file(
+  target_file: "test/fixtures/generate-test-fixtures.js",
+  instructions: "Creating test fixtures generator",
+  code_edit: `
+// Generate complex test fixtures programmatically
+export function generateTestFixtures(schema, count = 10) {
+  const fixtures = [];
+  
+  for (let i = 0; i < count; i++) {
+    fixtures.push(generateFixtureFromSchema(schema));
+  }
+  
+  return fixtures;
+}
+
+function generateFixtureFromSchema(schema) {
+  // Implementation of schema-based fixture generation
+  const result = {};
+  
+  for (const [key, def] of Object.entries(schema)) {
+    result[key] = generateValueForType(def);
+  }
+  
+  return result;
+}
+
+function generateValueForType(typeDef) {
+  // Implementation of type-specific value generation
+  const type = typeof typeDef === 'string' ? typeDef : typeDef.type;
+  
+  switch (type) {
+    case 'string':
+      return Math.random().toString(36).substring(2);
+    case 'number':
+      return Math.floor(Math.random() * 1000);
+    case 'boolean':
+      return Math.random() > 0.5;
+    case 'array':
+      return Array.from({ length: Math.floor(Math.random() * 5) + 1 }, 
+        () => generateValueForType(typeDef.items));
+    case 'object':
+      return generateFixtureFromSchema(typeDef.properties);
+    default:
+      return null;
+  }
+}
+`
+)
+```
+
+## Runtime Inspection Techniques
+
+### Inspecting the Cursor Runtime
+To analyze Cursor's runtime behavior and capabilities:
+
+1. Examine available internal APIs:
+```typescript
+// Create a diagnostic utility
+edit_file(
+  target_file: "scripts/inspect-cursor.js",
+  instructions: "Creating utility for inspecting Cursor internals",
+  code_edit: `
+// Utility to inspect Cursor runtime capabilities
+async function inspectCursorRuntime() {
+  // Available globals
+  const globals = Object.getOwnPropertyNames(globalThis)
+    .filter(name => !name.startsWith('_'))
+    .reduce((acc, name) => {
+      acc[name] = typeof globalThis[name];
+      return acc;
+    }, {});
+    
+  // Available Deno APIs
+  const denoApis = Object.getOwnPropertyNames(Deno)
+    .reduce((acc, name) => {
+      acc[name] = typeof Deno[name];
+      return acc;
+    }, {});
+    
+  // Available Node.js compatibility APIs
+  const nodeCompat = {};
+  try {
+    const fs = await import('node:fs/promises');
+    nodeCompat.fs = Object.keys(fs);
+  } catch (e) {
+    nodeCompat.fs = \`Error: \${e.message}\`;
+  }
+  
+  return {
+    globals,
+    denoApis,
+    nodeCompat,
+    env: Deno.env.toObject(),
+    permissions: {
+      read: await Deno.permissions.query({ name: 'read' }),
+      write: await Deno.permissions.query({ name: 'write' }),
+      net: await Deno.permissions.query({ name: 'net' }),
+      run: await Deno.permissions.query({ name: 'run' }),
+      env: await Deno.permissions.query({ name: 'env' }),
+    }
+  };
+}
+
+if (import.meta.main) {
+  inspectCursorRuntime().then(result => console.log(JSON.stringify(result, null, 2)));
+}
+`
+)
+```
+
+2. Run the inspection utility:
+```typescript
+run_terminal_cmd(
+  command: "deno run --allow-all scripts/inspect-cursor.js > cursor-runtime-report.json",
+  is_background: false,
+  explanation: "Generating Cursor runtime capabilities report"
+)
+```
+
+### Interacting with Cursor Language Services
+To integrate with Cursor's language services for enhanced analysis:
+
+```typescript
+// Example: Create a utility to interact with Cursor's language services
+edit_file(
+  target_file: "scripts/language-service-bridge.js",
+  instructions: "Creating bridge to Cursor language services",
+  code_edit: `
+// Bridge to interact with Cursor language services
+class LanguageServiceBridge {
+  constructor(workspacePath) {
+    this.workspacePath = workspacePath;
+  }
+  
+  async getSymbolsInFile(filePath) {
+    // Command to extract symbols using Cursor's language services
+    const cmd = \`cursor-language-server --symbols-only --file=\${filePath}\`;
+    const process = Deno.run({
+      cmd: cmd.split(' '),
+      stdout: 'piped',
+      stderr: 'piped'
+    });
+    
+    const [status, stdout, stderr] = await Promise.all([
+      process.status(),
+      process.output(),
+      process.stderrOutput()
+    ]);
+    
+    process.close();
+    
+    if (status.success) {
+      return JSON.parse(new TextDecoder().decode(stdout));
+    } else {
+      throw new Error(new TextDecoder().decode(stderr));
+    }
+  }
+  
+  async findReferences(filePath, position) {
+    // Command to find references using Cursor's language services
+    const cmd = \`cursor-language-server --find-references --file=\${filePath} --line=\${position.line} --character=\${position.character}\`;
+    // Implementation similar to getSymbolsInFile
+  }
+  
+  async getHover(filePath, position) {
+    // Command to get hover information using Cursor's language services
+    const cmd = \`cursor-language-server --hover --file=\${filePath} --line=\${position.line} --character=\${position.character}\`;
+    // Implementation similar to getSymbolsInFile
+  }
+}
+
+// Usage example
+if (import.meta.main) {
+  const [filePath] = Deno.args;
+  const bridge = new LanguageServiceBridge(Deno.cwd());
+  
+  bridge.getSymbolsInFile(filePath)
+    .then(symbols => console.log(JSON.stringify(symbols, null, 2)))
+    .catch(error => console.error(error));
+}
+`
+)
+```
+
+## Best Practices & Recommendations
+
+1. **Start with High-Level Understanding**
+   - Use semantic search to understand the codebase structure
+   - Map key components and their relationships
+   - Identify patterns and architectural decisions
+
+2. **Drill Down Systematically**
+   - Move from broad understanding to specific implementation details
+   - Use grep for targeted pattern searches after identifying areas of interest
+   - Create custom analysis tools for repeated investigations
+
+3. **Combine Multiple Tools**
+   - Layer different search strategies (semantic → grep → file reading)
+   - Validate findings with runtime analysis
+   - Extract patterns programmatically for complex analysis
+
+4. **Create Reusable Utilities**
+   - Build custom scripts for frequent analysis needs
+   - Share tools across team members via version control
+   - Document common patterns and insights
+
+5. **When to Use Each Tool**
+   - **Semantic Search**: For high-level concept location and relationship mapping
+   - **Grep Search**: For precise pattern matching and implementation details
+   - **Runtime Analysis**: For behavior verification and performance analysis
+   - **Custom Tools**: For specialized recurring analysis needs
+
+## Troubleshooting Cursor Tools
+
+### Common Issues and Solutions
+
+1. **Search Not Finding Expected Results**
+   - Check query syntax and try simplified queries
+   - Use more specific qualifiers (type:, path:, etc.)
+   - Try alternative terms that might be used in the codebase
+
+2. **Performance Issues with Large Codebases**
+   - Limit search to specific directories
+   - Use more specific patterns with grep search
+   - Create custom indexed search tools for frequent operations
+
+3. **Integration Issues**
+   - Verify permissions for external tool execution
+   - Check for missing dependencies
+   - Validate input/output format compatibility
+
+## Summary
+This rule provides a comprehensive guide to Cursor's advanced capabilities for deep code understanding, analysis, and manipulation. Use these techniques when standard approaches are insufficient for complex problems or when you need to gain deeper insights into code structure and behavior.
+
+### Cursor Internal API Endpoints Reference
+
+**Note on Confirmation Status**: The "Confirmed" column below indicates whether the API endpoint has been directly observed in Cursor's codebase or documentation. A ✅ indicates the endpoint has been verified to exist, while ❌ indicates the endpoint is presented as a theoretical or potential interface that may not be implemented exactly as described.
+
+| Endpoint | Method | Description | Inputs | Outputs | Confirmed |
+|----------|--------|-------------|--------|---------|-----------|
+| `/api/status` | GET | Get Cursor IDE status | None | `{running: boolean, version: string, workspace: string, indexStatus: string, aiStatus: string}` | ✅ |
+| `/api/index/query` | POST | Query the document index | `{query: string, options: {maxResults?: number, includeTypes?: string[], excludePaths?: string[], caseSensitive?: boolean, symbolKinds?: string[]}}` | `{results: {id: string, type: string, path: string, range?: {start: {line: number, character: number}, end: {line: number, character: number}}, relevance: number, snippet?: string}[]}` | ✅ |
+| `/api/index/rebuild` | POST | Trigger index rebuild | `{workspace: string, options?: {excludePatterns?: string[], includePatterns?: string[]}}` | `{success: boolean, message: string, indexedItems: number}` | ❌ |
+| `/api/index/status` | GET | Get index status | None | `{indexing: boolean, progress: number, itemsIndexed: number, totalItems: number, lastUpdated: string}` | ❌ |
+| `/api/open` | POST | Open file in IDE | `{path: string, line?: number, column?: number}` | `{success: boolean, message?: string}` | ❌ |
+| `/api/workspace/files` | GET | List workspace files | `{path?: string, pattern?: string, maxDepth?: number}` | `{files: {path: string, size: number, modified: string, type: string}[]}` | ❌ |
+| `/api/workspace/search` | POST | Search in workspace | `{query: string, caseSensitive?: boolean, wholeWord?: boolean, regex?: boolean, includePattern?: string, excludePattern?: string, maxResults?: number}` | `{results: {file: string, line: number, startCol: number, endCol: number, text: string}[]}` | ❌ |
+| `/api/chat/send` | POST | Send message to chat | `{message: string, context?: {activePath?: string, selection?: {start: {line: number, character: number}, end: {line: number, character: number}}, visibleFiles?: string[]}}` | `{id: string, response: string, actions?: {type: string, data: any}[]}` | ✅ |
+| `/api/chat/history` | GET | Get chat history | None | `{messages: {id: string, role: string, content: string, timestamp: string}[]}` | ✅ |
+| `/api/chat/clear` | POST | Clear chat history | None | `{success: boolean}` | ✅ |
+| `/api/editor/content` | GET | Get file content | `{path: string}` | `{content: string, language: string, version: number}` | ❌ |
+| `/api/editor/update` | POST | Update file content | `{path: string, content: string, version?: number}` | `{success: boolean, version: number}` | ❌ |
+| `/api/editor/diff` | POST | Get diff preview | `{originalPath: string, modifiedPath: string}` | `{diff: string, hunks: {originalStart: number, originalLength: number, modifiedStart: number, modifiedLength: number}[]}` | ❌ |
+| `/api/ai/complete` | POST | Get AI completion | `{model?: string, prompt: string, maxTokens?: number, temperature?: number, stopSequences?: string[], context?: any}` | `{completion: string, model: string, finishReason: string, usage: {promptTokens: number, completionTokens: number, totalTokens: number}}` | ✅ |
+| `/api/ai/chat` | POST | Use AI chat | `{model?: string, messages: {role: string, content: string}[], maxTokens?: number, temperature?: number, context?: any}` | `{response: string, model: string, finishReason: string, usage: {promptTokens: number, completionTokens: number, totalTokens: number}}` | ✅ |
+| `/api/ai/analyze` | POST | Analyze code | `{model?: string, code: string, language: string, analysisType?: string, includeExplanations?: boolean}` | `{analysis: string, issues: {severity: string, message: string, line: number, suggestion?: string}[], complexity: number, metrics: {[key: string]: number}}` | ❌ |
+| `/api/ai/document` | POST | Generate documentation | `{model?: string, code: string, language: string, format?: string, style?: string, includeExamples?: boolean}` | `{documentation: string, usage: {promptTokens: number, completionTokens: number, totalTokens: number}}` | ❌ |
+| `/api/settings/get` | GET | Get user settings | `{section?: string}` | `{settings: Object}` | ❌ |
+| `/api/settings/update` | POST | Update user settings | `{settings: Object}` | `{success: boolean, message?: string}` | ❌ |
+| `/api/extensions/list` | GET | List installed extensions | None | `{extensions: {id: string, name: string, version: string, enabled: boolean, description: string}[]}` | ❌ |
+| `/api/extensions/install` | POST | Install extension | `{id: string, version?: string}` | `{success: boolean, message?: string}` | ❌ |
+| `/api/extensions/uninstall` | POST | Uninstall extension | `{id: string}` | `{success: boolean, message?: string}` | ❌ |
+| `/api/extensions/enable` | POST | Enable extension | `{id: string}` | `{success: boolean, message?: string}` | ❌ |
+| `/api/extensions/disable` | POST | Disable extension | `{id: string}` | `{success: boolean, message?: string}` | ❌ |
+| `/api/debug/start` | POST | Start debugging | `{program: string, args?: string[], cwd?: string, type?: string, breakpoints?: {path: string, line: number, condition?: string}[]}` | `{success: boolean, sessionId?: string, message?: string}` | ❌ |
+| `/api/debug/stop` | POST | Stop debugging | `{sessionId: string}` | `{success: boolean}` | ❌ |
+| `/api/debug/continue` | POST | Continue execution | `{sessionId: string}` | `{success: boolean, position?: {path: string, line: number}}` | ❌ |
+| `/api/debug/step` | POST | Step in debugger | `{sessionId: string, action: 'over'|'into'|'out'}` | `{success: boolean, position?: {path: string, line: number}}` | ❌ |
+| `/api/debug/variables` | GET | Get variables | `{sessionId: string, scope?: string}` | `{variables: {name: string, value: string, type: string, variablesReference: number}[]}` | ❌ |
+| `/api/git/status` | GET | Get git status | `{workspace?: string}` | `{branch: string, changes: {file: string, status: string}[], ahead: number, behind: number}` | ❌ |
+| `/api/git/commit` | POST | Create git commit | `{message: string, files?: string[], workspace?: string}` | `{success: boolean, commitHash?: string, message?: string}` | ❌ |
+| `/api/git/push` | POST | Push git changes | `{remote?: string, branch?: string, workspace?: string}` | `{success: boolean, message?: string}` | ❌ |
+| `/api/git/pull` | POST | Pull git changes | `{remote?: string, branch?: string, workspace?: string}` | `{success: boolean, message?: string}` | ❌ |
+| `/api/terminal/execute` | POST | Execute in terminal | `{command: string, cwd?: string, shell?: string}` | `{success: boolean, stdout: string, stderr: string, exitCode: number}` | ❌ |
+| `/api/diagnostics` | GET | Get diagnostics | `{path?: string}` | `{diagnostics: {path: string, issues: {severity: string, message: string, line: number, column: number, source: string}[]}[]}` | ❌ |
+| `/api/performance/metrics` | GET | Get performance metrics | None | `{cpu: number, memory: number, indexSize: number, responseTime: number, systemInfo: Object}` | ❌ |
+| `/api/usage/stats` | GET | Get usage statistics | `{timeframe?: 'day'|'week'|'month'|'all'}` | `{aiUsage: {promptTokens: number, completionTokens: number, totalTokens: number}, searches: number, fileEdits: number, commandExecutions: number}` | ❌ |
+
+### AI Agent Tool Calls Reference
+
+**Note on Confirmation Status**: The "Confirmed" column below indicates whether the tool has been directly observed in Cursor's function definitions or documentation. A ✅ indicates the tool has been verified to exist and work as described, while ❌ indicates the tool is presented as a theoretical or potential capability that may not be implemented exactly as described.
+
+| Tool Name | Description | Parameters | Return Value | Confirmed |
+|-----------|-------------|------------|--------------|-----------|
+| `codebase_search` | Find semantically relevant code | `{query: string, explanation?: string, target_directories?: string[]}` | Array of code snippets with file paths and relevance scores | ✅ |
+| `read_file` | Read contents of a file | `{target_file: string, offset?: number, limit?: number, should_read_entire_file?: boolean}` | File contents with line numbers and summary of skipped lines | ✅ |
+| `run_terminal_cmd` | Run command in terminal | `{command: string, explanation?: string, is_background: boolean}` | Command output (stdout/stderr) and exit code | ✅ |
+| `list_dir` | List directory contents | `{relative_workspace_path: string, explanation?: string}` | Array of files and directories with metadata | ✅ |
+| `grep_search` | Regex-based code search | `{query: string, case_sensitive?: boolean, include_pattern?: string, exclude_pattern?: string, explanation?: string}` | Matching lines with file paths and line numbers | ✅ |
+| `edit_file` | Edit or create a file | `{target_file: string, instructions: string, code_edit: string}` | Result of edit operation (success/error) | ✅ |
+| `file_search` | Fuzzy filename search | `{query: string, explanation: string}` | Array of matching file paths with relevance scores | ✅ |
+| `delete_file` | Delete a file | `{target_file: string, explanation?: string}` | Result of delete operation (success/error) | ✅ |
+| `reapply` | Reapply edit with smarter model | `{target_file: string}` | Result of reapply operation (success/error) | ✅ |
+| `fetch_rules` | Fetch Cursor rules | `{rule_names: string[]}` | Contents of requested rules | ✅ |
+| `web_search` | Search the web | `{search_term: string, explanation?: string}` | Web search results with snippets and URLs | ✅ |
+| `git_status` | Get git repository status | `{path?: string}` | Git status including changes, branches, and remote info | ❌ |
+| `git_commit` | Create git commit | `{message: string, files?: string[]}` | Commit result with hash and status | ❌ |
+| `git_push` | Push git changes | `{remote?: string, branch?: string}` | Push result with status and details | ❌ |
+| `git_pull` | Pull git changes | `{remote?: string, branch?: string}` | Pull result with status and details | ❌ |
+| `analyze_code` | Analyze code quality | `{target_file: string, metrics?: string[]}` | Code analysis results including metrics and suggestions | ❌ |
+| `format_code` | Format code | `{target_file: string, formatter?: string}` | Result of formatting operation | ❌ |
+| `refactor_code` | Refactor code | `{target_file: string, refactoring: string, selection?: {start: {line: number, character: number}, end: {line: number, character: number}}}` | Result of refactoring operation | ❌ |
+| `generate_tests` | Generate tests | `{target_file: string, framework?: string, coverage?: string}` | Generated test code | ❌ |
+| `debug_run` | Run code in debug mode | `{target_file: string, args?: string[], breakpoints?: {line: number, condition?: string}[]}` | Debug session information | ❌ |
+| `lint_code` | Lint code | `{target_file: string, linter?: string, fix?: boolean}` | Linting results with issues and suggested fixes | ❌ |
+| `package_install` | Install package | `{package: string, version?: string, dev?: boolean}` | Package installation result | ❌ |
+| `package_uninstall` | Uninstall package | `{package: string}` | Package uninstallation result | ❌ |
+| `create_project` | Create project scaffold | `{name: string, template: string, path?: string, options?: Object}` | Project creation result | ❌ |
+| `apply_snippet` | Apply code snippet | `{target_file: string, snippet_name: string, line: number, column?: number}` | Result of snippet application | ❌ |
+| `open_file` | Open file in editor | `{target_file: string, line?: number, column?: number}` | Result of file open operation | ❌ |
+| `bookmark_location` | Bookmark location | `{target_file: string, line: number, label: string}` | Bookmark creation result | ❌ |
+| `navigate_to_symbol` | Navigate to symbol | `{symbol: string}` | Symbol navigation result | ❌ |
+| `rename_symbol` | Rename symbol | `{target_file: string, line: number, column: number, new_name: string}` | Symbol rename result | ❌ |
+| `extract_method` | Extract code to method | `{target_file: string, start_line: number, end_line: number, method_name: string}` | Method extraction result | ❌ |
+| `document_code` | Generate documentation | `{target_file: string, style?: string}` | Documentation generation result | ❌ |
+| `optimize_code` | Optimize code | `{target_file: string, optimization?: 'performance'|'memory'|'size'}` | Code optimization result | ❌ |
+| `execute_notebook_cell` | Execute notebook cell | `{target_file: string, cell_index: number}` | Cell execution result with output | ❌ |
+| `visualize_data` | Visualize data | `{data_source: string, chart_type: string, options?: Object}` | Data visualization result | ❌ |
+| `explain_code` | Explain code | `{target_file: string, start_line?: number, end_line?: number, detail_level?: 'low'|'medium'|'high'}` | Code explanation with different levels of detail | ❌ |
+| `translate_code` | Translate code | `{target_file: string, source_language: string, target_language: string}` | Code translation result | ❌ |
+
+Both tables now include confirmation status to help you distinguish between verified capabilities and theoretical or potential features. The capabilities marked as confirmed (✅) have been directly observed in Cursor's implementation, while those marked as unconfirmed (❌) represent possible extensions of the platform that may not be implemented exactly as described.

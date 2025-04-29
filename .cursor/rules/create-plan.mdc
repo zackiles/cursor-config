@@ -1,0 +1,368 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Create Implementation Plan
+
+Use this rule to generate detailed implementation plans for TODOs, breaking down complex tasks into ordered, actionable steps.
+
+## Important Note
+
+**Before generate any implementation plan and checklist**, follow the steps in the [prepare](mdc:.cursor/rules/prepare.mdc) rule to thoroughly research and understand the codebase context. This ensures your implementation aligns with existing patterns and standard of the codebase.
+
+## When to use
+- When planning the implementation of a TODO item from a list
+- When breaking down a complex feature into manageable steps
+- When you need a step-by-step checklist approach to solving a problem
+
+## Instructions
+The following instructions will help you create an implementation plat for a TODO item. Create the folder if it doesn't already exist `.cursor/memory` to store implementation plants, then follow the following steps and instructions:
+
+1. First, thoroughly analyze the TODO description to understand:
+   - The main goal/purpose of the feature
+   - The specific technical requirements
+   - Any risks or edge cases mentioned
+   - Platform-specific considerations
+
+2. Create a markdown file in the `.cursor/memory/{todo-name}-checklist.md` format using the `edit_file` tool:
+   ```
+   # EXAMPLE COMMAND: Replace {todo-name} with the specific TODO identifier
+   edit_file(
+     target_file: ".cursor/memory/{todo-name}-checklist.md",
+     instructions: "Creating implementation plan checklist file for TODO X",
+     code_edit: "---\ncreatedOn: \"2023-06-15T14:30:00-07:00\"\nupdatedOn: \"2023-06-15T14:30:00-07:00\"\n---\n\n# TODO X: [Feature Name] Implementation Checklist\n\n## Background\n..."
+   )
+   ```
+
+3. Always include a YAML frontmatter at the top of the file with the following fields:
+   - `createdOn`: The ISO date time string (with timezone) when the file was first created
+   - `updatedOn`: Initially the same as createdOn, but must be updated by the implementor whenever they make changes
+   - Example:
+     ```yaml
+     ---
+     createdOn: "2023-06-15T14:30:00-07:00"
+     updatedOn: "2023-06-15T14:30:00-07:00"
+     ---
+     ```
+   - The planner MUST use the current local date time with timezone information when creating the file
+   - The implementor MUST update the `updatedOn` value whenever they modify the file or mark checklist items as complete
+   - Here are examples of valid ISO date time strings with timezone information:
+     - `"2023-06-15T14:30:00-07:00"` (Pacific Daylight Time)
+     - `"2023-06-15T16:30:00-05:00"` (Central Daylight Time)
+     - `"2023-06-15T22:30:00+01:00"` (British Summer Time)
+     - `"2023-06-16T06:30:00+09:00"` (Japan Standard Time)
+
+4. Structure the implementation plan in a markdown file with these sections:
+   ```
+   ---
+   createdOn: "2023-06-15T14:30:00-07:00"
+   updatedOn: "2023-06-15T14:30:00-07:00"
+   ---
+
+   # TODO X: [Feature Name] Implementation Checklist
+
+   ## Background
+   [Brief description of the feature purpose and value]
+
+   ## Implementation Steps
+
+   1. [ ] **[First Major Step]**
+      - [ ] [Sub-step with details]
+      - [ ] [Sub-step with details]
+      ```typescript
+      // Example code snippet if helpful
+      ```
+
+   2. [ ] **[Second Major Step]**
+      ...
+
+   ## Notes
+   [Important considerations, potential pitfalls, or implementation alternatives]
+   ```
+
+5. Ensure implementation steps:
+   - Follow a logical sequence
+   - Include code snippets where helpful
+   - Are numbered for easy reference
+   - Group related tasks under major steps
+   - Are actionable and specific
+   - Focus on pragmatic implementations that work for a first phase
+   - Consider essential error handling and obvious edge cases
+
+6. For TODOs involving code modifications:
+   - Reference existing functions that need changes by using the `codebase_search` tool to find them:
+     ```
+     # EXAMPLE COMMAND: Replace with specific function or pattern you need to find
+     codebase_search(
+       query: "function name or relevant code pattern",
+       explanation: "Finding the implementation of the function we need to modify"
+     )
+     ```
+   - Include type definitions for new interfaces
+   - Consider backward compatibility
+   - Include only essential validation checks
+
+7. For new features:
+   - Include steps for updating exports
+   - Include documentation updates
+   - Focus on core functionality first, with room for future enhancements
+   - Prefer a working minimal implementation over comprehensive but complex solutions
+
+8. For any changes to existing interfaces or functionality, add a final step for handling consumers:
+   - Identify all consumers of the modified code using the `codebase_search` tool:
+     ```
+     # EXAMPLE COMMAND: Replace with the function, method, or module being modified
+     codebase_search(
+       query: "import { modifiedFunction } from" OR "modifiedFunction(",
+       explanation: "Finding all consumers of the modified functionality"
+     )
+     ```
+   - If consumers are found, include a specific major step for consumer migration:
+     ```markdown
+     X. [ ] **Update Consumers of Modified Code**
+        - [ ] Update consumer A in file path/to/fileA.ts
+          ```typescript
+          // Example of required changes in consumer A
+          ```
+        - [ ] Update consumer B in file path/to/fileB.ts
+          ```typescript
+          // Example of required changes in consumer B
+          ```
+        - [ ] Validate all consumers work with the new implementation
+          - [ ] Run tests for consumer A
+          - [ ] Run tests for consumer B
+          - [ ] Manually verify functionality of consumer A
+          - [ ] Manually verify functionality of consumer B
+     ```
+   - If no consumers are found, this step can be omitted
+
+## Implementation Plan File Structure
+
+The implementation plan file should follow this exact structure:
+
+### 1. File Name and Location
+- Name: `.cursor/memory/{todo-name}-checklist.md`
+  - Example: `.cursor/memory/todo3-checklist.md`
+- Use lowercase and separate words with hyphens
+
+### 2. Title (H1 heading)
+- Format: `# TODO X: [Feature Name] Implementation Checklist`
+- Example: `# TODO 3: Unicode/Grapheme Awareness Implementation Checklist`
+
+### 3. Background Section (H2 heading)
+- Format: `## Background`
+- Content:
+  - 2-4 sentences describing the feature's purpose, importance, and value
+  - Any key technical challenges to be addressed
+  - Brief overview of the approach
+- Example:
+  ```markdown
+  ## Background
+  Unicode/Grapheme awareness is critical for correctly handling and measuring 
+  characters beyond standard ASCII, such as emojis, CJK characters, and combining 
+  marks. The current implementation relies on `string.length` and basic `\s+` 
+  splitting, which causes incorrect wrapping, visual glitches, and broken graphemes.
+  This implementation will use a grapheme splitting library to treat visual 
+  units atomically.
+  ```
+
+### 4. Implementation Steps Section (H2 heading)
+- Format: `## Implementation Steps`
+- Structure:
+  - Numbered major steps (1, 2, 3...)
+  - Each major step has a bold title: `**[Step Title]**`
+  - Sub-steps use checkboxes: `- [ ] [Sub-step detail]`
+  - Include relevant code snippets in typescript blocks
+- Example:
+  ```markdown
+  ## Implementation Steps
+
+  1. [ ] **Add Required Dependencies**
+     - [ ] Import grapheme splitter library
+     ```typescript
+     import { splitGraphemes } from 'https://deno.land/x/grapheme_splitter/mod.ts';
+     ```
+     - [ ] Import character width calculation library
+     ```typescript
+     import { getWidth } from 'https://deno.land/x/character_width/mod.ts';
+     ```
+
+  2. [ ] **Create Unicode-Aware Helper Functions**
+     - [ ] Implement grapheme-aware string length function
+     ```typescript
+     function graphemeLength(text: string): number {
+       return splitGraphemes(text).length;
+     }
+     ```
+     - [ ] Implement visual width calculation function
+     ```typescript
+     function visualWidth(text: string): number {
+       return splitGraphemes(text).reduce((width, char) => width + getWidth(char), 0);
+     }
+     ```
+  ```
+
+### 5. Notes Section (H2 heading)
+- Format: `## Notes`
+- Content:
+  - List important considerations as bullet points
+  - Include potential pitfalls or edge cases
+  - Mention alternative approaches considered
+  - Reference related TODOs if there are dependencies
+- Example:
+  ```markdown
+  ## Notes
+  - This implementation requires Deno permissions for network access to import dependencies
+  - Performance impact should be monitored; grapheme splitting is more CPU-intensive
+  - Future improvement could include caching of grapheme splits for repeated text
+  - This feature should be coordinated with TODO 7 (ANSI Escape Sequence Awareness)
+    as both modify the same core text processing functions
+  ```
+
+### 6. Formatting Requirements
+- Use markdown checkboxes `- [ ]` for all tasks to allow tracking completion
+- Include triple-backtick code blocks with language specifier for all code examples
+- Use heading levels consistently (H1 for title, H2 for sections)
+- Use bold (`**text**`) for step titles
+- Keep code examples concise but complete enough to understand the implementation
+
+### 7. Consumer Migration (When Applicable)
+- If you have modified existing interfaces or functionality, include a final major step for consumer migration
+- Use specific file paths and line numbers for each consumer that needs updating
+- Include code examples showing the required changes for each consumer
+- Add validation steps to ensure all consumers work with the new implementation
+- Provide test commands or manual verification steps for each consumer
+- Example:
+  ```markdown
+  5. [ ] **Update Consumers of Modified API**
+     - [ ] Refactor the CLI command parser in src/cli/parser.ts
+     ```typescript
+     // Before:
+     const result = parseTextWithOldMethod(input);
+     
+     // After:
+     const result = parseTextWithNewGraphemeMethod(input);
+     ```
+     - [ ] Update the text editor component in src/ui/editor.ts
+     ```typescript
+     // Before:
+     const charCount = text.length;
+     
+     // After:
+     const charCount = graphemeLength(text);
+     ```
+     - [ ] Validate all consumers work with the new implementation
+       - [ ] Run CLI parser tests: `deno test src/cli/parser.test.ts`
+       - [ ] Run text editor tests: `deno test src/ui/editor.test.ts`
+       - [ ] Manually verify CLI with non-ASCII input: `./cli.ts --process "emoji 😊 test"`
+       - [ ] Manually verify text editor with CJK characters
+  ```
+
+## Pragmatic First-Phase Focus
+When generating implementation plans, prioritize:
+- Getting core functionality working correctly
+- Maintaining consistency with existing code patterns, which you can research using:
+  ```
+  # EXAMPLE COMMAND: Replace with specific patterns you need to find
+  codebase_search(
+    query: "related feature or pattern",
+    explanation: "Finding existing patterns for consistent implementation"
+  )
+  ```
+- Building a solid foundation that can be expanded later
+- Handling obvious error cases and edge conditions
+- Efficient, readable solutions over exhaustive test coverage
+
+Testing can be addressed in a subsequent phase once the core implementation is stable.
+
+## Example TODOs
+
+Here are examples of the type of TODOs you might implement:
+
+### Example 1: Adding Color Theme Support
+
+**Goal:** Allow users to customize terminal output with color themes.
+
+**Implementation Detail:**
+```typescript
+interface ColorTheme {
+  primary: string;    // ANSI color code for primary text
+  secondary: string;  // ANSI color code for secondary text
+  border: string;     // ANSI color code for borders
+  background: string; // ANSI color code for backgrounds
+}
+
+// Add to BoundingBoxOptions
+interface BoundingBoxOptions {
+  // ... existing options
+  theme?: ColorTheme | 'default' | 'dark' | 'light';
+}
+
+// Implementation would include:
+const themes = {
+  default: { primary: '\x1B[37m', secondary: '\x1B[36m', border: '\x1B[33m', background: '' },
+  dark: { primary: '\x1B[97m', secondary: '\x1B[96m', border: '\x1B[93m', background: '\x1B[40m' },
+  light: { primary: '\x1B[30m', secondary: '\x1B[34m', border: '\x1B[33m', background: '\x1B[47m' }
+};
+
+function applyTheme(text: string, themeColor: string): string {
+  return `${themeColor}${text}\x1B[0m`;
+}
+```
+
+**Benefit:** Enhances user experience by allowing customization of terminal output to match preferences or improve readability in different environments.
+
+### Example 2: Streaming Line-by-Line Processing
+
+**Goal:** Process text lines incrementally to support large files without loading everything into memory.
+
+**Implementation Detail:**
+```typescript
+async function* processLineByLine(
+  textStream: AsyncIterable<string>,
+  options: BoundingBoxOptions
+): AsyncGenerator<string[]> {
+  let buffer = '';
+  let linesProcessed = 0;
+  
+  for await (const chunk of textStream) {
+    buffer += chunk;
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || ''; // Keep the last incomplete line in buffer
+    
+    if (lines.length > 0) {
+      // Process complete lines
+      const wrappedLines = lines.map(line => 
+        wrapTextInBoundingBox(line, Deno.consoleSize().columns, options)
+      ).flat();
+      
+      yield wrappedLines;
+      linesProcessed += lines.length;
+    }
+  }
+  
+  // Process any remaining text in buffer
+  if (buffer) {
+    yield wrapTextInBoundingBox(buffer, Deno.consoleSize().columns, options);
+  }
+}
+```
+
+**Risks of Not Implementing:**
+- Memory exhaustion when processing large files
+- UI freezing during processing of large texts
+- Inability to display partial results while processing continues
+
+**Benefit:** Enables efficient processing of large text files with constant memory usage, responsive UI, and progressive display of results.
+
+## Summary
+These instructions will ensure you build a useable step-by-step implementation plan and checklist to be used by an AI agent tasked with implementing the plan.
+
+### Critical Reminders
+- The planner MUST use ISO format timestamps with timezone information in the frontmatter (both `createdOn` and `updatedOn`) when creating the file
+- The implementor MUST update the `updatedOn` timestamp whenever they modify the file or mark checklist items as complete
+- File naming MUST follow the pattern `.cursor/memory/{todo-name}-checklist.md` with lowercase and hyphen-separated words
+- The implementor should not get blocked - if they encounter obstacles, they should add items to a "Follow Ups" section at the bottom of the document rather than stopping work entirely. Follow ups can be actioned later by the user or someone other than the implementor executing on the implementation plan.
+- All implementation steps MUST use markdown checkboxes (`- [ ]` for incomplete, `- [x]` for complete) to allow for clear progress tracking
+- For changes to existing interfaces, always include a consumer migration plan with specific file paths and validation steps
