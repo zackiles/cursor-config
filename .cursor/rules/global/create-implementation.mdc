@@ -21,6 +21,9 @@ To implement the plan follow these instructions:
   read_file(
     target_file: ".cursor/memory/{todo-name}-checklist.md", 
     should_read_entire_file: true
+    # Or, if should_read_entire_file is set to false you can use offset and limit to read specific lines
+    # offset: 0
+    # limit: 50
   )
   ```
 
@@ -47,7 +50,7 @@ To implement the plan follow these instructions:
   
   Always use the current local date and time with the appropriate timezone offset when updating the `updatedOn` field.
 
-- **Understand the code you'll be working on**: follow the instructions in [prepare.mdc](mdc:.cursor/rules/prepare.mdc) in order to collect specific information on the relevant code files and documentation related to the implementation plan in this codebase. Use the `codebase_search` tool to find relevant code:
+- **Understand the code you'll be working on**: follow the instructions in [prepare.mdc](mdc:.cursor/rules/global/prepare.mdc) in order to collect specific information on the relevant code files and documentation related to the implementation plan in this codebase. Use the `codebase_search` tool to find relevant code:
   ```
   # EXAMPLE COMMAND: Replace with specific code patterns relevant to your implementation
   codebase_search(
@@ -122,5 +125,44 @@ To implement the plan follow these instructions:
 - Always handle consumer migration carefully when modifying existing interfaces
 - Follow the file naming pattern `.cursor/memory/{todo-name}-checklist.md` exactly as specified.
 
+## Examples
+Simplified example of an implementation plan that you could receive:
+
+`````markdown
+---
+createdOn: "2025-12-29T21:45:00-04:00"
+updatedOn: "2025-12-29T21:45:00-04:00"
+---
+
+# TODO 1: Color Theme Support Implementation Checklist
+
+## Background
+Enable user-selected ANSI color themes (‘default’, ‘dark’, ‘light’) instead of hard-coded codes.
+
+## Implementation Steps
+
+1. [ ] **Add types**
+   - [ ] `ColorTheme` in `src/types/theme.ts`
+   ```typescript
+   export interface ColorTheme { primary: string; secondary: string; border: string; background: string }
+   ```
+
+2. [ ] **Register themes**
+   - [ ] `themes` map in `src/theme/registry.ts`
+
+3. [ ] **Apply theme**
+   - [ ] `applyTheme(text, theme)` wraps text with codes
+
+4. [ ] **Expose option**
+   - [ ] `--theme` flag in CLI, default fallback
+
+## Notes
+- Fallback to default on invalid input
+- Future: custom config support
+
+## Follow Ups
+- <!-- If you get stuck on any part of the implementation, move that implementation work here for someone else to follow up on -->
+`````
+
 ## Final Notes
-Following these instructions closely will help you meet the user's request to implement their new feature or functionality using the implementation plan and checklist provided to you. You should begin to write code as soon as you've gathered all the relevant or required context.
+Following these instructions closely will help you meet the user's request to implement their new feature or functionality using the implementation plan and checklist provided. Only begin implementing the plan **AFTER** you've gathered all the relevant or required context.

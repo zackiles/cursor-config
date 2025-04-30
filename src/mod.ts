@@ -6,7 +6,7 @@ export * from './characters.ts'
 export * from './lint-rules/index.ts'
 export * from './parsers/frontmatter.ts'
 export * from './parsers/markdown.ts'
-export * from './parsers/rule-type.ts'
+export * from './parsers/attachment-type.ts'
 
 // If this module is run directly, proxy to linter.ts
 if (import.meta.main) {

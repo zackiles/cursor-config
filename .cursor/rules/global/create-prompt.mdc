@@ -1,13 +1,20 @@
 ---
-description: Generate a prompt for an LLM tasked with implementing the proposal
+description: 
 globs: 
 alwaysApply: false
 ---
 
-## **TASK: Generate an Effective Prompt**  
+# Generate a Prompt to Implement the Solution
+The user requests your next response include the solution in the format of a prompt that a code-generating LLM tasked with implementing the solution according to your prompts instructions and guidance.
 
-**Objective**  
-You're a prompt engineer and software architect specializing in meta-promping and code refactoring. You're tasked with generating a prompt for an LLM tasked with implementing the currently proposed solution. Your goal is to create a **fully structured, execution-ready prompt for this LLM to be tasked with** that provides them with a clear, actionable sequence of instructions. These instructions must maximize coherence, specificity, and alignment with the task's intended outcome.
+## ROLE: You're an advanced prompt engineer and software architect specializing in meta-prompting and agentic code generation.
+
+## TASK: Generate an Effective Prompt
+You're tasked with generating a prompt for an LLM tasked with implementing the currently proposed solution. Your goal is to create a **fully structured, execution-ready prompt for this LLM to be tasked with** that provides them with a clear, actionable sequence of instructions.
+
+## FORMAT: Prompt Instructions
+These instructions must maximize the AI Agent's coherence, specificity, and alignment with the task's intended outcome.
+
 Each instruction in your list within the generated prompt must include:  
 - **Action:** The precise instruction for the AI at that step.  
 - **Objective:** The intended goal or purpose of that action.  
@@ -73,12 +80,69 @@ Your generated prompts must follow a **consistent, structured format**:
 - The **majority of content** should be in the **Instructions** section.  
 - **No unnecessary confirmations**—return **only** the generated prompt.  
 - **Avoid complex nesting**—use flat, structured lists for clarity.  
-- **Do not mention "LLM" in the prompt itself**—assume it is the AI's internal role.  
+- Keep the prompt and it's instructions tight, avoiding long pretext or concluding statements at the top and bottom of them prompt.
+- **Do not mention "LLM" in the prompt itself**—assume it is the AI's internal role.
+- **Highly structured and formatted content is preferred** for information density and richness. Convey the most meaning with the least characters for token efficiency. 
 
 ---
 
-## **IMPORTANT NOTES ON THIS CONVERSATION**
-- When responding to the user's request to generate a prompt you will return ONLY the prompt and say nothing else.
-- Keep the list of instructions tight, avoiding concluding statements.
+## Examples
+A simplified example of an effective prompt for illustration:
+
+```markdown
+## 📌 Prompt Title: Add Request Logging Middleware
+
+🔍 **Context**  
+• Codebase: Node.js + Express (`src/`)  
+• Routes: `src/routes.ts`  
+• Logger: `src/utils/logger.ts`
+
+📋 **Instructions**  
+1️⃣ **Action:** 🛠 Create `requestLogger` → `src/middleware/logger.ts`  
+   🎯 **Objective:** log `req.method` · `req.url` at request start  
+   🔍 **Rationale:** centralize trace for diagnostics  
+   ✏️ **Example:**  
+```ts
+import { logger } from "../utils/logger.ts"
+
+export function requestLogger(req: Request, res: Response, next: () => void) {
+  logger.info(`${req.method} ${req.url}`)
+  next()
+}
+```
+2️⃣ **Action:** 🛠 Register in `src/index.ts` (before routes)  
+   🎯 **Objective:** global coverage  
+   🔍 **Rationale:** DRY logging  
+   ✏️ **Example:**  
+```ts
+import { requestLogger } from "./middleware/logger.ts"
+app.use(requestLogger)
+```
+3️⃣ **Action:** 🛠 Run tests & verify  
+   🎯 **Objective:** confirm logs for all routes  
+   🔍 **Rationale:** catch regressions  
+   ✏️ **Example:**  
+```bash
+deno test src/middleware/logger.test.ts
+```
+
+✅ **Final Notes**  
+• Preserve existing error-handler  
+• File names → kebab-case · funcs → camelCase  
+• JSON responses unaffected  
+
+```
+
+---
+
+## Output
+- Your next message you will contain ONLY the prompt's full and complete content and nothing else.
+- The prompt will be written in Markdown.
 - Never mention or refer to the LLM in the prompt.
 - Never confirm the user's request to generate a prompt, only response with the prompt's content in your message.
+
+---
+
+## Summary
+
+Following these guidelines will lead to you writing an effective prompt and set of instruction. These instructions will maximize the AI Agent's coherence, specificity, and alignment with the task's intended outcome.

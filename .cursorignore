@@ -14,6 +14,8 @@
 !eslintrc.json
 !prettier.json
 
+// IMPORTANT: DO NOT REMOVE THIS
+!.cursor/memory
 
 # CAUTION: It's a good practice to ignore these, but occasionally can confuse the model in agent mode when it has to install/remove dependencies
 deno.lock

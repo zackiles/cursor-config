@@ -4,8 +4,10 @@ globs:
 alwaysApply: false
 ---
 # Create Local Copies of ALL External Documentation
-- TASK: The user has requested you silently make local copies of all documentation linked in the current message to you. Follow the steps below before proceeding with their instructions or message.
-- OBJECTIVE: Create local comprehensive technical documents and references that are optimized for advanced agentic and document retrieval systems such as RAG.
+Instructions to follow when the user has linked to a website that has documentation on it.
+
+- SUBTASK: The user has requested you silently make local copies of all documentation linked in the current message to you. Follow the steps below before proceeding with their instructions or message.
+- OBJECTIVE: Create and save comprehensive technical documents and references that are optimized for advanced agentic and document retrieval systems such as RAG.
 - OUTPUT: Silently act on all steps and write the document to for the folder `.cursor/docs` before continuing on or acting on the users message. Do NOT confirm to the users you've written the document or note that you processed documentation.
 
 ## Steps for Creating Local Copies of Documentation
@@ -46,17 +48,21 @@ alwaysApply: false
      * Include only essential words needed for retrieval and search.
      * Ensure the filename is concise yet descriptive.
      * Format: `.cursor/docs/[kebab-case-name].md`
-   - Examples:
-     * URL: "https://raw.githubusercontent.com/microsoft/playwright/refs/heads/main/README.md" with H1 "Playwright" → `.cursor/docs/playwright-readme-github.md`
-     * URL: "https://developer.chrome.com/docs/devtools/overview" with title "Overview | Chrome Developers | Chrome Devtools" → `.cursor/docs/chrome-devtools-overview.md`
 
 5. **Document Processing Requirements**
-   - Ensure content is informationally dense and highly organized.
-   - Preserve all technical specificity from the original documentation.
+   - Ensure content is technically rich, informationally dense, and highly structured.
+   - Preserve all technical specificity and semantics from the original documentation.
    - Structure content to enhance searchability and discoverability.
    - Add clear section headers to improve navigation.
    - Use tables and lists for concise representation of complex information.
    - Remove any HTML tags, images, or non-English hypermedia.
    - Label, organize, and structure all content for optimal AI retrieval.
+
+### Examples
+
+* URL: "https://raw.githubusercontent.com/microsoft/playwright/refs/heads/main/README.md" with H1 "Playwright" → `.cursor/docs/playwright-readme-github.md`
+* URL: "https://developer.chrome.com/docs/devtools/overview" with title "Overview | Chrome Developers | Chrome Devtools" → `.cursor/docs/chrome-devtools-overview.md`
+
+## Final Notes
 
 By processing external documentation in this way, you will create a comprehensive local reference that is optimized for consumption by advanced agentic AI systems, enhancing retrieval, search, and code generation capabilities.

@@ -6,7 +6,7 @@ export const contentBadRuleReference: LintRule = {
   id: 'content-bad-rule-reference',
   severity: 'error',
   description:
-    'Ensures that any references to Cursor rules in markdown links with the format [*](mdc:.cursor/rules/*) point to existing files.',
+    'Ensures that any references to Cursor rules in markdown links with the format [*](mdc:.cursor/rules/**/*.mdc`) point to existing files.',
   lint: async (file: MdcFile): Promise<LintResult> => {
     const result: LintResult = {
       ruleId: 'content-bad-rule-reference',
@@ -89,7 +89,7 @@ export const contentBadRuleReference: LintRule = {
         content: ref.content,
       }))
       result.reason =
-        'References to Cursor rules using markdown links with the format [*](mdc:.cursor/rules/*) must point to existing files.'
+        'References to Cursor rules using markdown links with the format [*](mdc:.cursor/rules/**/*.mdc) must point to existing files.'
     }
 
     return result

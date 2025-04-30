@@ -22,8 +22,10 @@ REPO_URL="https://raw.githubusercontent.com/zackiles/cursor-config/main"
 echo "Downloading CURSOR-RULES.md..."
 curl -s "$REPO_URL/CURSOR-RULES.md" -o "$TMP_DIR/CURSOR-RULES.md"
 
-# Create .cursor directory if it doesn't exist
-mkdir -p .cursor/rules
+# Create Cursor global rules directory if it doesn't exist
+mkdir -p .cursor/rules/global
+# Create local rules (for the user's own custom project rules) directory if it doesn't exist
+mkdir -p .cursor/rules/global
 
 # Download CURSOR-RULES.md to current directory
 cp "$TMP_DIR/CURSOR-RULES.md" "./CURSOR-RULES.md"
@@ -50,7 +52,7 @@ download_rule() {
     # Only download if file doesn't exist
     if [ ! -f "$target_path" ]; then
         echo "Downloading $file..."
-        curl -s "$REPO_URL/.cursor/rules/$file" -o "$TMP_DIR/$file"
+        curl -s "$REPO_URL/.cursor/rules/global/$file" -o "$TMP_DIR/$file"
         cp "$TMP_DIR/$file" "$target_path"
     else
         echo "Skipping $file (already exists)"

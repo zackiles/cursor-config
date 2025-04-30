@@ -15,7 +15,7 @@
     "test": "deno test -A",
     "fmt": "deno fmt",
     "lint": "deno lint",
-    "lint:rules": "deno run -A src/linter.ts .cursor/rules/*.mdc"
+    "lint:rules": "deno run -A src/linter.ts .cursor/rules/**/*.mdc"
   },
   "fmt": {
     "lineWidth": 100,

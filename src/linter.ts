@@ -397,8 +397,8 @@ async function main(): Promise<void> {
     // Find all .mdc files that match the glob patterns
     const fileResults: Array<{ filePath: string; result: LintResult }> = []
     const parsedFiles: Array<{ filePath: string; parsedContent: Record<string, unknown> }> = []
-    // Map to store derived rule types by file path
-    const fileRuleTypes = new Map<string, string>()
+    // Map to store derived attachment types by file path
+    const fileAttachmentTypes = new Map<string, string>()
     // Track all matched MDC files
     const matchedMdcFiles = new Set<string>()
 
@@ -408,9 +408,9 @@ async function main(): Promise<void> {
           matchedMdcFiles.add(file.path)
           const mdcFile = await processMdcFile(file.path)
 
-          // Store the derived rule type for this file
-          if (mdcFile.derivedRuleType) {
-            fileRuleTypes.set(file.path, mdcFile.derivedRuleType)
+          // Store the derived attachment type for this file
+          if (mdcFile.derivedAttachmentType) {
+            fileAttachmentTypes.set(file.path, mdcFile.derivedAttachmentType)
           }
 
           if (options.parse) {
@@ -441,8 +441,8 @@ async function main(): Promise<void> {
               }
             }
 
-            if (mdcFile.derivedRuleType) {
-              parsedContent.ruleType = mdcFile.derivedRuleType
+            if (mdcFile.derivedAttachmentType) {
+              parsedContent.attachmentType = mdcFile.derivedAttachmentType
             }
 
             parsedFiles.push({
@@ -491,7 +491,7 @@ async function main(): Promise<void> {
       // JSON output
       const jsonOutput = [...groupedResults.entries()].map(([filePath, results]) => ({
         filePath,
-        ruleType: fileRuleTypes.get(filePath) || 'Unknown',
+        attachmentType: fileAttachmentTypes.get(filePath) || 'Unknown',
         results: results.map((r) => {
           // For JSON output, we need to enhance the message with line numbers
           // similar to how we do it for human-readable output
@@ -638,9 +638,9 @@ async function main(): Promise<void> {
         // Display file header with clear formatting
         console.log(`${bold('Rule:')}  ${relativePath}`)
 
-        // Display the derived rule type below the file path
-        const ruleType = fileRuleTypes.get(filePath) || 'Unknown'
-        console.log(`${bold('Type:')}  ${ruleType}`)
+        // Display the derived attachment type below the file path
+        const attachmentType = fileAttachmentTypes.get(filePath) || 'Unknown'
+        console.log(`${bold('Type:')}  ${attachmentType}`)
         horizontalLine({ character: Characters.BOX.HORIZONTAL.DOTTED })
         newLine()
 

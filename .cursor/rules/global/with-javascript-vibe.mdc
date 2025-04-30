@@ -3,7 +3,8 @@ description: Vibe coding for bleeding-edge Javascript and Typescript code genera
 globs: *.ts,*.js
 alwaysApply: false
 ---
-## CODING STYLE GUIDE - JAVASCRIPT AND TYPESCRIPT (MANDATORY OR STRONGLY ENCOURAGED)
+## CODING STYLE GUIDE, RULES, AND STANDARDS (JAVASCRIPT AND TYPESCRIPT)
+Adhere to ALL coding standards, rules, best practices and style guides mentioned in this document.
 
 ### Naming
 - **snake_case** for file names.  

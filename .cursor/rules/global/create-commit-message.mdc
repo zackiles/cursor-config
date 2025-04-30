@@ -1,0 +1,110 @@
+---
+description: Use for git commit messages
+globs: 
+alwaysApply: false
+---
+# Writing Commit Messages With Convention Commit
+All commit messages follow **Conventional Commits** standard when generating or suggesting commit messages.
+
+## Format
+```
+<type>(<scope>): <description>
+```
+- **Type**: Defines the nature of the change.
+- **Scope**: Prefer domain- or module-level identifiers, not file names. Reflects logical grouping or feature boundary, not precise file paths.
+- **Description**: Written in imperative mood. One sentence.
+
+## Types
+- **feat**: A new feature.
+- **fix**: A bug fix.
+- **docs**: Documentation changes only.
+- **style**: Code formatting, no logic change.
+- **refactor**: Code restructuring, no behavior change.
+- **perf**: Performance improvements.
+- **test**: Adding or improving tests.
+- **chore**: Build process, dependencies, or auxiliary tools.
+- **ci**: CI/CD config or script changes.
+- **build**: Affects the build system or external dependencies 
+
+---
+
+## Examples
+
+### Example A (Change History)
+
+**Staged Changes**:
+- Created a new file named `src/auth/login.ts`
+- Imported `src/auth/login.ts` into `src/users/account.ts`
+- Added a modal component class named 'loginForm'
+- Tracked a new test file named `test/login.test.ts`
+- Git dif of the documentation shows a new section named "# Logging In"
+
+**Output 1 (GOOD)**:
+```
+feat(users-account): add user authentication
+```
+
+**Output 2 (BAD)**:
+```
+// No past tense. No periods at the end of the message. No file names for scope
+feat(users-account.ts): added user authentication.
+```
+
+### Example B (Change History)
+
+**Staged Changes**:
+- Created validation schema in `src/validation/product-schema.ts` using Zod  
+- Integrated schema into product API endpoint in `src/routes/products.ts`  
+- Added unit tests in `test/validation/product-schema.test.ts`
+
+**Output 4 (GOOD)**:
+```
+feat(product-schema): add zod schema validation for product input
+```
+
+**Output 4 (BAD)**:
+```
+// Avoid PascalCase. Avoid file extensions. Avoid stating the file path or using vague verbs.
+feat(ProductSchema.ts): created validation for product input
+```
+
+## Example C (Change History)
+
+**Staged Changes**:
+- Migrated `src/db/index.ts` to use `postgres-js` instead of `pg`  
+- Updated connection pooling and transaction handling logic  
+- Removed legacy `pg` adapter and related types
+
+**Output 5 (GOOD)**:
+```
+chore(db): migrate from pg to postgres-js for lighter runtime
+```
+
+**Output 5 (BAD)**:
+```
+// Scope should reflect domain or directory, not the library. Avoid redundant phrases. Avoid camelCase in scope.
+chore(postgresJs): switched from pg to postgres-js in index.ts
+```
+
+### Example D (Programmatic)
+
+```js
+function generateCommitMessage(file, description) {
+  let type = "chore"
+  if (/add|create|implement/i.test(description)) type = "feat"
+  else if (/fix|correct|resolve/i.test(description)) type = "fix"
+  else if (/refactor|restructure/i.test(description)) type = "refactor"
+  else if (/test/i.test(description)) type = "test"
+  else if (/doc|comment/i.test(description)) type = "docs"
+  else if (/style|format/i.test(description)) type = "style"
+  else if (/perf|optimize/i.test(description)) type = "perf"
+
+  const scope = file.split("/").slice(0, -1).join("-")
+  return `${type}(${scope}): ${description}`
+}
+```
+
+---
+
+## Summary
+Following the Convention Commit standard with effective scope, type, and description values ensures consistent and informative git history.

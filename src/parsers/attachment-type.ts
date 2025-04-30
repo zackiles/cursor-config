@@ -1,14 +1,20 @@
-import { RuleType } from '../types.ts'
+import { AttachmentType } from '../types.ts'
 
 /**
- * Determines the rule type based on frontmatter content
+ * Determines the attachment type based on frontmatter content
  *
- * @param frontmatter - The parsed frontmatter object
- * @returns The detected rule type
+ * @param frontmatter - Parsed frontmatter object
+ * @returns The detected attachment type
  */
-export function determineRuleType(frontmatter: Record<string, unknown> | null): RuleType {
+export function determineAttachmentType(
+  frontmatter: Record<string, unknown> | null,
+): AttachmentType {
   if (!frontmatter) {
-    return RuleType.Unknown
+    // No frontmatter typically implies ManuallyAttached if the file contains content
+    // Linter rules should handle empty files separately if needed.
+    // Assuming content exists, default to ManuallyAttached or rely on caller context.
+    // Let's return Unknown for now, processor might refine this.
+    return AttachmentType.Unknown
   }
 
   const hasGlobs = 'globs' in frontmatter
@@ -31,17 +37,17 @@ export function determineRuleType(frontmatter: Record<string, unknown> | null): 
 
   // AlwaysAttached: alwaysApply: true
   if (hasAlwaysApply && alwaysApplyValue === true) {
-    return RuleType.AlwaysAttached
+    return AttachmentType.AlwaysAttached
   }
 
   // AgentAttached: non-empty description, and either no globs or empty globs
   if (hasDescription && !isDescriptionEmpty) {
-    return RuleType.AgentAttached
+    return AttachmentType.AgentAttached
   }
 
   // AutoAttached: alwaysApply: false, non-empty globs
   if (hasAlwaysApply && alwaysApplyValue === false && hasGlobs && !isGlobsEmpty) {
-    return RuleType.AutoAttached
+    return AttachmentType.AutoAttached
   }
 
   // ManuallyAttached: alwaysApply: false, empty or no globs, empty or no description
@@ -50,9 +56,9 @@ export function determineRuleType(frontmatter: Record<string, unknown> | null): 
     (!hasGlobs || isGlobsEmpty) &&
     (!hasDescription || isDescriptionEmpty)
   ) {
-    return RuleType.ManuallyAttached
+    return AttachmentType.ManuallyAttached
   }
 
   // Invalid combinations
-  return RuleType.Invalid
+  return AttachmentType.Invalid
 }

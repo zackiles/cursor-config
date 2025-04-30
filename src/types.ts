@@ -1,5 +1,5 @@
 /** Represents the identified type of the Cursor rule based on frontmatter */
-export enum RuleType {
+export enum AttachmentType {
   AlwaysAttached = 'AlwaysAttached',
   AutoAttached = 'AutoAttached',
   AgentAttached = 'AgentAttached',
@@ -62,8 +62,8 @@ export interface MdcFile {
   fileReadError?: Error // Error during initial Deno.readTextFile
   frontmatter?: ParsedFrontmatter
   markdownContent?: ParsedMarkdownContent
-  /** The derived rule type based on frontmatter content */
-  derivedRuleType?: RuleType
+  /** The derived attachment type based on frontmatter content */
+  derivedAttachmentType?: AttachmentType
   /** General parsing error not specific to frontmatter/markdown */
   parseError?: Error
 }

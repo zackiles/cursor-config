@@ -15,30 +15,30 @@ The package includes a CLI tool (`src/linter.ts`) for linting `.mdc` files.
 **Basic Linting:**
 
 ```bash
-deno run -A src/linter.ts path/to/your/rules/**/*.mdc
+deno run -A src/linter.ts .cursor/rules/**/*.mdc
 ```
 
 **Options:**
 
 * `--json` / `-j`: Output linting results in JSON format.
 * `--verbose` / `-v`: Show detailed information for failures, including the content of offending lines and additional context. Line numbers are always shown in error messages regardless of this flag.
-* `--parse` / `-p`: Parse the specified `.mdc` files into a structured JSON representation without running linters. Outputs key information like frontmatter, title, description, and rule type.
-* `--rules` / `-r`: List all available lint rules, their severity, and descriptions in JSON format.
+* `--parse` / `-p`: Parse the specified `.mdc` files into a structured JSON representation without running linters. Outputs key meta information like the rule's frontmatter, title, description, category, globs, and attachment type.
+* `--rules` / `-r`: List all enabled lint rules used by the linter along with their severity, and descriptions. Output is in JSON.
 * `--help` / `-h`: Display the help message.
 
 **Examples:**
 
 ```bash
-# Lint all .mdc files in the .cursor/rules directory
-deno run -A src/linter.ts .cursor/rules/*.mdc
+# Lint all .mdc files in the .cursor/rules directory and sub-directories:
+deno run -A src/linter.ts .cursor/rules/**/*.mdc
 
-# Lint a specific file and output results as JSON
+# Lint a specific file and output results as JSON:
 deno run -A src/linter.ts --json path/to/rule.mdc
 
-# Parse a file and output its structured data
+# Parse a file and output its structured data:
 deno run -A src/linter.ts --parse path/to/rule.mdc
 
-# List all available lint rules
+# List all available lint rules:
 deno run -A src/linter.ts --rules
 ```
 
@@ -56,33 +56,6 @@ Derived Type: AgentAttached
     WARN  content-missing-examples: Rule is missing an 'Examples' section (lines 5-6).
 ```
 
-### Programmatic Usage
-
-You can import functions and types from this package into your own Deno projects.
-
-```typescript
-import { processMdcFile } from 'jsr:@your-org/cursor-rule-linter'; // Hypothetical JSR path
-import { loadAllRules } from 'jsr:@your-org/cursor-rule-linter/lint-rules';
-import type { MdcFile, LintRule } from 'jsr:@your-org/cursor-rule-linter/types';
-
-const filePath = './path/to/your/rule.mdc'
-
-// Process an MDC file into a structured object
-const mdcFile: MdcFile = await processMdcFile(filePath)
-console.log(mdcFile.derivedRuleType)
-console.log(mdcFile.frontmatter?.parsed)
-console.log(mdcFile.markdownContent?.headers)
-
-// Load lint rules and run them
-const rules: LintRule[] = await loadAllRules()
-for (const rule of rules) {
-  const result = await rule.lint(mdcFile)
-  if (!result.passed) {
-    console.error(`Rule ${result.ruleId} failed: ${result.message}`)
-  }
-}
-```
-
 ## System and Architecture Overview
 
 The package is built using Deno and TypeScript. Its core components are:
@@ -90,11 +63,11 @@ The package is built using Deno and TypeScript. Its core components are:
 1. **Linter CLI (`src/linter.ts`):** The main entry point for command-line usage. Parses arguments, orchestrates file discovery using globs, processing, linting, and result formatting.
 2. **Processor (`src/processor.ts`):** Contains the `processMdcFile` function, which reads an `.mdc` file and uses the parsers to create a structured `MdcFile` object. It also includes helpers like `groupResultsByFile`.
 3. **Parsers (`src/parsers/`):** Modules responsible for parsing specific parts of an `.mdc` file:
-    * `frontmatter.ts`: Parses the YAML frontmatter block.
-    * `markdown.ts`: Parses the main Markdown content using the `marked` library.
-    * `rule-type.ts`: Determines the `RuleType` based on the parsed frontmatter.
+    * `frontmatter.ts`: Parses the frontmatter block.
+    * `markdown.ts`: Parses the Markdown content.
+    * `attachment-type.ts`: Determines the `AttachmentType` based on the parsed frontmatter.
 4. **Lint Rules (`src/lint-rules/`):** Individual rule modules, each exporting a `LintRule` object containing metadata (`id`, `severity`, `description`) and the `lint` function. `index.ts` aggregates and exports all built-in rules via `loadAllRules`. The system also supports loading custom rules from an external directory.
-5. **Types (`src/types.ts`):** Defines all the core TypeScript interfaces and enums used throughout the package (e.g., `MdcFile`, `LintRule`, `LintResult`, `RuleType`).
+5. **Types (`src/types.ts`):** Defines all the core TypeScript interfaces and enums used throughout the package (e.g., `MdcFile`, `LintRule`, `LintResult`, `AttachmentType`).
 
 **Workflow:**
 
@@ -104,7 +77,7 @@ The package is built using Deno and TypeScript. Its core components are:
 * `processMdcFile` reads the file content.
 * `parseFrontmatter` attempts to parse the YAML frontmatter.
 * `parseMarkdownContent` parses the remaining content (or the whole file if no frontmatter exists).
-* `determineRuleType` analyzes the parsed frontmatter to classify the rule.
+* `determineAttachmentType` analyzes the parsed frontmatter to classify the rule.
 * The results are combined into an `MdcFile` object.
 * If not in `--parse` mode, `loadAllRules` fetches the lint rule definitions.
 * Each loaded rule's `lint` function is executed against the `MdcFile` object.
@@ -117,46 +90,46 @@ The package is built using Deno and TypeScript. Its core components are:
 src/
 ├── lint-rules/       # Individual lint rule implementations
 │   ├── index.ts      # Aggregates and exports lint rules
-│   └── *.ts          # Specific rule files (e.g., frontmatter-missing.ts)
+│   └── *.ts          # Specific rule files (e.g., frontmatterMissingAlwaysApply.ts)
 ├── parsers/          # Modules for parsing different parts of MDC files
 │   ├── frontmatter.ts
 │   ├── markdown.ts
-│   └── rule-type.ts
+│   └── attachment-type.ts
 ├── linter.ts         # Main CLI entry point and logic
 ├── processor.ts      # Core MDC file processing logic (processMdcFile)
 └── types.ts          # TypeScript interfaces and enums
 ```
 
-## MDC File Types (`RuleType`)
+## MDC Attachment Types (`AttachmentType`)
 
-An `.mdc` file represents a Cursor Rule. The type of rule is determined by the presence and values of specific fields in its YAML frontmatter (`---`). The `RuleType` enum categorizes these:
+An `.mdc` file represents a Cursor Rule. The attachment type is determined by the presence and values of specific fields in its YAML frontmatter (`---`). The `AttachmentType` enum categorizes these:
 
-* **`RuleType.AlwaysAttached`**:
+* **`AttachmentType.AlwaysAttached`**:
   * Defined by: `alwaysApply: true` in frontmatter, empty `globs`, and empty `description`.
   * Behavior: The rule is always active in the Cursor context.
   * Note: Empty values (null, undefined, or empty string) are treated as equivalent.
 
-* **`RuleType.AutoAttached`**:
+* **`AttachmentType.AutoAttached`**:
   * Defined by: `alwaysApply: false` AND non-empty `globs` in frontmatter, with empty `description`.
   * Behavior: The rule is automatically activated when a file matching the `globs` pattern is opened or focused in Cursor.
   *  Note: The `globs` field must contain at least one pattern.
 
-* **`RuleType.AgentAttached`**:
+* **`AttachmentType.AgentAttached`**:
   * Defined by: Empty `globs`, non-empty `description`, and `alwaysApply: false` (or absent).
-  * Behavior: These rules are fetched and used by the AI agent based on context, guided by the `description`.
-  * Note: The `description` must be a non-empty string that explains when to use the rule.
+  * Behavior: Loaded and used by the AI agent based on context, guided by the `description`.
+  * Note: The `description` must be a non-empty string that explains to the AI agent when to use the rule.
 
-* **`RuleType.ManuallyAttached`**:
+* **`AttachmentType.ManuallyAttached`**:
   * Defined by: `alwaysApply: false`, empty `globs`, and empty `description`.
   * Behavior: The rule is only activated when manually referenced by the user with `@rule-name`.
   * Note: Empty values (null, undefined, or empty string) are treated as equivalent.
 
-* **`RuleType.Invalid`**:
+* **`AttachmentType.Invalid`**:
   * Condition: The combination of frontmatter fields is invalid or contradictory.
-  * Common issues: Having both `alwaysApply: true` and non-empty `globs`, or missing both `globs` and `alwaysApply`.
+  * Common issues: Having both `alwaysApply: true` and non-empty `globs`, or having non-empty `globs` along with non-empty `description` and `alwaysApply: false`.
 
-* **`RuleType.Unknown`**:
-  * Condition: Parsing failed before the type could be determined, or the frontmatter structure doesn't match any known type pattern. This often indicates a syntax error in the frontmatter or a read error.
+* **`AttachmentType.Unknown`**:
+  * Condition: Parsing failed before the attachment type could be determined, or the frontmatter structure doesn't match any known type pattern. This often indicates a syntax error in the frontmatter or a read error.
 
 ## Rule Content Best Practices
 
@@ -184,7 +157,7 @@ When writing Cursor rules, following these content guidelines ensures the AI age
   * This helps maintain a clean web of interconnected rules and prevents confusing AI agents with broken references.
   * Example of correct reference:
     ```markdown
-    For formatting instructions, see [with-javascript.mdc](mdc:.cursor/rules/with-javascript.mdc).
+    For formatting instructions, see [with-javascript.mdc](mdc:.cursor/rules/global/with-javascript.mdc).
     ```
   * References to other file types (not in `.cursor/rules`) are not validated by this rule.
 
@@ -222,7 +195,7 @@ interface MdcFile {
   frontmatter?: ParsedFrontmatter // Parsed YAML frontmatter block
   markdownContent?: ParsedMarkdownContent // Parsed Markdown content section
 
-  derivedRuleType?: RuleType // The determined RuleType based on frontmatter
+  derivedAttachmentType?: AttachmentType // The determined AttachmentType based on frontmatter
   parseError?: Error         // General parsing error not specific to frontmatter/markdown
 }
 
@@ -267,8 +240,8 @@ Key exported functions and types for programmatic use:
     *   Loads all built-in lint rules.
     *   Optionally loads additional rules from `.ts` files in the `extraRulesPath` directory.
     *   Returns a Promise resolving to an array of `LintRule` objects.
-*   **`determineRuleType(frontmatter: Record<string, unknown> | null): RuleType`** (`src/parsers/rule-type.ts`)
-    *   Takes a parsed frontmatter object (or null) and returns the corresponding `RuleType`.
+*   **`determineAttachmentType(frontmatter: Record<string, unknown> | null): AttachmentType`** (`src/parsers/attachment-type.ts`)
+    *   Takes a parsed frontmatter object (or null) and returns the corresponding `AttachmentType`.
 *   **`parseFrontmatter(fileContent: string): { frontmatter: ParsedFrontmatter | null; contentStartIndex: number } | undefined`** (`src/parsers/frontmatter.ts`)
     *   Attempts to parse YAML frontmatter from the start of `fileContent`.
     *   Returns the parsed `frontmatter` object and the `contentStartIndex` (where the markdown begins), or `undefined` if no valid frontmatter delimiters are found.
@@ -292,7 +265,7 @@ Key exported functions and types for programmatic use:
     *   `offendingLines?: { line: number; content: string }[]`: Specific lines causing failure.
     *   `offendingValue?: { propertyPath: string; value: unknown }`: Specific data value causing failure.
     *   `reason?: string`: Optional additional context for the failure.
-*   **`RuleType`**: Enum representing the different types of Cursor rules (See "MDC File Types" section).
+*   **`AttachmentType`**: Enum representing the different types of Cursor rule attachments (See "MDC Attachment Types" section).
 *   **`ParsedFrontmatter`**: Structure holding parsed frontmatter data.
 *   **`ParsedMarkdownContent`**: Structure holding parsed markdown data.
 *   **`MarkdownHeader`**, **`MarkdownParagraph`**, **`MarkdownCodeBlock`**: Interfaces representing specific elements parsed from markdown.

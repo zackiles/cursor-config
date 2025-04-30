@@ -390,5 +390,5 @@ This approach prevents linting errors like "JSDoc types may be moved to TypeScri
 
 ### Cross-Referenced Related Style Guide Rules
 
-- [with-javascript.mdc](mdc:.cursor/rules/with-javascript.mdc) Some notes about JavaScript and TypeScript documentation specifics
-- [with-tests.mdc](mdc:.cursor/rules/with-tests.mdc) - Some notes about Test documentation specifics
+- [with-javascript.mdc](mdc:.cursor/rules/global/with-javascript.mdc) Some notes about JavaScript and TypeScript documentation specifics
+- [with-tests.mdc](mdc:.cursor/rules/global/with-tests.mdc) - Some notes about Test documentation specifics

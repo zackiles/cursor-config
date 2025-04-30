@@ -1,11 +1,11 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
-import { RuleType } from '../types.ts'
+import { AttachmentType } from '../types.ts'
+import type { LintResult, MdcFile } from '../types.ts'
 
-export const frontmatterAutoEmptyGlobs: LintRule = {
+export const frontmatterAutoEmptyGlobs = {
   id: 'frontmatter-auto-empty-globs',
-  severity: 'error',
+  severity: 'error' as const,
   description:
-    'If the rule type is AutoAttached, ensures the globs field is present and non-empty.',
+    'If the attachment type is AutoAttached, ensures the globs field is present and non-empty.',
   lint: (file: MdcFile): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-auto-empty-globs',
@@ -13,71 +13,30 @@ export const frontmatterAutoEmptyGlobs: LintRule = {
       passed: true,
     }
 
-    // If frontmatter parsing failed or is missing, other rules will handle that case
-    if (!file.frontmatter?.parsed) {
+    // Skip if no frontmatter or if the frontmatter has an error
+    if (
+      !file.frontmatter?.parsed || file.frontmatter.parseError
+    ) {
       return result
     }
 
-    // Only apply this rule for AutoAttached rule types
-    if (file.derivedRuleType !== RuleType.AutoAttached) {
+    // Only apply this rule for AutoAttached attachment types
+    if (file.derivedAttachmentType !== AttachmentType.AutoAttached) {
       return result
     }
 
-    // At this point, we know it's an AutoAttached rule, so globs should exist
-    // But let's check if it exists and is non-empty
-    if (!('globs' in file.frontmatter.parsed)) {
+    // If we're here, we know it's AutoAttached, but we double-check the globs
+    // This could happen if there's a bug in rule-type.ts or if frontmatter was modified after derivedAttachmentType was set
+    if (
+      !file.frontmatter.globs ||
+      (Array.isArray(file.frontmatter.globs) && file.frontmatter.globs.length === 0)
+    ) {
       result.passed = false
-      result.message = 'AutoAttached rule is missing the required globs field'
-      result.offendingLines = [
-        { line: file.frontmatter.startLine, content: '---' },
-      ]
-      result.reason = 'AutoAttached rules must specify file patterns to match via the globs field'
-      return result
-    }
-
-    const globsValue = file.frontmatter.parsed.globs
-
-    // Check if globs is null
-    if (globsValue === null) {
-      result.passed = false
-      result.message = 'AutoAttached rule cannot have empty globs'
-      result.offendingLines = [
-        { line: file.frontmatter.startLine, content: '---' },
-      ]
+      result.message = 'AutoAttached rules must have non-empty globs'
       result.offendingValue = {
         propertyPath: 'frontmatter.globs',
-        value: globsValue,
+        value: file.frontmatter.globs,
       }
-      result.reason = 'The globs field must contain at least one valid glob pattern, not null'
-      return result
-    }
-
-    // Check if globs is empty string
-    if (typeof globsValue === 'string' && globsValue.trim() === '') {
-      result.passed = false
-      result.message = 'AutoAttached rule has empty globs string'
-      result.offendingLines = [
-        { line: file.frontmatter.startLine, content: '---' },
-      ]
-      result.offendingValue = {
-        propertyPath: 'frontmatter.globs',
-        value: globsValue,
-      }
-      result.reason = 'The globs field must contain at least one valid glob pattern'
-    }
-
-    // Check if globs is empty array
-    if (Array.isArray(globsValue) && globsValue.length === 0) {
-      result.passed = false
-      result.message = 'AutoAttached rule has empty globs array'
-      result.offendingLines = [
-        { line: file.frontmatter.startLine, content: '---' },
-      ]
-      result.offendingValue = {
-        propertyPath: 'frontmatter.globs',
-        value: globsValue,
-      }
-      result.reason = 'The globs array must contain at least one valid glob pattern'
     }
 
     return result

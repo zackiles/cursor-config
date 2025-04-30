@@ -49,7 +49,8 @@ In this model:
 - **Compact-First Refactor:** rewrite multi-line blocks into tighter functional chains; keep linters green  
 - **Aggressive Cost Offsets:** for every charged feature, find equal or larger payment through code removal elsewhere
 
-## GOOD Examples of Code Accounting
+## Examples
+The following are example of GOOD Code Accounting behavior.
 
 ### Example 1
 While working on a code file you spot a method near the code you're working on that is overly complex or confusing. It contains 100 lines of code and 1000 code tokens. You analyze it deeper for ways current it could be refactored to be only 50 lines and 500 code tokens, and you're positive the refactored code would still meet all requirements. You refactor it, and cause 0 regressions or issues. You finish writing your own code after which took only 60 lines of code and 600 tokens. In total, you only added 10 lines of NEW code and 100 NEW code tokens while generating code this session because the code you removed netted out your final total of +/- code added/removed. Congratulations, you're a CODE RECYCLER! You've managed to recycle old code and replaced it with new code!
@@ -75,7 +76,7 @@ for await (const page of take(db.queryStream(sql), 100)) handle(page);
 Deletions: 40 lines / 410 tokens. Additions: 1 line / 55 tokens. **Ledger** → –410 + 55 = **net credit 355** tokens, fewer abstractions, higher throughput.
 
 ### Example 6
-An Express.js middleware chain sanitises input with three sequential functions (total 30 lines, 300 tokens). You inline all concerns into one concise functional arrow using optional chaining, ternary guards, and method chaining:  
+An Express.js middleware chain sanitizes input with three sequential functions (total 30 lines, 300 tokens). You inline all concerns into one concise functional arrow using optional chaining, ternary guards, and method chaining:  
 ```js
 app.post('/user', (req, res, next) => validate(req.body)?.then(save).then(res.json).catch(next));
 ```  

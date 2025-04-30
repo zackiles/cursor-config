@@ -1,6 +1,7 @@
 ---
 description: Rules for Writing Tests
 globs: *.test.js, *.test.ts
+alwaysApply: false
 ---
 ## Steps To Writing or Creating Tests
 

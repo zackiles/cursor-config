@@ -9,7 +9,7 @@ Use this rule to generate detailed implementation plans for TODOs, breaking down
 
 ## Important Note
 
-**Before generate any implementation plan and checklist**, follow the steps in the [prepare](mdc:.cursor/rules/prepare.mdc) rule to thoroughly research and understand the codebase context. This ensures your implementation aligns with existing patterns and standard of the codebase.
+**Before generate any implementation plan and checklist**, follow the steps in the [prepare](mdc:.cursor/rules/global/prepare.mdc) rule to thoroughly research and understand the codebase context. This ensures your implementation aligns with existing patterns and standard of the codebase.
 
 ## When to use
 - When planning the implementation of a TODO item from a list
@@ -276,7 +276,7 @@ When generating implementation plans, prioritize:
 
 Testing can be addressed in a subsequent phase once the core implementation is stable.
 
-## Example TODOs
+## Examples
 
 Here are examples of the type of TODOs you might implement:
 

@@ -10,7 +10,7 @@ User Rules define global preferences, such as the desired tone, how the model ad
 
 ## Rule Types
 
-This section specifies the four distinct types of Cursor Rules (auto-attached, always-attached, agent-attached, manually-attached), defined by the YAML header configuration within their `.mdc` files. Each rule type serves a different purpose and has specific activation mechanisms.
+This section specifies the four distinct types of Cursor Rules (auto-attached, always-attached, agent-attached, manually-attached), defined by the YAML header configuration within their `.mdc` files. Each rule type serves a different purpose and has specific attachment mechanisms.
 
 ---
 
@@ -29,9 +29,9 @@ Rules of this type are automatically injected into the AI's context when files m
 #### Purpose and Usage (Auto Attached Rule)
 
 -   **Purpose**: To provide context-specific instructions relevant to particular file types, directories, or naming conventions (e.g., guidance for `.ts` files, instructions for code within `/components/`).
--   **Activation**: Automatically injected when the AI interacts with or discusses files matching any of the specified `globs`. The rule content is then available to the AI, but the AI still decides *if* the content is relevant to the current query based on the rule's body content.
+-   **Attachment**: Automatically injected when the AI interacts with or discusses files matching any of the specified `globs`. The rule content is then available to the AI, but the AI still decides *if* the content is relevant to the current query based on the rule's body content.
 
-#### Example (`.cursor/rules/typescript-guidelines.mdc`)
+#### Example (`.cursor/rules/global/typescript-guidelines.mdc`)
 
 ```mdc
 ---
@@ -63,14 +63,14 @@ These rules are made available to the AI, which decides whether to activate the 
 |---------------|----------------------------|--------------------------------------------------|-------------------------------------------------------------------------|
 | `globs`       | Empty                      | N/A                                              | Must be empty (null, undefined, or empty string).                        |
 | `alwaysApply` | `false`                    | N/A                                              | Must be explicitly set to `false`.                                      |
-| `description` | Must contain text          | Concise, specific description of activation criteria | Required. Must be a non-empty string that explains when to use the rule. |
+| `description` | Must contain text          | Concise, specific description of attachment criteria | Required. Must be a non-empty string that explains when to use the rule. |
 
 #### Purpose and Usage (Agent Attached Rule)
 
 -   **Purpose**: To provide the AI with specialized instructions or knowledge that it can choose to apply when relevant, guided by the `description`. Useful for defining workflows, complex procedures, or domain-specific knowledge.
--   **Activation**: The rule's `name` and `description` are always available to the AI (listed under `<available_instructions>`). The AI uses the `description` to determine if the rule's content is relevant to the user's query. If deemed relevant, the AI fetches and uses the rule's full content.
+-   **Attachment**: The rule's `name` and `description` are always available to the AI (listed under `<available_instructions>`). The AI uses the `description` to determine if the rule's content is relevant to the user's query. If deemed relevant, the AI fetches and uses the rule's full content.
 
-#### Example (`.cursor/rules/api-design-principles.mdc`)
+#### Example (`.cursor/rules/global/api-design-principles.mdc`)
 
 ```mdc
 ---
@@ -94,7 +94,7 @@ Follow these principles for consistent and maintainable APIs:
 
 ### 3. Manually Attached Rule
 
-These rules are only activated when explicitly referenced by the user in the chat using the `@` symbol followed by the rule name.
+These rules are only attached when explicitly referenced by the user in the chat using the `@` symbol followed by the rule name.
 
 #### YAML Header Configuration (Manually Attached Rule)
 
@@ -107,9 +107,9 @@ These rules are only activated when explicitly referenced by the user in the cha
 #### Purpose and Usage (Manually Attached Rule)
 
 - **Purpose**: To store reusable prompts, templates, or instructions that are needed only occasionally or in specific, user-directed scenarios.
-- **Activation**: Activated *only* when the user explicitly includes `@rule-name` in their prompt. The AI then fetches and incorporates the rule's content. The first paragraph or sentence of the rule's body should ideally describe its purpose for user discoverability.
+- **Attachment**: Attached *only* when the user explicitly includes `@rule-name` in their prompt. The AI then fetches and incorporates the rule's content. The first paragraph or sentence of the rule's body should ideally describe its purpose for user discoverability.
 
-#### Example (`.cursor/rules/component-template.mdc`)
+#### Example (`.cursor/rules/global/component-template.mdc`)
 
 `````mdc
 ---
@@ -159,9 +159,9 @@ These rules are unconditionally injected into every AI context window, providing
 #### Purpose and Usage (Always Attached Rule)
 
 - **Purpose**: To enforce universal project standards, define the AI's persona or tone, provide critical safety guidelines, or offer essential context that applies to *all* interactions within the project.
-- **Activation**: Automatically injected into the AI's context for *every* chat message or command. The AI is expected to adhere to the rule's content at all times. Like Manually Attached rules, the description/purpose should be clearly stated at the beginning of the rule's body content.
+- **Attachment**: Automatically injected into the AI's context for *every* chat message or command. The AI is expected to adhere to the rule's content at all times. Like Manually Attached rules, the description/purpose should be clearly stated at the beginning of the rule's body content.
 
-#### Example (`.cursor/rules/project-conventions.mdc`)
+#### Example (`.cursor/rules/global/project-conventions.mdc`)
 
 ```mdc
 ---
@@ -207,35 +207,27 @@ alwaysApply: true
 When this rule loads, input: "Rule loaded: global.mdc."
 ```
 
-### Editing Limitations
+### Editing Cursor Rules
 
-Cursor offers an integrated but buggy UI for editing `.mdc` files, which hasn't been fixed yet. Editing these files with external tools like VSCode is recommended.
+Cursor offers an integrated UI for editing `.mdc` files, but they can also be edited in a plain text editor.
 
-### Why Store Them in `.cursor/rules/`?
+### Why Use Both a `.cursor/rules/global` and `.cursor/rules/local` folder?
 
-1. They integrate into the codebase.  
-2. Files in `.cursor` can be committed to Git repositories.  
-3. Teams can collaborate using shared rules, ensuring consistency as everyone pulls the same rules.
-
----
-
-## How Do Project Rules Work?
-
-- Do rules placed in the `.cursor/rules/` directory automatically activate? No.  
-- Do the same rules apply equally across ask/edit/agent modes? No.
+1. Separates rules shared across projects from custom project rules
+2. Teams can collaborate using shared rules, ensuring consistency as everyone pulls the same rules. For example the globals folder can be symlinked into the project.
 
 ---
 
-### Two Stages of Activation in Cursor
+### Two Stages of Attachment in Cursor
 
 #### Stage 1: Injection
 
 Rules are injected into the system prompt context but aren't yet active. Whether a rule is injected depends on:
 
-1. `alwaysApply`: Injects the rule into the context unconditionally but does not control activation.  
-2. `globs`: Matches files based on patterns (e.g., filenames, extensions). If matched, the rule is injected into the context. Again, this does not control activation.
+1. `alwaysApply`: Injects the rule into the context unconditionally but does not control Attachment.  
+2. `globs`: Matches files based on patterns (e.g., filenames, extensions). If matched, the rule is injected into the context. Again, this does not control Attachment.
 
-#### Stage 2: Activation
+#### Stage 2: Attachment
 
 Whether a rule takes effect depends on its `description` field and rule type.
 
@@ -262,10 +254,10 @@ Use them if they seem useful to the user's most recent query, but do not use the
 
 **The key prompt is**: `Use them if they seem useful to the user's most recent query, but do not use them if they seem unrelated.`
 
-#### Key Points About Activation
+#### Key Points About Attachment
 
 1. `description`: 
-   - For AgentAttached rules: The `description` must be a non-empty string that defines the activation scenarios.
+   - For AgentAttached rules: The `description` must be a non-empty string that defines the attachment scenarios.
    - For all other rule types: The `description` should be empty (null, undefined, or empty string).
    - Empty values are consistently treated as null throughout the system.
 
@@ -282,17 +274,17 @@ Use them if they seem useful to the user's most recent query, but do not use the
 
 For Project Rules to function correctly, it's crucial to understand the **four distinct rule types** defined by their specific YAML header configurations:
 
-1. **Always Attached**: `alwaysApply: true`, empty `globs`, empty `description`. Injected into *every* context, intended for universal guidelines. Activation is implicit due to `alwaysApply: true`.
+1. **Always Attached**: `alwaysApply: true`, empty `globs`, empty `description`. Injected into *every* context, intended for universal guidelines. Attachment is implicit due to `alwaysApply: true`.
 
-2. **Auto Attached**: `alwaysApply: false`, non-empty `globs`, empty `description`. Injected when files matching `globs` are present. Activation depends on the AI determining the rule's body content is relevant to the current context.
+2. **Auto Attached**: `alwaysApply: false`, non-empty `globs`, empty `description`. Injected when files matching `globs` are present. Attachment depends on the AI determining the rule's body content is relevant to the current context.
 
 3. **Agent Attached**: `alwaysApply: false`, empty `globs`, non-empty `description`. Made available via its `description`. The AI decides whether to fetch and apply the rule based on whether the `description` matches the user's query.
 
-4. **Manually Attached**: `alwaysApply: false`, empty `globs`, empty `description`. Injected *only* when explicitly invoked by the user with `@rule-name`. Activation is user-driven.
+4. **Manually Attached**: `alwaysApply: false`, empty `globs`, empty `description`. Injected *only* when explicitly invoked by the user with `@rule-name`. Attachment is user-driven.
 
 In all cases, empty values (null, undefined, or empty string) are treated as equivalent. The system normalizes these values for consistent handling.
 
-Understanding which rule type to use and configuring its specific YAML header correctly is key to ensuring rules are injected and activated as intended in your workflows.
+Understanding which rule type to use and configuring its specific YAML header correctly is key to ensuring rules are injected and attached as intended in your workflows.
 
 ---
 
@@ -472,10 +464,14 @@ description: ""
 
 ## FAQ
 
+**What is the `.cursor/rules/globals` folder?**
+
+- Some projects use this optionally. It's best practice to store cursor rules you'll share across projects in `.cursor/rules/globals` and project-specific rules in `.cursor/rules/local`. The globals directory can even be sym-linked.
+
 **Why is Cursor itself struggling to edit it's own rules?**
 There can be several reasons. Try the following to debug:
 
-- You should have a rule for editing rules that always attaches using the glob `.cursor/rules`.
+- You should have a rule for editing rules that always attaches using the glob `.cursor/rules`. Alternatively, Cursor has a builtin command to create rules in the chat that you can read about on their docs at: [Generating Rules](https://docs.cursor.com/context/rules#generating-rules).
 - Cursor comes with it's own MDC file editor that sometimes conflicts with tool calls as it auto-formats. Try giving specific instructions for the agent to edit Cursor rules using simple pipes on the terminal to read and replace the entire file in one go.
 - Check any `.cursorignore` file and/or `.cursorindexignore` files to see if you're accidentally ignoring the files or folders in the `.cursor` or `.cursor/rules` folder.
 - Avoid have the rule files or Cursor settings open while edits are being made.

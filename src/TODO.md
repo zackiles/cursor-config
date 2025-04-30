@@ -269,3 +269,40 @@ Type:  RuleType
 **Downsides:** Minor visual change. If `MIDDLE` ellipsis is specifically preferred for verbose content readability, changing it might be slightly detrimental.
 
 **Effort:** Low. Update the `ellipsis` property in the `BoundingBoxOptions` used within `linter.ts`'s `formatLintResult` function to use a single, consistent character (e.g., `Characters.ELLIPSIS.HORIZONTAL`).
+
+## 9. Linter: Support Shallow Folder Linting
+
+**Goal:** Update `linter.ts` to accept a directory path as input alongside file paths and globs.
+**Behavior:** When a directory path is provided, the linter should process all `.mdc` files directly within that directory, but *not* recursively search subdirectories. Globs (`**/*.mdc`) should still be required for recursive linting.
+**Rationale:** Simplifies common use case of linting all rules in the main `.cursor/rules/` folder without needing a glob pattern. Improves CLI usability based on user feedback/confusion identified in README review.
+**Effort:** Medium. Requires updating argument parsing in `linter.ts` to detect directory paths, using `Deno.readDir` to list files within that directory, filtering for `.mdc` files, and integrating these paths into the file processing loop alongside `expandGlob` results.
+
+## 10. Documentation: Frontmatter Null/Empty Value Handling
+
+**Goal:** Verify and accurately document how different frontmatter fields (`globs`, `description`, `alwaysApply`, `category`) handle null, undefined, and empty string values during parsing and attachment type determination.
+**Tasks:**
+1.  Analyze the parsing logic in `src/parsers/frontmatter.ts` and `src/parsers/rule-type.ts`.
+2.  Determine precisely how `null`, `undefined`, and `""` are treated for each relevant field.
+3.  Update the "MDC File Types" section in `src/README.md` to reflect the exact behavior, removing the potentially inaccurate statement "empty values (null, undefined, or empty string) are treated as equivalent" if it's not universally true. Provide clear examples if behavior differs between fields.
+**Rationale:** Ensures documentation is precise and accurately reflects the parser's behavior, preventing user confusion. Addresses discrepancy found during README review.
+**Effort:** Medium. Requires code analysis and careful documentation updates.
+
+## 11. Code Quality: Investigate `ParsedMarkdownContent.ast` Usage
+
+**Goal:** Determine if the `ast?: unknown` property within the `ParsedMarkdownContent` interface (`src/types.ts`) is actually populated or used anywhere in the codebase.
+**Tasks:**
+1.  Search the codebase (including `src/parsers/markdown.ts`, `src/processor.ts`, `src/linter.ts`, and any tests) for usage of the `markdownContent.ast` property.
+2.  If the property is confirmed to be unused, remove it from the `ParsedMarkdownContent` interface definition in `src/types.ts`.
+3.  Remove any mention of the `ast` property from documentation, specifically in the "Structured Data Model (`MdcFile`)" section of `src/README.md`.
+**Rationale:** Removes potentially dead code/unused properties, simplifying the data model and reducing confusion. Addresses discrepancy found during README review.
+**Effort:** Low. Primarily involves code search and minor deletions.
+
+## 12. Documentation: Correct `Invalid` Attachment Type Conditions
+
+**Goal:** Update the description of the `Invalid` attachment type in `src/README.md` to accurately reflect the conditions that lead to it.
+**Tasks:**
+1.  Review the logic in `src/parsers/rule-type.ts` (soon to be `attachment-type.ts`) that returns `AttachmentType.Invalid`.
+2.  Identify the specific contradictory combinations of frontmatter fields (e.g., `alwaysApply: true` with non-empty `globs`) that trigger this type.
+3.  Rewrite the "Common issues" description for `AttachmentType.Invalid` in the "MDC File Types" (soon to be "MDC Attachment Types") section of `src/README.md` to accurately list these conditions, removing the incorrect statement about "missing both `globs` and `alwaysApply`".
+**Rationale:** Ensures documentation accurately describes error conditions. Addresses discrepancy found during README review.
+**Effort:** Low. Requires reviewing specific logic and updating a small documentation section.

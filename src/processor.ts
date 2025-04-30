@@ -1,7 +1,7 @@
 import { parseFrontmatter } from './parsers/frontmatter.ts'
 import { parseMarkdownContent } from './parsers/markdown.ts'
-import { determineRuleType } from './parsers/rule-type.ts'
-import type { LintResult, MdcFile, ParsedFrontmatter } from './types.ts'
+import { determineAttachmentType } from './parsers/attachment-type.ts'
+import type { AttachmentType, LintResult, MdcFile, ParsedFrontmatter } from './types.ts'
 
 /**
  * Processes an MDC file by parsing its content and structure
@@ -34,9 +34,10 @@ export async function processMdcFile(filePath: string): Promise<MdcFile> {
       const startLine = frontmatter.endLine + 1
       mdcFile.markdownContent = parseMarkdownContent(markdownContent, startLine)
 
-      // Determine rule type based on frontmatter
+      // Determine attachment type based on frontmatter
       if (frontmatter.parsed) {
-        mdcFile.derivedRuleType = determineRuleType(frontmatter.parsed)
+        const attachmentType: AttachmentType = determineAttachmentType(frontmatter.parsed)
+        mdcFile.derivedAttachmentType = attachmentType
       }
     } else {
       // If no frontmatter found, treat the entire file as markdown

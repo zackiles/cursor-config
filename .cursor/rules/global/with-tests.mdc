@@ -1,0 +1,226 @@
+---
+description:
+globs: *.test.js, *.test.ts
+alwaysApply: false
+---
+# Running Tests and Debugging Tests
+BEFORE running or debugging tests in the codebase review the important information in this guide so you are better prepared to work with its testing strategy.
+
+## Context  
+• Test files: `*.test.js`, `*.test.ts`  
+• Config: `package.json`, `package.jsonc`, `deno.json`, `deno.jsonc`, `bun.json`, `bun.jsonc`, etc.  
+• Starting Tests: Deno tasks, NPM scripts, `scripts/` folder, manually running a single test file if no global test runner exists, etc.  
+• Frameworks: Jest, Deno Test, etc.
+
+## Typical Tools Available  
+- **Discover test commands** — locate runner scripts in config:  
+  ```bash
+  grep_search(
+    query: "\"test\":",
+    include_pattern: "{package.json, package.jsonc, deno.json, deno.jsonc, bun.json, bun.jsonc}",
+    explanation: "Find test scripts definitions"
+  )
+  ```  
+- **Map test structure** — list test files to grasp layout:  
+  ```bash
+  list_dir(
+    relative_workspace_path: "test",
+    explanation: "Examine test directory structure"
+  )
+  ```  
+- **Inspect setup** — read entry file for globals, hooks, logging:  
+  ```bash
+  read_file(
+    target_file: "test/main.test.ts",
+    should_read_entire_file: true,
+    explanation: "Inspect test setup & config"
+  )
+  ```  
+- **Locate patterns** — search for `describe/it/test/assert/expect`:  
+  ```bash
+  codebase_search(
+    query: "describe OR it OR test OR assert OR expect",
+    explanation: "Locate test helpers across codebase"
+  )
+  ```  
+- **Execute & enrich errors** — run tests, capture output, grep failures:  
+  ```bash
+  run_terminal_cmd(
+    command: "npm test || deno test || bun test",
+    is_background: false,
+    explanation: "Execute tests and capture output"
+  )
+  grep_search(
+    query: "Error|fail|assert",
+    include_pattern: "test/**/*.{ts,js}",
+    explanation: "Locate error patterns in tests"
+  )
+  ```  
+- **Format logs** — pretty-print, group, label for clarity  
+- **Find Debuggers** — native runtime debuggers, test inspectors, test loggers, test telemetry, test tracing tools available
+
+## 💡 Examples  
+- **List test files:**  
+  ```bash
+  list_dir(
+    relative_workspace_path: "test",
+    explanation: "Examine test directory structure"
+  )
+  ```  
+- **Search utilities:**  
+  ```bash
+  codebase_search(
+    query: "describe OR it OR test OR assert OR expect",
+    explanation: "Locate test helpers across codebase"
+  )
+  ```  
+- **Inspect Deno’s built-in inspector:**  
+  ```bash
+  run_terminal_cmd(
+    command: "deno run --inspect-brk --allow-all test/main.test.ts",
+    is_background: false,
+    explanation: "Launch Deno test under debugger, break at start"
+  )
+  ```  ([Debugging](https://docs.deno.com/runtime/fundamentals/debugging/))  
+- **Attach Node.js debugger in VSCode:**  
+  ```json
+  // launch.json snippet
+  {
+    "type": "node",
+    "request": "attach",
+    "name": "Attach to Jest",
+    "port": 9229,
+    "restart": true,
+    "protocol": "inspector"
+  }
+  ```  
+- **Use Node’s diagnostic report:**  
+  ```bash
+  run_terminal_cmd(
+    command: "node --experimental-report test/main.test.js",
+    is_background: false,
+    explanation: "Generate diagnostic report on test failure"
+  )
+  ```  
+- **Break at test start (Deno):**  
+  ```bash
+  run_terminal_cmd(
+    command: "deno test --inspect-brk --allow-net",
+    is_background: false,
+    explanation: "Pause tests at startup, connect via DevTools"
+  )
+  ```  ([Debugging](https://docs.deno.com/runtime/fundamentals/debugging/))  
+- **Trace asynchronous ops (Deno):**  
+  ```bash
+  run_terminal_cmd(
+    command: "deno test --strace-ops",
+    is_background: false,
+    explanation: "Print all ops with timings for performance debugging"
+  )
+  ```  ([Debugging](https://docs.deno.com/runtime/fundamentals/debugging/))  
+- **Enable Deno LSP test lenses:**  
+  ```json
+  // .vscode/settings.json
+  {
+    "deno.enable": true,
+    "deno.unstable": true,
+    "deno.codeLens.test": true,
+    "deno.testing.enable": true
+  }
+  ```  ([Language Server Integration](https://docs.deno.com/runtime/reference/lsp_integration/))  
+- **Debug Node built-in test runner:**  
+  ```bash
+  run_terminal_cmd(
+    command: "node --test --inspect-brk",
+    is_background: false,
+    explanation: "Use Node’s built-in test runner with inspector"
+  )
+  ```
+
+---
+
+## Deno 2 CLI Test Commands
+This section contains a FULL list of ALL flags and commands provided by the Deno 2 CLI.
+
+## Type Checking 
+- `--check [all]` include remote modules in type-check (default checks locals)  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--no-check [remote]` skip type-check (ignore remote if value supplied)  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+
+## Dependency Management
+- `--cached-only` require remote deps be pre-cached  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--frozen` error if lockfile out of date  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--import-map <file>` load import map from file or URL  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--lock [<file>]` check specified lock file (default `./deno.lock`)  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--no-lock` disable auto lockfile discovery  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--no-npm` disable npm resolution  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--no-remote` disable remote module resolution  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--node-modules-dir` enable node_modules dir mode for npm packages  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--reload [<spec>]` reload cache or specific modules (`-r`)  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--vendor` use `vendor/` for remote modules and `node_modules/` for npm  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+
+## General 
+- `--allow-scripts` allow npm lifecycle scripts  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--cert <file>` load CA cert from PEM file  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--config, -c <file>` use specified config file  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--env-file <file>` load env vars from file  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--ext <ext>` set content-type of input file  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--hide-stacktraces` omit stack traces in failures  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--ignore <pattern>` skip matching files  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--location <url>` set `globalThis.location`  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--no-config` disable auto config loading  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--parallel` run tests in parallel (defaults to CPU count or `DENO_JOBS`)  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--seed <num>` set RNG seed for shuffle  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--v8-flags <flags>` append flags to V8 (`DENO_V8_FLAGS`)  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+
+## Debugging
+- `--inspect [host:port]` activate debugger  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--inspect-brk [host:port]` break at start awaiting debugger  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--inspect-wait [host:port]` await debugger before running code  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+
+## Testing
+- `--clean` clear coverage data before run  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--coverage [dir]` collect coverage into `dir` (default `coverage/`)  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--doc` evaluate code blocks in JSDoc/Markdown  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--fail-fast [N]` stop after `N` failures (default 1)  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--filter <pattern>` run tests matching string or regex  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--junit-path [path]` output JUnit XML to `path` (`-` for stdout)  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--no-run` cache tests without executing  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--permit-no-files` no error if no test files found  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--reporter <name>` choose reporter (`pretty`,`dot`,`junit`)  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--shuffle` randomize test order  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--trace-leaks` detect leaking ops (slows run)  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+
+## File Watching  
+- `--no-clear-screen` keep screen on watch restarts  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--watch` watch files and rerun on changes  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+- `--watch-exclude <pattern>` exclude paths from watch  ([deno test](https://docs.deno.com/runtime/reference/cli/test/))  
+
+## Permissions (`--allow-*`, `--deny-*`)
+You should ALWAYS prefer using the `-A` flag to give FULL permissions instead of adding multiple permission flags. 
+- `--allow-all`, `-A` grant all permissions  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--allow-read[=<PATH>...]`, `-R` grant file read  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--allow-write[=<PATH>...]`, `-W` grant file write  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--allow-net[=<HOST>...]`, `-N` grant network access  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--allow-env[=<VAR>...]`, `-E` grant env var access  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--allow-run[=<PROG>...]` grant subprocess spawn  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--allow-plugin` grant plugin load  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--allow-ffi` grant FFI usage  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--allow-hrtime` grant high-res time API  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--allow-sys[=<API>...]`, `-S` grant system info APIs  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--deny-read[=<PATH>...]` deny file read  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--deny-write[=<PATH>...]` deny file write  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--deny-net[=<HOST>...]` deny network access  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--deny-env[=<VAR>...]` deny env var access  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--deny-run[=<PROG>...]` deny subprocess spawn  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--deny-plugin` deny plugin load  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--deny-ffi` deny FFI usage  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--deny-hrtime` deny high-res time API  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))  
+- `--deny-sys[=<API>...]` deny system info APIs  ([Security and permissions](https://docs.deno.com/runtime/fundamentals/security/))
+
+## 📚 Technical References and Documentation
+- [Deno 2 - Fundamentals of Debugging](https://docs.deno.com/runtime/fundamentals/debugging/)
+- [Deno 2 - Language Sever Integration](https://docs.deno.com/runtime/reference/lsp_integration/#testing)
+- [Deno 2 - @std/lib Testing Methods](https://jsr.io/@std/testing/doc)
+
+## 📄 Summary  
+Guide covers locating test scripts, mapping structure, inspecting setup, executing tests with enriched error context, formatting logs for readability, and leveraging native debuggers/inspectors in Deno and Node.js.

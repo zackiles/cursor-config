@@ -1129,6 +1129,9 @@ grep_search(
 read_file(
   target_file: "path/to/auth.ts",
   should_read_entire_file: true
+  # Or, if should_read_entire_file is set to false you can use offset and limit to read specific lines like so (read lines 0 through 50):
+  # offset: 0
+  # limit: 50  
 )
 ```
 

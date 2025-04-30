@@ -1,10 +1,11 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
-import { RuleType } from '../types.ts'
+import { AttachmentType } from '../types.ts'
+import type { LintResult, MdcFile } from '../types.ts'
 
-export const frontmatterInvalidCombination: LintRule = {
+export const frontmatterInvalidCombination = {
   id: 'frontmatter-invalid-combination',
-  severity: 'error',
-  description: 'Ensures the combination of frontmatter fields follows a valid rule type pattern.',
+  severity: 'error' as const,
+  description:
+    'Ensures the combination of frontmatter fields follows a valid attachment type pattern.',
   lint: (file: MdcFile): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-invalid-combination',
@@ -12,52 +13,39 @@ export const frontmatterInvalidCombination: LintRule = {
       passed: true,
     }
 
-    // If frontmatter parsing failed or is missing, other rules will handle that case
-    if (!file.frontmatter?.parsed) {
+    // Skip if no frontmatter or if the frontmatter has an error
+    if (
+      !file.frontmatter?.parsed || file.frontmatter.parseError
+    ) {
       return result
     }
 
-    // Explicit check for test files named invalid-combination.mdc
-    if (file.filePath.includes('invalid-combination.mdc')) {
+    // If the attachment type was determined as Invalid, it means the combination of frontmatter fields is not valid
+    if (file.derivedAttachmentType === AttachmentType.Invalid) {
       result.passed = false
-      result.message = 'Test file explicitly triggering the invalid-combination rule'
-      result.offendingLines = [
-        { line: file.frontmatter.startLine, content: '---' },
-      ]
-      return result
-    }
+      result.message = 'The combination of frontmatter fields is invalid'
 
-    // If the rule type was determined as Invalid, it means the combination of frontmatter fields is not valid
-    if (file.derivedRuleType === RuleType.Invalid) {
-      result.passed = false
-      result.message = 'Invalid combination of frontmatter fields'
-      result.offendingLines = [
-        { line: file.frontmatter.startLine, content: '---' },
-      ]
+      // Identify some specific invalid combinations to provide better error messages
+      const hasGlobs = 'globs' in file.frontmatter.parsed && file.frontmatter.globs
+      const hasDescription = 'description' in file.frontmatter.parsed &&
+        file.frontmatter.description
+      const alwaysApply = file.frontmatter.parsed.alwaysApply === true
 
-      // Provide more detailed reason based on frontmatter fields
-      const hasGlobs = 'globs' in file.frontmatter.parsed
-      const hasAlwaysApply = 'alwaysApply' in file.frontmatter.parsed
-      const hasDescription = 'description' in file.frontmatter.parsed
-      const alwaysApplyValue = file.frontmatter.parsed.alwaysApply
-
-      if (hasGlobs && hasAlwaysApply && alwaysApplyValue === true) {
+      if (alwaysApply && hasGlobs) {
         result.reason =
-          'Cannot have both globs and alwaysApply=true (conflicts with AlwaysAttached rule type)'
-      } else if (hasGlobs && hasDescription && hasAlwaysApply && alwaysApplyValue === false) {
-        result.reason = 'Cannot have globs, description, and alwaysApply=false (no valid rule type)'
+          'Cannot have both globs and alwaysApply=true (conflicts with AlwaysAttached attachment type)'
+      } else if (hasGlobs && hasDescription && file.frontmatter.parsed.alwaysApply === false) {
+        result.reason =
+          'Cannot have globs, description, and alwaysApply=false (no valid attachment type)'
       } else {
-        result.reason = 'The combination of frontmatter fields does not match any valid rule type'
+        result.reason =
+          'The combination of frontmatter fields does not match any valid attachment type'
       }
 
-      result.offendingValue = {
-        propertyPath: 'frontmatter',
-        value: {
-          globs: file.frontmatter.parsed.globs,
-          alwaysApply: file.frontmatter.parsed.alwaysApply,
-          description: file.frontmatter.parsed.description,
-        },
-      }
+      result.offendingLines = [
+        { line: file.frontmatter.startLine, content: '---' },
+        { line: file.frontmatter.endLine, content: '---' },
+      ]
     }
 
     return result
