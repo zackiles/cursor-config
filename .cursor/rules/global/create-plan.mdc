@@ -2,6 +2,9 @@
 description:
 globs:
 alwaysApply: false
+category: planning
+tags: project planning,task breakdown,implementation strategy,workflow management,documentation standards,development methodology,project organization,task sequencing
+attachmentMethod: task
 ---
 # Create Implementation Plan
 

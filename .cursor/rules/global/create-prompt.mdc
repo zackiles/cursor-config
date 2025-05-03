@@ -2,6 +2,9 @@
 description: 
 globs: 
 alwaysApply: false
+category: interaction
+tags: ai interaction,prompt engineering,user guidance,content creation,communication design,query formulation,instruction design,interaction patterns
+attachmentMethod: task
 ---
 
 # Generate a Prompt to Implement the Solution

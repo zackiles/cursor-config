@@ -1,4 +1,4 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
+import type { LintResult, LintRule, RuleFileRaw } from '../types.ts'
 import { join, normalize } from '@std/path'
 import { exists } from '@std/fs'
 
@@ -7,7 +7,7 @@ export const contentBadRuleReference: LintRule = {
   severity: 'error',
   description:
     'Ensures that any references to Cursor rules in markdown links with the format [*](mdc:.cursor/rules/**/*.mdc`) point to existing files.',
-  lint: async (file: MdcFile): Promise<LintResult> => {
+  lint: async (file: RuleFileRaw): Promise<LintResult> => {
     const result: LintResult = {
       ruleId: 'content-bad-rule-reference',
       severity: 'error',

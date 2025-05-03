@@ -1,11 +1,11 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
+import type { LintResult, LintRule, RuleFileRaw } from '../types.ts'
 
 export const frontmatterTypeDescription: LintRule = {
   id: 'frontmatter-type-description',
   severity: 'error',
   description:
     "Validates that the 'description' field in the frontmatter, if present, is a string, null, or undefined.",
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-type-description',
       severity: 'error',

@@ -1,5 +1,6 @@
 import { parse as parseYaml } from '@std/yaml'
 import type { ParsedFrontmatter } from '../types.ts'
+import { AttachmentMethod } from '../types.ts'
 
 /**
  * Checks if a value is an empty object (but not an array)
@@ -85,6 +86,31 @@ function preprocessYaml(yaml: string): string {
       }
     }
 
+    // Handle tags field - similar to globs but preserving spaces within each tag
+    if (trimmedLine.startsWith('tags:')) {
+      const tagsMatch = /^tags:\s*(.*)$/.exec(trimmedLine)
+
+      if (tagsMatch) {
+        const tagsValue = tagsMatch[1].trim()
+
+        // Only process non-empty values that aren't already in array format
+        if (tagsValue && !(tagsValue.startsWith('[') && tagsValue.endsWith(']'))) {
+          // Split by comma and process, preserving spaces within tags
+          const tagArray = tagsValue.split(',').map((t: string) => t.trim()).filter(Boolean)
+
+          if (tagArray.length >= 1) {
+            if (tagArray.length === 1) {
+              // Single value, quote it
+              lines[i] = `tags: "${tagArray[0]}"`
+            } else {
+              // Multiple values, create proper array
+              lines[i] = `tags: [${tagArray.map((t: string) => `"${t}"`).join(', ')}]`
+            }
+          }
+        }
+      }
+    }
+
     // Handle description field - ensure it's properly quoted if needed
     if (trimmedLine.startsWith('description:')) {
       const descMatch = /^description:\s*(.*)$/.exec(trimmedLine)
@@ -99,6 +125,24 @@ function preprocessYaml(yaml: string): string {
         ) {
           // Quote the description to ensure it's parsed as a string
           lines[i] = `description: "${descValue}"`
+        }
+      }
+    }
+
+    // Handle attachmentMethod field - ensure it's a valid value
+    if (trimmedLine.startsWith('attachmentMethod:')) {
+      const methodMatch = /^attachmentMethod:\s*(.*)$/.exec(trimmedLine)
+
+      if (methodMatch) {
+        const methodValue = methodMatch[1].trim().toLowerCase()
+
+        // Only process if it's not already quoted
+        if (
+          methodValue && !((methodValue.startsWith('"') && methodValue.endsWith('"')) ||
+            (methodValue.startsWith("'") && methodValue.endsWith("'")))
+        ) {
+          // Quote the value to ensure it's parsed as a string
+          lines[i] = `attachmentMethod: "${methodValue}"`
         }
       }
     }
@@ -187,6 +231,14 @@ export function parseFrontmatter(fileContent: string): {
     frontmatter.globs = normalizedValue === null ? null : normalizedValue as string | string[]
   }
 
+  // Handle tags field, ensuring it has the correct type
+  if ('tags' in parsedContent) {
+    const tagsValue = parsedContent.tags
+    // Cast to appropriate type including null
+    const normalizedValue = normalizeEmptyValue(tagsValue)
+    frontmatter.tags = normalizedValue === null ? null : normalizedValue as string[]
+  }
+
   // Handle alwaysApply field - ensure we don't lose boolean false values
   if ('alwaysApply' in parsedContent) {
     // The alwaysApply value might be a boolean or a string
@@ -207,6 +259,34 @@ export function parseFrontmatter(fileContent: string): {
       const value = alwaysApplyMatch[1].toLowerCase()
       frontmatter.alwaysApply = value === 'true' || value === 'yes' || value === '1'
     }
+  }
+
+  // Handle attachmentMethod field - ensure it's a valid value and normalize
+  if ('attachmentMethod' in parsedContent) {
+    const methodValue = parsedContent.attachmentMethod
+    if (methodValue === null || methodValue === undefined) {
+      frontmatter.attachmentMethod = AttachmentMethod.Message // Default to 'message' if null/undefined
+    } else {
+      const strValue = String(methodValue).toLowerCase()
+      switch (strValue) {
+        case 'system':
+          frontmatter.attachmentMethod = AttachmentMethod.System
+          break
+        case 'message':
+          frontmatter.attachmentMethod = AttachmentMethod.Message
+          break
+        case 'task':
+          frontmatter.attachmentMethod = AttachmentMethod.Task
+          break
+        case 'none':
+          frontmatter.attachmentMethod = AttachmentMethod.None
+          break
+        default:
+          frontmatter.attachmentMethod = AttachmentMethod.Message // Default to 'message' for invalid values
+      }
+    }
+  } else {
+    frontmatter.attachmentMethod = AttachmentMethod.Message // Default to 'message' if not specified
   }
 
   return {

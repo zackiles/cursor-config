@@ -2,6 +2,9 @@
 description: 
 globs: 
 alwaysApply: false
+category: cleanup
+tags: project cleanup,resource management,file organization,workspace management,memory cleanup,system maintenance,file deletion,workspace optimization
+attachmentMethod: task
 ---
 # Clean and Remove Old Plans NOW
 Before proceeding with this conversation or the current message from the user you will clean up your specialized on-disk files that were used for planning. To cleanup your files take the following steps one by one using your tools:

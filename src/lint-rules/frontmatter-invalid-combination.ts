@@ -1,12 +1,12 @@
 import { AttachmentType } from '../types.ts'
-import type { LintResult, MdcFile } from '../types.ts'
+import type { LintResult, RuleFileRaw } from '../types.ts'
 
 export const frontmatterInvalidCombination = {
   id: 'frontmatter-invalid-combination',
   severity: 'error' as const,
   description:
     'Ensures the combination of frontmatter fields follows a valid attachment type pattern.',
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-invalid-combination',
       severity: 'error',

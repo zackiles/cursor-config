@@ -2,6 +2,9 @@
 description: Recover From Repeated Failures to Resolve Errors
 globs:
 alwaysApply: false
+category: resilience
+tags: system, mode, error handling,recovery strategies,troubleshooting,system resilience,error mitigation,debugging protocols,failure recovery,problem resolution
+attachmentMethod: system
 ---
 ## Steps for Recovery Mode  
 **DANGER: DEATH**  

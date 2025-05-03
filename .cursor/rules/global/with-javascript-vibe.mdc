@@ -2,6 +2,9 @@
 description: Vibe coding for bleeding-edge Javascript and Typescript code generation
 globs: *.ts,*.js
 alwaysApply: false
+category: style
+tags: coding style,modern javascript,code aesthetics,language idioms,coding patterns,javascript features,expressive coding,coding conventions
+attachmentMethod: message
 ---
 ## CODING STYLE GUIDE, RULES, AND STANDARDS (JAVASCRIPT AND TYPESCRIPT)
 Adhere to ALL coding standards, rules, best practices and style guides mentioned in this document.

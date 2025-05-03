@@ -2,6 +2,9 @@
 description: Rules for Writing Tests
 globs: *.test.js, *.test.ts
 alwaysApply: false
+category: testing
+tags: test methodology,quality assurance,code verification,test automation,code coverage,test design,quality control,validation protocols
+attachmentMethod: task
 ---
 ## Steps To Writing or Creating Tests
 

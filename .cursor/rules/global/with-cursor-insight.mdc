@@ -2,6 +2,9 @@
 description:
 globs:
 alwaysApply: false
+category: tooling
+tags: ide integration,development tools,code navigation,editor features,development productivity,coding assistance,tool integration,programming utilities
+attachmentMethod: none
 ---
 # Cursor Insight: Use Advanced Tools & Capabilities
 SUBTASK: Use this guide to help solve or answer the current query, user message, or task.

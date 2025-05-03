@@ -2,6 +2,9 @@
 description: When proposing a solution or design in a chat only conversation or Ask mode.
 globs:
 alwaysApply: false
+category: design
+tags: system,mode,solution design,architectural planning,concept presentation,design patterns,system architecture,implementation strategy,technical proposal,design methodology
+attachmentMethod: system
 ---
 ## Rules for Propose Mode
 When asked to design or propose a solution you will take the time to follow these steps:

@@ -5,24 +5,16 @@
  */
 import { assert, assertEquals, assertStringIncludes } from '@std/assert'
 import { expandGlob } from '@std/fs'
-import { basename, extname, join, parse } from '@std/path'
+import { basename, extname, join } from '@std/path'
 import { processMdcFile } from '../src/processor.ts'
-import type { AttachmentType, MdcFile } from '../src/types.ts'
+import type { RuleFileSimple } from '../src/types.ts'
 
 const TEST_CONFIG = {
-  TEST_NAME: 'scripts/build.ts',
+  TEST_NAME: join('scripts', 'build.ts'),
   MOCK_PATH: join('test', 'mocks', 'passing-rules'),
   OUTPUT_PATH: join('bin', 'rules.json'),
+  MARKDOWN_PATH: join('bin', 'rules.md'),
 } as const
-
-interface SimplifiedRule {
-  rule: string
-  raw: string
-  attachmentType: AttachmentType
-  createdOn: string | null
-  updatedOn: string | null
-  [key: string]: unknown
-}
 
 // Runs the actual script directly, which will write to the output file
 async function runBuildScript(path: string): Promise<void> {
@@ -30,7 +22,7 @@ async function runBuildScript(path: string): Promise<void> {
     args: [
       'run',
       '-A',
-      join('.', 'scripts', 'build.ts'),
+      join('scripts', 'build.ts'),
       path,
     ],
     stdout: 'piped',
@@ -56,11 +48,11 @@ Deno.test(`[${TEST_CONFIG.TEST_NAME}]: processes MDC files correctly`, async (t)
   })
 
   // Read and validate the output file
-  let rules: SimplifiedRule[] = []
+  let rules: RuleFileSimple[] = []
   await t.step('read output file and validate simplified structure', async () => {
     // Read the output file to verify results
     const outputJson = await Deno.readTextFile(TEST_CONFIG.OUTPUT_PATH)
-    rules = JSON.parse(outputJson) as SimplifiedRule[]
+    rules = JSON.parse(outputJson) as RuleFileSimple[]
 
     // Check that we have an array of rule objects
     assert(Array.isArray(rules), 'Output should be an array')
@@ -84,7 +76,6 @@ Deno.test(`[${TEST_CONFIG.TEST_NAME}]: processes MDC files correctly`, async (t)
     // Verify each item has the expected simplified structure
     for (const rule of rules) {
       assert(typeof rule.rule === 'string', 'Each rule should have a rule name')
-      assert(typeof rule.raw === 'string', 'Each rule should have raw content')
       assert(rule.attachmentType, 'Each rule should have an attachment type')
 
       // Verify that createdOn and updatedOn fields exist
@@ -94,13 +85,16 @@ Deno.test(`[${TEST_CONFIG.TEST_NAME}]: processes MDC files correctly`, async (t)
       // Verify that frontmatter properties are included
       if (rule.alwaysApply !== undefined) {
         assert(
-          typeof rule.alwaysApply === 'boolean',
-          `Rule ${rule.rule} should have alwaysApply as a boolean`,
+          typeof rule.alwaysApply === 'boolean' || rule.alwaysApply === null,
+          `Rule ${rule.rule} should have alwaysApply as a boolean or null`,
         )
       }
 
       // Check if globs property exists (could be null)
       assert('globs' in rule, `Rule ${rule.rule} should have globs property`)
+
+      // Check if tags property exists (could be null)
+      assert('tags' in rule, `Rule ${rule.rule} should have tags property`)
 
       // Check if description property exists (could be null)
       assert('description' in rule, `Rule ${rule.rule} should have description property`)
@@ -122,15 +116,6 @@ Deno.test(`[${TEST_CONFIG.TEST_NAME}]: processes MDC files correctly`, async (t)
       'The agent can read this description',
       'Description should contain expected text',
     )
-
-    // Verify raw content includes expected text
-    assertStringIncludes(rule.raw, '## H2 Header', 'Raw content should contain H2 header')
-    assertStringIncludes(
-      rule.raw,
-      'H2 header description',
-      'Raw content should contain H2 description',
-    )
-    assertStringIncludes(rule.raw, '### H3 Header', 'Raw content should contain H3 header')
   })
 
   await t.step('validate auto-attached-h1-single-glob.mdc content', () => {
@@ -142,10 +127,6 @@ Deno.test(`[${TEST_CONFIG.TEST_NAME}]: processes MDC files correctly`, async (t)
 
     // Verify globs property
     assert(rule.globs, 'Should have a globs value')
-
-    // Verify raw content includes expected text
-    assertStringIncludes(rule.raw, '# H1 Header', 'Raw content should contain H1 header')
-    assertStringIncludes(rule.raw, 'auto-attached rule', 'Raw content should mention auto-attached')
   })
 
   await t.step('verify git history fields', () => {
@@ -156,7 +137,7 @@ Deno.test(`[${TEST_CONFIG.TEST_NAME}]: processes MDC files correctly`, async (t)
         // Try to parse as date to verify ISO format (will throw if invalid)
         try {
           new Date(rule.createdOn)
-        } catch (e) {
+        } catch (_e) {
           assert(false, `Invalid date format for createdOn: ${rule.createdOn} (Rule: ${rule.rule})`)
         }
       }
@@ -164,7 +145,7 @@ Deno.test(`[${TEST_CONFIG.TEST_NAME}]: processes MDC files correctly`, async (t)
       if (rule.updatedOn !== null) {
         try {
           new Date(rule.updatedOn)
-        } catch (e) {
+        } catch (_e) {
           assert(false, `Invalid date format for updatedOn: ${rule.updatedOn} (Rule: ${rule.rule})`)
         }
       }
@@ -217,13 +198,81 @@ Deno.test(`[${TEST_CONFIG.TEST_NAME}]: processes MDC files correctly`, async (t)
         // Skip description comparison since we're now handling it differently
         // and getting it directly from the parsed object
       }
+    }
+  })
 
-      // Verify raw content matches
-      assertEquals(
-        outputRule.raw,
-        originalProcessed.rawContent,
-        `Raw content should match for ${ruleName}`,
+  await t.step('verify markdown file generation', async () => {
+    // Check if markdown file exists
+    try {
+      const markdownContent = await Deno.readTextFile(TEST_CONFIG.MARKDOWN_PATH)
+      assert(markdownContent.length > 0, 'Markdown file should not be empty')
+
+      // Check for required header
+      assertStringIncludes(
+        markdownContent,
+        '# Available Cursor @ Rules',
+        'Markdown should include the title',
       )
+
+      assertStringIncludes(
+        markdownContent,
+        'This project contains Cursor rules!',
+        'Markdown should include the introduction text',
+      )
+
+      assertStringIncludes(
+        markdownContent,
+        'For more details on how Cursor Rules work',
+        'Markdown should include the tip box',
+      )
+
+      // Verify that categories are properly formatted
+      const categoryPattern = /## \d+\. [A-Z][a-zA-Z ]*/g
+      const matches = markdownContent.match(categoryPattern)
+      assert(matches && matches.length > 0, 'Markdown should contain numbered categories')
+
+      // Verify table structure
+      assertStringIncludes(
+        markdownContent,
+        '| Rule | Trigger Type | Description | Tags |',
+        'Markdown should include the table header with Tags column',
+      )
+
+      assertStringIncludes(
+        markdownContent,
+        '|------|--------------|-------------|------|',
+        'Markdown should include the table separator with Tags column',
+      )
+
+      // Check that each rule from the JSON is represented in the markdown
+      for (const rule of rules) {
+        assertStringIncludes(
+          markdownContent,
+          `**\`${rule.rule}\`**`,
+          `Markdown should include rule '${rule.rule}'`,
+        )
+      }
+
+      // Verify that all categories are represented
+      const categories = new Set(rules.map((r) => r.category || 'Uncategorized'))
+      for (const category of categories) {
+        const formattedCategory = category
+          .split(' ')
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
+
+        assertStringIncludes(
+          markdownContent,
+          formattedCategory,
+          `Markdown should include category '${formattedCategory}'`,
+        )
+      }
+    } catch (error) {
+      if (error instanceof Deno.errors.NotFound) {
+        assert(false, `Markdown file not found at ${TEST_CONFIG.MARKDOWN_PATH}`)
+      } else {
+        throw error
+      }
     }
   })
 })

@@ -1,16 +1,16 @@
 import { parseFrontmatter } from './parsers/frontmatter.ts'
 import { parseMarkdownContent } from './parsers/markdown.ts'
 import { determineAttachmentType } from './parsers/attachment-type.ts'
-import type { AttachmentType, LintResult, MdcFile, ParsedFrontmatter } from './types.ts'
+import type { AttachmentType, LintResult, ParsedFrontmatter, RuleFileRaw } from './types.ts'
 
 /**
  * Processes an MDC file by parsing its content and structure
  *
  * @param filePath - Path to the MDC file
- * @returns Processed MdcFile object
+ * @returns Processed RuleFileRaw object
  */
-export async function processMdcFile(filePath: string): Promise<MdcFile> {
-  const mdcFile: MdcFile = {
+export async function processMdcFile(filePath: string): Promise<RuleFileRaw> {
+  const mdcFile: RuleFileRaw = {
     filePath,
     rawContent: '',
     rawLines: [],

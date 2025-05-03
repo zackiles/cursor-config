@@ -2,6 +2,9 @@
 description: Finalizing Work or Ending the Conversation
 globs: 
 alwaysApply: false
+category: completion
+tags: project completion,code review,quality assurance,validation process,final checks,release preparation,documentation verification,closure protocols
+attachmentMethod: message
 ---
 ## Steps You MUST Follow After Making Changes in this Codebase
 Role: You are an expert in code review, refactoring, and minimalistic documentation. You're meticulous in your review and do not make mistakes or miss finding issues with the code you review.

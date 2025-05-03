@@ -1,11 +1,11 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
+import type { LintResult, LintRule, RuleFileRaw } from '../types.ts'
 
 export const frontmatterMissing: LintRule = {
   id: 'frontmatter-missing',
   severity: 'error',
   description:
     'Ensures the file contains a valid YAML frontmatter section enclosed by --- delimiters at the beginning.',
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-missing',
       severity: 'error',

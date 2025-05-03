@@ -4,7 +4,7 @@ This Deno-based package provides tools for linting, parsing, and programmaticall
 
 ## Purpose
 
-The primary goal of this package is to ensure the quality, consistency, effectiveness and validity of `.mdc` files (and prompts within) used within the Cursor ecosystem. It helps enforce best practices, detect common errors in rule definitions, and act as a general workbench for programmatically managing rules.
+The primary goal of this package is to ensure the quality, consistency, effectiveness, and validity of `.mdc` files (and prompts within) used within the Cursor ecosystem. It helps enforce best practices, detect common errors in rule definitions, and act as a general workbench for programmatically managing rules.
 
 ## High-Level Usage & Features
 
@@ -50,10 +50,9 @@ The linter displays clear error and warning messages with line numbers:
 📄 Rule: sample.mdc
 Derived Type: AgentAttached
 
-    FAIL  frontmatter-missing-alwaysApply: Frontmatter is missing the required 'alwaysApply'
+    ❌ FAIL  frontmatter-missing-alwaysApply: Frontmatter is missing the required 'alwaysApply'
           property (lines 1-2).
-    FAIL  content-missing-paragraph: No paragraph text found after the first header (line 7).
-    WARN  content-missing-examples: Rule is missing an 'Examples' section (lines 5-6).
+    ⚡ WARN  content-missing-examples: Rule is missing an 'Examples' section (lines 5-6).
 ```
 
 ## System and Architecture Overview
@@ -61,13 +60,15 @@ Derived Type: AgentAttached
 The package is built using Deno and TypeScript. Its core components are:
 
 1. **Linter CLI (`src/linter.ts`):** The main entry point for command-line usage. Parses arguments, orchestrates file discovery using globs, processing, linting, and result formatting.
-2. **Processor (`src/processor.ts`):** Contains the `processMdcFile` function, which reads an `.mdc` file and uses the parsers to create a structured `MdcFile` object. It also includes helpers like `groupResultsByFile`.
+2. **Processor (`src/processor.ts`):** Contains the `processMdcFile` function, which reads an `.mdc` file and uses the parsers to create a structured `RuleFileRaw` object. It also includes helpers like `groupResultsByFile`.
 3. **Parsers (`src/parsers/`):** Modules responsible for parsing specific parts of an `.mdc` file:
     * `frontmatter.ts`: Parses the frontmatter block.
     * `markdown.ts`: Parses the Markdown content.
     * `attachment-type.ts`: Determines the `AttachmentType` based on the parsed frontmatter.
 4. **Lint Rules (`src/lint-rules/`):** Individual rule modules, each exporting a `LintRule` object containing metadata (`id`, `severity`, `description`) and the `lint` function. `index.ts` aggregates and exports all built-in rules via `loadAllRules`. The system also supports loading custom rules from an external directory.
-5. **Types (`src/types.ts`):** Defines all the core TypeScript interfaces and enums used throughout the package (e.g., `MdcFile`, `LintRule`, `LintResult`, `AttachmentType`).
+5. **Types (`src/types.ts`):** Defines all the core TypeScript interfaces and enums used throughout the package (e.g., `RuleFileRaw`, `LintRule`, `LintResult`, `AttachmentType`).
+6. **Console Components (`src/console-components.ts`):** Utilities for formatting output to the console.
+7. **Character Symbols (`src/characters.ts`):** Contains Unicode character symbols used for displaying status indicators and formatting.
 
 **Workflow:**
 
@@ -78,9 +79,9 @@ The package is built using Deno and TypeScript. Its core components are:
 * `parseFrontmatter` attempts to parse the YAML frontmatter.
 * `parseMarkdownContent` parses the remaining content (or the whole file if no frontmatter exists).
 * `determineAttachmentType` analyzes the parsed frontmatter to classify the rule.
-* The results are combined into an `MdcFile` object.
+* The results are combined into a `RuleFileRaw` object.
 * If not in `--parse` mode, `loadAllRules` fetches the lint rule definitions.
-* Each loaded rule's `lint` function is executed against the `MdcFile` object.
+* Each loaded rule's `lint` function is executed against the `RuleFileRaw` object.
 * The results (`LintResult[]`) are collected.
 * Finally, the CLI formats the results (human-readable summary or JSON) and prints them to the console. It exits with code 1 if any 'error' severity rules fail.
 
@@ -90,12 +91,16 @@ The package is built using Deno and TypeScript. Its core components are:
 src/
 ├── lint-rules/       # Individual lint rule implementations
 │   ├── index.ts      # Aggregates and exports lint rules
-│   └── *.ts          # Specific rule files (e.g., frontmatterMissingAlwaysApply.ts)
+│   └── *.ts          # Specific rule files (e.g., frontmatter-missing-alwaysApply.ts)
 ├── parsers/          # Modules for parsing different parts of MDC files
 │   ├── frontmatter.ts
 │   ├── markdown.ts
 │   └── attachment-type.ts
+├── bounding-box.ts   # Text wrapping utilities for console output
+├── characters.ts     # Unicode character constants for formatting
+├── console-components.ts # Console output formatting utilities
 ├── linter.ts         # Main CLI entry point and logic
+├── mod.ts            # Module exports for library usage
 ├── processor.ts      # Core MDC file processing logic (processMdcFile)
 └── types.ts          # TypeScript interfaces and enums
 ```
@@ -105,28 +110,26 @@ src/
 An `.mdc` file represents a Cursor Rule. The attachment type is determined by the presence and values of specific fields in its YAML frontmatter (`---`). The `AttachmentType` enum categorizes these:
 
 * **`AttachmentType.AlwaysAttached`**:
-  * Defined by: `alwaysApply: true` in frontmatter, empty `globs`, and empty `description`.
+  * Defined by: `alwaysApply: true` in frontmatter.
   * Behavior: The rule is always active in the Cursor context.
-  * Note: Empty values (null, undefined, or empty string) are treated as equivalent.
 
 * **`AttachmentType.AutoAttached`**:
-  * Defined by: `alwaysApply: false` AND non-empty `globs` in frontmatter, with empty `description`.
+  * Defined by: `alwaysApply: false`, non-empty `globs` in frontmatter.
   * Behavior: The rule is automatically activated when a file matching the `globs` pattern is opened or focused in Cursor.
-  *  Note: The `globs` field must contain at least one pattern.
+  * Note: The `globs` field must contain at least one pattern.
 
 * **`AttachmentType.AgentAttached`**:
-  * Defined by: Empty `globs`, non-empty `description`, and `alwaysApply: false` (or absent).
+  * Defined by: Non-empty `description` in frontmatter.
   * Behavior: Loaded and used by the AI agent based on context, guided by the `description`.
   * Note: The `description` must be a non-empty string that explains to the AI agent when to use the rule.
 
 * **`AttachmentType.ManuallyAttached`**:
-  * Defined by: `alwaysApply: false`, empty `globs`, and empty `description`.
+  * Defined by: `alwaysApply: false`, empty or no `globs`, empty or no `description`.
   * Behavior: The rule is only activated when manually referenced by the user with `@rule-name`.
-  * Note: Empty values (null, undefined, or empty string) are treated as equivalent.
 
 * **`AttachmentType.Invalid`**:
   * Condition: The combination of frontmatter fields is invalid or contradictory.
-  * Common issues: Having both `alwaysApply: true` and non-empty `globs`, or having non-empty `globs` along with non-empty `description` and `alwaysApply: false`.
+  * Common issues: Having invalid combinations of frontmatter properties that don't clearly indicate a valid attachment type.
 
 * **`AttachmentType.Unknown`**:
   * Condition: Parsing failed before the attachment type could be determined, or the frontmatter structure doesn't match any known type pattern. This often indicates a syntax error in the frontmatter or a read error.
@@ -161,6 +164,12 @@ When writing Cursor rules, following these content guidelines ensures the AI age
     ```
   * References to other file types (not in `.cursor/rules`) are not validated by this rule.
 
+### Examples Section
+
+* **Include Examples**: Rules should include an 'Examples' section that demonstrates how to apply the rule correctly.
+  * This helps AI agents understand how to implement the rule in practice.
+  * Examples should be clear, concise, and illustrative of the rule's application.
+
 ### Frontmatter Organization
 
 * **Category Field**: While not a standard Cursor field, adding a `category` field to your frontmatter helps organize and discover rules in your codebase.
@@ -170,8 +179,36 @@ When writing Cursor rules, following these content guidelines ensures the AI age
     ```yaml
     ---
     alwaysApply: false
-    globs: ["*.ts", "*.tsx"]
+    globs: *.ts,*.tsx
     category: Code Generation
+    ---
+    ```
+
+* **Attachment Method Field**: The `attachmentMethod` field determines how a rule should be injected into the context when compiled.
+  * Valid values are:
+    * `system`: Injects into the internal system prompt and attempts to overrule it. Used for setting modes, overruling other rules or a polluted context, and setting other internal context. Rules will be transparently wrapped in XML.
+    * `message` (default): Injects into the current user message or conversation. Multi-purpose.
+    * `task`: Used specifically to trigger an agent action. Injects and wraps any optional user message.
+    * `none`: Injects a reference to the rule but does not load its full context into the window. Used for lazy-loading of rules.
+  * Example usage in frontmatter:
+    ```yaml
+    ---
+    alwaysApply: false
+    globs: *.ts,*.tsx
+    attachmentMethod: system
+    ---
+    ```
+  * Note: If not specified, defaults to `message`. Invalid values will also default to `message` with a warning.
+
+* **Tags Field**: Adding tags provides another way to categorize and filter rules.
+  * Tags are specified as a comma-separated string in the frontmatter.
+  * Each tag can contain spaces and multiple words.
+  * Example usage in frontmatter:
+    ```yaml
+    ---
+    alwaysApply: false
+    globs: *.ts,*.tsx
+    tags: javascript,typescript,react,component generation,styling
     ---
     ```
 
@@ -180,13 +217,14 @@ When writing Cursor rules, following these content guidelines ensures the AI age
 * **Clear Section Hierarchy**: Use headers to create a clear hierarchy in your rule document.
 * **Consistent Formatting**: Maintain consistent formatting throughout the document to help the AI parse and understand the content.
 * **Concise Language**: Use clear and concise language to communicate requirements and expectations to the AI agent.
+* **Reasonable Paragraph Length**: Avoid excessively long paragraphs that may be difficult for AI agents to process effectively.
 
-## Structured Data Model (`MdcFile`)
+## Structured Data Model (`RuleFileRaw`)
 
-When an `.mdc` file is processed by `processMdcFile`, it's converted into a structured `MdcFile` object (defined in `src/types.ts`). This object provides a convenient way to access the file's components programmatically.
+When an `.mdc` file is processed by `processMdcFile`, it's converted into a structured `RuleFileRaw` object (defined in `src/types.ts`). This object provides a convenient way to access the file's components programmatically.
 
 ```typescript
-interface MdcFile {
+interface RuleFileRaw {
   filePath: string          // Original path to the file
   rawContent: string        // Full raw text content of the file
   rawLines: string[]        // File content split into lines
@@ -200,30 +238,35 @@ interface MdcFile {
 }
 
 interface ParsedFrontmatter {
-  raw: string                      // Raw YAML string (without delimiters)
-  parsed: Record<string, unknown> | null // JS object from parsed YAML, or null on error
-  globs?: string | string[] | null  // Extracted 'globs' value (null for empty values)
-  alwaysApply?: boolean             // Extracted 'alwaysApply' value
-  description?: string | null       // Extracted 'description' value (null for empty values)
-  category?: string | null          // Optional 'category' value for rule organization
+  raw: string                      // Raw YAML string
+  description?: string | null      // Extracted 'description' value
+  globs?: string | string[] | null // Extracted 'globs' value
+  alwaysApply?: boolean            // Extracted 'alwaysApply' value
+  category?: string | null         // Optional 'category' value for rule organization
+  attachmentMethod?: AttachmentMethod | null // How the rule should be injected into the context
   startLine: number                // 1-based start line of frontmatter block
   endLine: number                  // 1-based end line of frontmatter block
-  parseError?: Error                // YAML parsing error
+  parseError?: Error               // YAML parsing error
+  [key: string]: unknown           // Other properties from frontmatter
 }
 
 interface ParsedMarkdownContent {
   raw: string                      // Raw markdown string
-  ast?: unknown                    // Raw AST from the 'marked' parser (optional)
+  ast?: unknown                    // Raw AST from the parser (optional)
   headers: MarkdownHeader[]        // Array of parsed H1, H2, etc.
-  paragraphs: MarkdownParagraph[]    // Array of parsed paragraphs
+  paragraphs: MarkdownParagraph[]  // Array of parsed paragraphs
   codeBlocks: MarkdownCodeBlock[]  // Array of parsed code blocks
   startLine: number                // 1-based line where markdown content starts
-  parseError?: Error                // Markdown parsing error
+  parseError?: Error               // Markdown parsing error
 }
 
 // Supporting types:
 interface MarkdownHeader { text: string; level: number; line: number }
-interface MarkdownParagraph { text: string; line: number; afterHeader?: MarkdownHeader }
+interface MarkdownParagraph { 
+  text: string; 
+  line: number; // 1-based line number where paragraph starts
+  afterHeader?: MarkdownHeader // Link to header immediately preceding this paragraph
+}
 interface MarkdownCodeBlock { text: string; lang?: string; line: number }
 ```
 
@@ -233,9 +276,9 @@ Key exported functions and types for programmatic use:
 
 **Functions:**
 
-*   **`processMdcFile(filePath: string): Promise<MdcFile>`** (`src/processor.ts`)
+*   **`processMdcFile(filePath: string): Promise<RuleFileRaw>`** (`src/processor.ts`)
     *   Reads, parses, and analyzes an `.mdc` file at the given `filePath`.
-    *   Returns a Promise resolving to the structured `MdcFile` object.
+    *   Returns a Promise resolving to the structured `RuleFileRaw` object.
 *   **`loadAllRules(extraRulesPath?: string): Promise<LintRule[]>`** (`src/lint-rules/index.ts`)
     *   Loads all built-in lint rules.
     *   Optionally loads additional rules from `.ts` files in the `extraRulesPath` directory.
@@ -251,17 +294,19 @@ Key exported functions and types for programmatic use:
 
 **Types & Interfaces:** (`src/types.ts`)
 
-*   **`MdcFile`**: The core object representing a processed `.mdc` file. (See "Structured Data Model" section).
+*   **`RuleFileRaw`**: The core object representing a processed `.mdc` file. (See "Structured Data Model" section).
+*   **`RuleFileSimple`**: A simplified representation of a rule file used for output.
+    *   Contains key metadata like rule name, attachment type, creation/modification dates, and frontmatter properties.
 *   **`LintRule`**: Defines the structure for a lint rule.
-    *   `id: string`: Unique identifier (e.g., "frontmatter-missing").
+    *   `id: string`: Unique identifier (e.g., "frontmatter-missing-alwaysApply").
     *   `severity: 'error' | 'warning'`: Severity level.
     *   `description: string`: Human-readable description of the rule.
-    *   `lint: (file: MdcFile) => LintResult | Promise<LintResult>`: The function that performs the lint check.
+    *   `lint: (file: RuleFileRaw) => LintResult | Promise<LintResult>`: The function that performs the lint check.
 *   **`LintResult`**: Represents the outcome of a single lint rule execution.
     *   `ruleId: string`: ID of the rule that generated this result.
     *   `severity: 'error' | 'warning'`: Severity of the rule.
     *   `passed: boolean`: True if the check passed, false otherwise.
-    *   `message?: string`: Optional message explaining the failure/pass. When displayed, line numbers from the offending lines or offending value are automatically appended to this message.
+    *   `message?: string`: Optional message explaining the failure/pass.
     *   `offendingLines?: { line: number; content: string }[]`: Specific lines causing failure.
     *   `offendingValue?: { propertyPath: string; value: unknown }`: Specific data value causing failure.
     *   `reason?: string`: Optional additional context for the failure.

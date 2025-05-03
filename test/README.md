@@ -409,4 +409,26 @@ deno test -A --reporter=junit
    deno test -A --filter "test name" --reporter=pretty
    ```
 
+## Example Test File (some-test.ts)
+
+Below is an example test template you could use for illustration:
+
+```ts
+/**
+ * @module someTest
+ */
+import { assert } from '@std/assert'
+import { processAndVerifyMdcFile, verifyAndGetMockRuleFiles } from './test-utils.ts'
+
+const TEST_CONFIG = {
+  TEST_NAME: 'some-test',
+  DENO_ENV: 'test' as const,
+} as const
+
+Deno.test(`[${TEST_CONFIG.TEST_NAME}]: Test 1`, async (t) => {
+  // Write your test as well as any t.step() inside it.
+})
+
+```
+
 Remember to check the test utilities (test/@test-utils.ts) and mock files when troubleshooting, as they often contain valuable context and debugging capabilities.

@@ -2,10 +2,13 @@
 description: Extra Deno 2.0 Context
 globs: deno.json, deno.jsonc
 alwaysApply: false
+category: runtime
+tags: deno runtime,javascript development,runtime environment,server development,framework integration,module management,typescript development,standard libraries
+attachmentMethod: message
 ---
 
 # Deno 2.0 Project Best Practices, Guidelines, Standards, and Rules
-This project uses the latest Deno 2 and any code you generate or review should adhere to all of the information below unless you've been explcitly asked to ignore parts or all of these guidelines.
+This project uses the latest Deno 2 and any code you generate or review should adhere to all of the information below unless you've been explicitly asked to ignore parts or all of these guidelines.
 
 ## 1) Deno Concepts, Methods, Usage, and Project Design Patterns
 ### Native Deno Methods and Classes

@@ -1,12 +1,12 @@
 import { AttachmentType } from '../types.ts'
-import type { LintResult, MdcFile } from '../types.ts'
+import type { LintResult, RuleFileRaw } from '../types.ts'
 
 export const frontmatterAgentEmptyDescription = {
   id: 'frontmatter-agent-empty-description',
   severity: 'error' as const,
   description:
     'If the attachment type is AgentAttached, ensures the description field is present and non-empty.',
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-agent-empty-description',
       severity: 'error',

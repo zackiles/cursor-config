@@ -1,12 +1,12 @@
 import { AttachmentType } from '../types.ts'
-import type { LintResult, MdcFile } from '../types.ts'
+import type { LintResult, RuleFileRaw } from '../types.ts'
 
 export const frontmatterAutoEmptyGlobs = {
   id: 'frontmatter-auto-empty-globs',
   severity: 'error' as const,
   description:
     'If the attachment type is AutoAttached, ensures the globs field is present and non-empty.',
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-auto-empty-globs',
       severity: 'error',

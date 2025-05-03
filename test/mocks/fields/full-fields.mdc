@@ -1,0 +1,12 @@
+---
+description: some descriptions
+globs: *.test.ts,*.md
+alwaysApply: false
+category: some category
+tags: one tag,two tag,three tag,four tag
+---
+# Description
+Some really interesting rule
+
+# Examples
+Some really interesting rule

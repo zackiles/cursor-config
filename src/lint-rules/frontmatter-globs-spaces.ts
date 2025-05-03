@@ -1,11 +1,11 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
+import type { LintResult, LintRule, RuleFileRaw } from '../types.ts'
 
 export const frontmatterGlobsSpaces: LintRule = {
   id: 'frontmatter-globs-spaces',
   severity: 'warning',
   description:
     'Discourages using spaces after commas within a single globs string, recommending an array format instead for clarity.',
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-globs-spaces',
       severity: 'warning',

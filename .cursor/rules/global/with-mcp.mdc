@@ -2,9 +2,12 @@
 description: For use with MCP and the MCP Typescript SDK (modelcontextprotocol/sdk)
 globs: mcp-schema.json
 alwaysApply: false
+category: protocols
+tags: protocol implementation,model context protocol,api standards,service integration,communication protocols,interface definition,protocol design,system communication
+attachmentMethod: message
 ---
 # Context on a Model Context Protocol (MCP) Server
-You're working on an MCP server and must use this information to guide your decisons and opinions. MCP servers provide LLMs with **tools**, **resources**, and **prompts** they can access with either stdio or server side events (WebSockets).
+You're working on an MCP server and must use this information to guide your decisions and opinions. MCP servers provide LLMs with **tools**, **resources**, and **prompts** they can access with either stdio or server side events (WebSockets).
 
 ##  MCP Message Types
 **Protocol**: JSON-RPC2.0

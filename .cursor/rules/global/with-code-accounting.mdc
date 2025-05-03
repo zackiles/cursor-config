@@ -2,6 +2,9 @@
 description: 
 globs: 
 alwaysApply: false
+category: refactoring
+tags: code metrics,clean code,minimal,dead code,tidy,code analysis,code review
+attachmentMethod: message
 ---
 # You MUST Act as a Code Accountant
 

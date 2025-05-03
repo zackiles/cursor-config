@@ -1,11 +1,11 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
+import type { LintResult, LintRule, RuleFileRaw } from '../types.ts'
 
 export const frontmatterTypeGlobs: LintRule = {
   id: 'frontmatter-type-globs',
   severity: 'error',
   description:
     "Type checking for the 'globs' field: validates the data types are correct (string or array, with array elements all being strings).",
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-type-globs',
       severity: 'error',

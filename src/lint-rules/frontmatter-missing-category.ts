@@ -1,11 +1,11 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
+import type { LintResult, LintRule, RuleFileRaw } from '../types.ts'
 
 export const frontmatterMissingCategory: LintRule = {
   id: 'frontmatter-missing-category',
   severity: 'warning',
   description:
     "Recommends adding an optional user specified 'category' field that describes the general use of this rule such as 'Code Generation', 'Tool Usage', or 'Testing and Debugging'.",
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-missing-category',
       severity: 'warning',

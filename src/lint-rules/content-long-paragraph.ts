@@ -1,4 +1,4 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
+import type { LintResult, LintRule, RuleFileRaw } from '../types.ts'
 
 // Maximum allowed length for the first paragraph after the first header
 const MAX_BODY_SNIPPET_LENGTH = 1000
@@ -8,7 +8,7 @@ export const contentLongParagraph: LintRule = {
   severity: 'warning',
   description:
     'Checks if the paragraph immediately following the first header exceeds a defined maximum length.',
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'content-long-paragraph',
       severity: 'warning',

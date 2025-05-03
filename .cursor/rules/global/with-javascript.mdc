@@ -2,7 +2,8 @@
 description: Generating code in Javascript and Typescript files
 globs: *.ts,*.js
 alwaysApply: false
-category: Code Generation
+category: conventions
+tags: javascript standards,coding conventions,language features,code organization,best practices,typescript integration,naming conventions,syntax guidelines
 ---
 ## CODING STYLE GUIDE, RULES, AND STANDARDS (JAVASCRIPT AND TYPESCRIPT)
 Follow the below coding standards, rules, best practices and style guides.

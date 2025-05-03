@@ -1,10 +1,10 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
+import type { LintResult, LintRule, RuleFileRaw } from '../types.ts'
 
 export const frontmatterMissingAlwaysApply: LintRule = {
   id: 'frontmatter-missing-alwaysApply',
   severity: 'error',
   description: "Ensures the required 'alwaysApply' field is present in the frontmatter.",
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'frontmatter-missing-alwaysApply',
       severity: 'error',

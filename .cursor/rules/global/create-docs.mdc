@@ -2,6 +2,9 @@
 description:
 globs:
 alwaysApply: false
+category: documentation
+tags: documentation management,content extraction,file organization,knowledge preservation,technical writing,documentation standards,resource management,information architecture
+attachmentMethod: task
 ---
 # Create Local Copies of ALL External Documentation
 Instructions to follow when the user has linked to a website that has documentation on it.

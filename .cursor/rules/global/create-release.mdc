@@ -2,6 +2,9 @@
 description: Releasing and publishing new versions of Javascript packages
 globs: 
 alwaysApply: false
+category: release
+tags: version management,release workflow,package publishing,deployment process,change tracking,distribution management,release automation,version control
+attachmentMethod: task
 ---
 ## **Task**  
 You will analyze the codebase and plan how to release or publish a new version of this package or module, and then execute that plan. To do so, you will follow all of the steps bellow.

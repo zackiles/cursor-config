@@ -1,11 +1,11 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
+import type { LintResult, LintRule, RuleFileRaw } from '../types.ts'
 
 export const contentMissingParagraph: LintRule = {
   id: 'content-missing-paragraph',
   severity: 'error',
   description:
     'Ensures there is at least one paragraph of text immediately following the first header in the markdown body.',
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'content-missing-paragraph',
       severity: 'error',

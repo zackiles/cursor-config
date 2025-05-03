@@ -1,10 +1,10 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
+import type { LintResult, LintRule, RuleFileRaw } from '../types.ts'
 
 export const contentMissingExamples: LintRule = {
   id: 'content-missing-examples',
   severity: 'warning',
   description: "Recommends adding an 'Examples' section using a markdown header.",
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'content-missing-examples',
       severity: 'warning',

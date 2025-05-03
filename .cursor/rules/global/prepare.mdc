@@ -1,7 +1,10 @@
 ---
-description: Force deep preperation before answering a prompt
+description: Force deep preparation before answering a prompt
 globs: README.md, AI-CONTRIBUTING.md
 alwaysApply: false
+category: preparation
+tags: project preparation,environment setup,context gathering,research methodology,pre implementation,requirements analysis,knowledge acquisition,resource preparation
+attachmentMethod: message
 ---
 ## Steps to Take Before Reasoning
 **Immediately before** you start reasoning about the human’s prompt, perform the following research steps to gather broad context. Collect any information relevant to the prompt or that would help execute on it effectively:

@@ -2,6 +2,9 @@
 description:
 globs:
 alwaysApply: false
+category: tasks
+tags: task management,project organization,work tracking,productivity tools,progress monitoring,task prioritization,development workflow,issue management
+attachmentMethod: task
 ---
 # Create Structured TODO
 

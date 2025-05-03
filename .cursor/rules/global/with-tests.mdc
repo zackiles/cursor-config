@@ -2,6 +2,9 @@
 description:
 globs: *.test.js, *.test.ts
 alwaysApply: false
+category: testing
+tags: testing methodology,test automation,quality assurance,code validation,test design,testing frameworks,test coverage,test patterns
+attachmentMethod: message
 ---
 # Running Tests and Debugging Tests
 BEFORE running or debugging tests in the codebase review the important information in this guide so you are better prepared to work with its testing strategy.

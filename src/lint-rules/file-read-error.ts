@@ -1,10 +1,10 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
+import type { LintResult, LintRule, RuleFileRaw } from '../types.ts'
 
 export const fileReadError: LintRule = {
   id: 'file-read-error',
   severity: 'error',
   description: 'Checks if the .mdc file can be successfully read from the filesystem.',
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'file-read-error',
       severity: 'error',

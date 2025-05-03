@@ -2,9 +2,12 @@
 description: Create an MCP server
 globs: mcp-schema.json
 alwaysApply: false
+category: backend
+tags: api development,server architecture,protocol implementation,service creation,backend development,communication protocols,system design,integration patterns
+attachmentMethod: task
 ---
 ## Context
-`@modelcontextprotocol/sdk` is an SDK for the Model Context Protocol. The full specifcation of the protocol can be found at [https://raw.githubusercontent.com/modelcontextprotocol/specification/refs/heads/main/schema/draft/schema.json](mdc:https:/raw.githubusercontent.com/modelcontextprotocol/specification/refs/heads/main/schema/draft/schema.json)
+`@modelcontextprotocol/sdk` is an SDK for the Model Context Protocol. The full specification of the protocol can be found at [https://raw.githubusercontent.com/modelcontextprotocol/specification/refs/heads/main/schema/draft/schema.json](mdc:https:/raw.githubusercontent.com/modelcontextprotocol/specification/refs/heads/main/schema/draft/schema.json)
 
 ## Task
 You'll write an MCP server given the available backend Javascript runtime available to you (e.g. Deno, Bun, Node) that supports invoking the server as either a stdio or WebSocket server using the native capabilities of the Javascript runtime available to you. using the native stdio and/or WebSocket available.

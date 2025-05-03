@@ -2,6 +2,9 @@
 description: 
 globs: 
 alwaysApply: false
+category: development
+tags: task management,development workflow,code implementation,project tracking,feature development,progress monitoring,task organization,code generation
+attachmentMethod: task
 ---
 # Implement the TODO
 An implementation plan for a new feature to this codebase has been provided to you in the form of a markdown file in the folder `.cursor/memory/{todo-name}-checklist.md` that you can read and edit. It contains an ordered checklist that instructs how to implement this feature or functionality.

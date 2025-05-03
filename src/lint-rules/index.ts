@@ -18,6 +18,7 @@ import { contentMissingExamples } from './content-missing-examples.ts'
 import { frontmatterMissingCategory } from './frontmatter-missing-category.ts'
 import { contentBadRuleReference } from './content-bad-rule-reference.ts'
 import { join } from '@std/path'
+import { frontmatterTypeAttachmentMethod } from './frontmatter-type-attachmentMethod.ts'
 
 // Registry of all lint rules
 const lintRules: LintRule[] = [
@@ -42,6 +43,7 @@ const lintRules: LintRule[] = [
   contentLongParagraph,
   contentMissingExamples,
   frontmatterMissingCategory,
+  frontmatterTypeAttachmentMethod,
 ]
 
 /**
@@ -79,3 +81,8 @@ export async function loadAllRules(extraRulesPath?: string): Promise<LintRule[]>
 
   return rules
 }
+
+export const builtinRules = [
+  // ... existing rules ...
+  frontmatterTypeAttachmentMethod,
+]

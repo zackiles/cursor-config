@@ -6,25 +6,15 @@
  * This script is used to generate a consolidated ruleset for the application to consume.
  */
 
-import { expandGlob, ensureDir } from '@std/fs'
+import { ensureDir, expandGlob } from '@std/fs'
 import { basename, dirname, extname, join } from '@std/path'
 import { processMdcFile } from '../src/processor.ts'
 import logger from '../src/utils/logger.ts'
-import type { AttachmentType, MdcFile } from '../src/types.ts'
+import type { RuleFileRaw, RuleFileSimple } from '../src/types.ts'
 
 const DEFAULT_PATH = join('.cursor', 'rules', 'global')
 const OUTPUT_PATH = join('bin', 'rules.json')
-
-/**
- * Interface for simplified rule output
- */
-interface RuleMetadata{
-  rule: string
-  attachmentType: AttachmentType
-  createdOn: string | null
-  updatedOn: string | null
-  [key: string]: unknown
-}
+const MARKDOWN_PATH = join('bin', 'rules.md')
 
 /**
  * Run the MDC linter to ensure all files are valid
@@ -46,15 +36,9 @@ async function runLinter(path: string): Promise<boolean> {
     stderr: 'piped',
   })
 
-  const { stdout, stderr, success } = await command.output()
+  const { _stdout, stderr, success } = await command.output()
   const decoder = new TextDecoder()
-  const stdoutText = decoder.decode(stdout)
   const stderrText = decoder.decode(stderr)
-
-  if (stdoutText.trim()) {
-    logger.info('Linter output:')
-    logger.info(stdoutText)
-  }
 
   if (stderrText.trim()) {
     logger.error('Linter error:')
@@ -123,12 +107,12 @@ async function getGitDates(
  * Processes all .mdc files in a directory and its subdirectories
  *
  * @param path - Directory path to search for .mdc files
- * @returns Array of processed MdcFile objects
+ * @returns Array of processed RuleFileRaw objects
  */
-async function processMdcFiles(path: string): Promise<MdcFile[]> {
-  const mdcFiles: MdcFile[] = []
+async function processMdcFiles(path: string): Promise<RuleFileRaw[]> {
+  const mdcFiles: RuleFileRaw[] = []
   const globPattern = join(path, '**/*.mdc')
-  
+
   // Use expandGlob to recursively find all .mdc files
   for await (const entry of expandGlob(globPattern)) {
     if (entry.isFile) {
@@ -142,11 +126,106 @@ async function processMdcFiles(path: string): Promise<MdcFile[]> {
 }
 
 /**
+ * Creates a markdown file from the rules data, organizing rules by category
+ *
+ * @param rules - Array of processed rule objects
+ * @returns Markdown content as a string
+ */
+function createRulesMarkdown(rules: RuleFileSimple[]): string {
+  // Start with the header
+  let markdown = `# Available Cursor @ Rules
+
+This project contains Cursor rules!
+
+> [!TIP]
+> For more details on how Cursor Rules work, please read this deep-dive guide on [How Cursor Rules Work](./docs/how-cursor-rules-work.md).
+
+The following rules are configured in \`.cursor/rules\` and can be triggered using the \`@\` command, though some activate automatically based on configuration in \`RULES_FOR_AI.md\` or when relevant files are added to the chat that match the rule's glob pattern.
+`
+
+  // Group rules by category
+  const rulesByCategory: Record<string, RuleFileSimple[]> = {}
+
+  for (const rule of rules) {
+    const category = rule.category || 'Uncategorized'
+    if (!rulesByCategory[category]) {
+      rulesByCategory[category] = []
+    }
+    rulesByCategory[category].push(rule)
+  }
+
+  // Sort categories for consistent output
+  const sortedCategories = Object.keys(rulesByCategory).sort()
+
+  // Create sections for each category
+  for (const [index, category] of sortedCategories.entries()) {
+    const rulesInCategory = rulesByCategory[category]
+
+    // Format category name for display (capitalize first letter of each word)
+    const formattedCategory = category
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+
+    markdown += `\n## ${index + 1}. ${formattedCategory}\n\n`
+
+    // Add a table for rules in this category
+    markdown += '| Rule | Trigger Type | Description | Tags |\n'
+    markdown += '|------|--------------|-------------|------|\n'
+
+    for (const rule of rulesInCategory) {
+      const ruleName = rule.rule
+      const description = rule.description || 'No description provided'
+
+      // Determine trigger type based on attachmentType
+      let triggerType = 'Manual'
+      switch (rule.attachmentType) {
+        case 'AgentAttached':
+          triggerType = 'Semi-Manual'
+          break
+        case 'AutoAttached':
+          triggerType = 'Automatic'
+          break
+        case 'ManuallyAttached':
+          triggerType = 'Manual'
+          break
+        default:
+          triggerType = 'Unknown'
+      }
+
+      // Add globs information if available
+      let globsInfo = ''
+      if (rule.globs) {
+        if (Array.isArray(rule.globs)) {
+          globsInfo = ` Applies to \`${rule.globs.join('`, `')}\` files.`
+        } else {
+          globsInfo = ` Applies to \`${rule.globs}\` files.`
+        }
+      }
+
+      // Format tags if available, enclosing each in backticks
+      let tagsText = '-'
+      if (rule.tags && Array.isArray(rule.tags) && rule.tags.length > 0) {
+        tagsText = rule.tags.map((tag) => `\`${tag}\``).join(', ')
+      }
+
+      markdown +=
+        `| **\`${ruleName}\`** | ${triggerType} | ${description}${globsInfo} | ${tagsText} |\n`
+    }
+
+    markdown += '\n'
+  }
+
+  return markdown
+}
+
+/**
  * Main function that:
  * 1. Runs the linter to validate MDC files
  * 2. If linting passes, processes all .mdc files in the specified directory
  * 3. Simplifies the data format
  * 4. Writes the parsed metadata to a JSON file
+ * 5. Creates a markdown file from the rules data
  */
 async function main() {
   try {
@@ -171,62 +250,41 @@ async function main() {
 
     // Simplify the rules - inlined from simplifyRules()
     const processedRules = await Promise.all(processedFiles.map(async (file) => {
-      
-      // Create a filtered copy for logging
-      const loggableObj = {
-        filePath: file.filePath,
-        frontmatter: { ...file.frontmatter },
-        derivedAttachmentType: file.derivedAttachmentType
-      }
-      console.log(loggableObj)
       // Extract rule name from file path (remove .mdc extension) - inlined from extractRuleName()
       const rule = basename(file.filePath, extname(file.filePath))
 
       // Get git creation and update dates
       const { createdOn, updatedOn } = await getGitDates(file.filePath)
 
-      const simplified: RuleMetadata= {
+      const ruleMetadata: RuleFileSimple = {
         rule,
-        raw: file.rawContent,
         attachmentType: file.derivedAttachmentType || 'Unknown',
         createdOn,
         updatedOn,
-        // Add these properties directly from the parsed object
-        globs: file.frontmatter?.globs,
-        alwaysApply: file.frontmatter?.alwaysApply,
-      }
-
-      // Add the raw content to the simplified rule
-      simplified.raw = file.rawContent
-
-      // Get description directly from frontmatter
-      if (file.frontmatter && 'description' in file.frontmatter) {
-        // Only add non-null description
-        const desc = file.frontmatter.description
-        if (desc !== null && desc !== undefined && desc !== '') {
-          simplified.description = String(desc)
-        } else {
-          simplified.description = null
-        }
-      } else {
-        simplified.description = null
+        category: file.frontmatter.category || null,
+        description: file.frontmatter.description || null,
+        globs: file.frontmatter.globs || null,
+        tags: file.frontmatter.tags || null,
+        alwaysApply: file.frontmatter.alwaysApply || null,
       }
 
       // Add any remaining properties from frontmatter
       if (file.frontmatter) {
         for (const [key, value] of Object.entries(file.frontmatter)) {
           // Skip properties we've already added and internal properties
-          if (key === 'description' || key === 'globs' || key === 'alwaysApply' || 
-              key === 'raw' || key === 'parseError' || key === 'startLine' || key === 'endLine') {
+          if (
+            key === 'description' || key === 'globs' || key === 'alwaysApply' || key === 'tags' ||
+            key === 'raw' || key === 'parseError' || key === 'startLine' || key === 'endLine'
+          ) {
             continue
           }
-          simplified[key] = value
+          ruleMetadata[key] = value
         }
       }
 
-      return simplified
+      return ruleMetadata
     }))
-    
+
     try {
       await ensureDir(dirname(OUTPUT_PATH))
 
@@ -236,8 +294,20 @@ async function main() {
       )
 
       logger.log(`Successfully wrote metadata to ${OUTPUT_PATH}`)
+
+      // Create markdown file from the rules data
+      const markdownContent = createRulesMarkdown(processedRules)
+
+      await Deno.writeTextFile(
+        MARKDOWN_PATH,
+        markdownContent,
+      )
+
+      logger.log(`Successfully wrote markdown to ${MARKDOWN_PATH}`)
     } catch (error) {
-      throw new Error(`Failed to write rules file: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error(
+        `Failed to write output files: ${error instanceof Error ? error.message : String(error)}`,
+      )
     }
   } catch (error) {
     if (error instanceof URIError) {

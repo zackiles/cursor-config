@@ -1,11 +1,11 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
+import type { LintResult, LintRule, RuleFileRaw } from '../types.ts'
 
 export const mdcParseError: LintRule = {
   id: 'mdc-parse-error',
   severity: 'error',
   description:
     'Checks if the overall parsing of the .mdc file completes without throwing unexpected errors.',
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'mdc-parse-error',
       severity: 'error',

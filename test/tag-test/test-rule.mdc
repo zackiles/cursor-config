@@ -1,0 +1,11 @@
+---
+alwaysApply: true
+tags: some tag,anothertag, tagging,tagger,taggo
+---
+# Test Rule
+
+This is a test rule with tags.
+
+## Examples
+
+Here are some examples of this rule.

@@ -1,11 +1,11 @@
-import type { LintResult, LintRule, MdcFile } from '../types.ts'
+import type { LintResult, LintRule, RuleFileRaw } from '../types.ts'
 
 export const contentMissingHeader: LintRule = {
   id: 'content-missing-header',
   severity: 'error',
   description:
     'Ensures the markdown body of the rule contains at least one header (e.g., # Header, ## Header).',
-  lint: (file: MdcFile): LintResult => {
+  lint: (file: RuleFileRaw): LintResult => {
     const result: LintResult = {
       ruleId: 'content-missing-header',
       severity: 'error',

@@ -1,7 +1,9 @@
 ---
 description: Use for git commit messages
-globs: 
+globs:
 alwaysApply: false
+category: collaboration
+tags: git workflow,documentation standards,commit conventions,developer guidelines,message formatting,version control,code quality,team collaboration
 ---
 # Writing Commit Messages With Convention Commit
 All commit messages follow **Conventional Commits** standard when generating or suggesting commit messages.
