@@ -13,16 +13,16 @@ export const frontmatterTypeAlwaysApply: LintRule = {
     }
 
     // If frontmatter parsing failed or is missing, other rules will handle that case
-    if (!file.frontmatter?.parsed) {
+    if (!file.frontmatter) {
       return result
     }
 
     // Skip if alwaysApply field is not present
-    if (!('alwaysApply' in file.frontmatter.parsed)) {
+    if (!('alwaysApply' in file.frontmatter)) {
       return result
     }
 
-    const alwaysApplyValue = file.frontmatter.parsed.alwaysApply
+    const alwaysApplyValue = file.frontmatter.alwaysApply
     if (typeof alwaysApplyValue !== 'boolean') {
       result.passed = false
       result.message = "The 'alwaysApply' field must be a boolean (true or false)."

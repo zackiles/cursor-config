@@ -13,16 +13,16 @@ export const frontmatterTypeDescription: LintRule = {
     }
 
     // If frontmatter parsing failed or is missing, other rules will handle that case
-    if (!file.frontmatter?.parsed) {
+    if (!file.frontmatter) {
       return result
     }
 
     // Skip if description field is not present
-    if (!('description' in file.frontmatter.parsed)) {
+    if (!('description' in file.frontmatter)) {
       return result
     }
 
-    const descriptionValue = file.frontmatter.parsed.description
+    const descriptionValue = file.frontmatter.description
 
     // Null is explicitly allowed as a valid value for description
     if (descriptionValue === null) {

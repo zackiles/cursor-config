@@ -21,7 +21,7 @@ export const frontmatterMissing: LintRule = {
     }
 
     // Check if frontmatter was found but parsing failed
-    if (file.frontmatter && file.frontmatter.parsed === null) {
+    if (file.frontmatter?.parseError) {
       result.passed = false
       result.message = 'Frontmatter section found but could not be parsed as valid YAML'
       result.offendingLines = [

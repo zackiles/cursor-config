@@ -13,14 +13,14 @@ export const frontmatterMissingCategory: LintRule = {
     }
 
     // If frontmatter parsing failed or is missing, other rules will handle that case
-    if (!file.frontmatter?.parsed) {
+    if (!file.frontmatter) {
       return result
     }
 
     // Check if the category field exists and is not null/undefined
-    const hasCategory = 'category' in file.frontmatter.parsed &&
-      file.frontmatter.parsed.category !== null &&
-      file.frontmatter.parsed.category !== undefined
+    const hasCategory = 'category' in file.frontmatter &&
+      file.frontmatter.category !== null &&
+      file.frontmatter.category !== undefined
 
     if (!hasCategory) {
       result.passed = false

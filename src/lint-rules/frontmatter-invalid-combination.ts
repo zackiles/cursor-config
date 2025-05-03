@@ -15,7 +15,7 @@ export const frontmatterInvalidCombination = {
 
     // Skip if no frontmatter or if the frontmatter has an error
     if (
-      !file.frontmatter?.parsed || file.frontmatter.parseError
+      !file.frontmatter || file.frontmatter.parseError
     ) {
       return result
     }
@@ -26,15 +26,15 @@ export const frontmatterInvalidCombination = {
       result.message = 'The combination of frontmatter fields is invalid'
 
       // Identify some specific invalid combinations to provide better error messages
-      const hasGlobs = 'globs' in file.frontmatter.parsed && file.frontmatter.globs
-      const hasDescription = 'description' in file.frontmatter.parsed &&
+      const hasGlobs = 'globs' in file.frontmatter && file.frontmatter.globs
+      const hasDescription = 'description' in file.frontmatter &&
         file.frontmatter.description
-      const alwaysApply = file.frontmatter.parsed.alwaysApply === true
+      const alwaysApply = file.frontmatter.alwaysApply === true
 
       if (alwaysApply && hasGlobs) {
         result.reason =
           'Cannot have both globs and alwaysApply=true (conflicts with AlwaysAttached attachment type)'
-      } else if (hasGlobs && hasDescription && file.frontmatter.parsed.alwaysApply === false) {
+      } else if (hasGlobs && hasDescription && file.frontmatter.alwaysApply === false) {
         result.reason =
           'Cannot have globs, description, and alwaysApply=false (no valid attachment type)'
       } else {

@@ -15,7 +15,7 @@ export const frontmatterAutoEmptyGlobs = {
 
     // Skip if no frontmatter or if the frontmatter has an error
     if (
-      !file.frontmatter?.parsed || file.frontmatter.parseError
+      !file.frontmatter || file.frontmatter.parseError
     ) {
       return result
     }

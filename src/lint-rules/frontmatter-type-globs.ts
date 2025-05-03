@@ -13,16 +13,16 @@ export const frontmatterTypeGlobs: LintRule = {
     }
 
     // If frontmatter parsing failed or is missing, other rules will handle that case
-    if (!file.frontmatter?.parsed) {
+    if (!file.frontmatter) {
       return result
     }
 
     // Skip if globs field is not present
-    if (!('globs' in file.frontmatter.parsed)) {
+    if (!('globs' in file.frontmatter)) {
       return result
     }
 
-    const globsValue = file.frontmatter.parsed.globs
+    const globsValue = file.frontmatter.globs
 
     // Handle null values - these are valid empty globs
     if (globsValue === null) {

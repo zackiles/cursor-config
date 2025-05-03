@@ -172,15 +172,13 @@ async function main() {
     // Simplify the rules - inlined from simplifyRules()
     const processedRules = await Promise.all(processedFiles.map(async (file) => {
       
-      const myobj = file
-      delete myobj.rawContent
-      delete myobj.markdownContent
-      delete myobj.frontmatter.raw
-      delete myobj.rawLines
-      console.log(myobj)
-      if(myobj.frontmatter.description !== myobj.frontmatter.parsed.description) {
-        logger.log(file.filePath, myobj)
+      // Create a filtered copy for logging
+      const loggableObj = {
+        filePath: file.filePath,
+        frontmatter: { ...file.frontmatter },
+        derivedAttachmentType: file.derivedAttachmentType
       }
+      console.log(loggableObj)
       // Extract rule name from file path (remove .mdc extension) - inlined from extractRuleName()
       const rule = basename(file.filePath, extname(file.filePath))
 
@@ -198,10 +196,13 @@ async function main() {
         alwaysApply: file.frontmatter?.alwaysApply,
       }
 
-      // Get description from the parsed object directly
-      if (file.frontmatter?.parsed && 'description' in file.frontmatter.parsed) {
+      // Add the raw content to the simplified rule
+      simplified.raw = file.rawContent
+
+      // Get description directly from frontmatter
+      if (file.frontmatter && 'description' in file.frontmatter) {
         // Only add non-null description
-        const desc = file.frontmatter.parsed.description
+        const desc = file.frontmatter.description
         if (desc !== null && desc !== undefined && desc !== '') {
           simplified.description = String(desc)
         } else {
@@ -212,10 +213,11 @@ async function main() {
       }
 
       // Add any remaining properties from frontmatter
-      if (file.frontmatter?.parsed) {
-        for (const [key, value] of Object.entries(file.frontmatter.parsed)) {
-          // Skip properties we've already added
-          if (key === 'description' || key === 'globs' || key === 'alwaysApply') {
+      if (file.frontmatter) {
+        for (const [key, value] of Object.entries(file.frontmatter)) {
+          // Skip properties we've already added and internal properties
+          if (key === 'description' || key === 'globs' || key === 'alwaysApply' || 
+              key === 'raw' || key === 'parseError' || key === 'startLine' || key === 'endLine') {
             continue
           }
           simplified[key] = value
