@@ -12,27 +12,22 @@ export * from './parsers/attachment-type.ts'
 
 // If this module is run directly, proxy to linter.ts
 if (import.meta.main) {
-  // Get the current working directory
-  const cwd = Deno.cwd()
-
   // Create the command to run linter.ts with all arguments
   const process = new Deno.Command(Deno.execPath(), {
     args: [
       'run',
-      '-A', // Allow all permissions
+      '-A',
       'src/linter.ts',
-      ...Deno.args, // Pass all arguments from mod.ts to linter.ts
+      ...Deno.args,
     ],
-    cwd, // Use the same working directory
-    env: Deno.env.toObject(), // Pass all environment variables
-    stdout: 'inherit', // Inherit stdout
-    stderr: 'inherit', // Inherit stderr
-    stdin: 'inherit', // Inherit stdin
+    cwd: Deno.cwd(),
+    env: Deno.env.toObject(),
+    stdout: 'inherit',
+    stderr: 'inherit',
+    stdin: 'inherit',
   })
 
-  // Run the command
   const { code } = await process.output()
 
-  // Exit with the same code as linter.ts
   Deno.exit(code)
 }

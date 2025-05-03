@@ -1,97 +1,532 @@
 [
   {
-    "rule": "linked-rule-reference-child1",
+    "rule": "create-commit-message",
+    "attachmentType": "AgentAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "collaboration",
+    "description": "Use for git commit messages",
+    "globs": null,
+    "tags": [
+      "git workflow",
+      "documentation standards",
+      "commit conventions",
+      "developer guidelines",
+      "message formatting",
+      "version control",
+      "code quality",
+      "team collaboration"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "task"
+  },
+  {
+    "rule": "create-docs",
     "attachmentType": "ManuallyAttached",
-    "createdOn": "2025-04-28T16:34:35-04:00",
-    "updatedOn": "2025-04-28T16:34:35-04:00",
-    "category": null,
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "documentation",
     "description": null,
     "globs": null,
-    "tags": null,
+    "tags": [
+      "documentation management",
+      "content extraction",
+      "file organization",
+      "knowledge preservation",
+      "technical writing",
+      "documentation standards",
+      "resource management",
+      "information architecture"
+    ],
     "alwaysApply": null,
-    "attachmentMethod": "message"
+    "attachmentMethod": "task"
   },
   {
-    "rule": "linked-rule-reference-parent1",
-    "attachmentType": "AgentAttached",
-    "createdOn": "2025-04-28T16:34:35-04:00",
-    "updatedOn": "2025-04-28T16:34:35-04:00",
-    "category": null,
-    "description": "Referencing other rules",
-    "globs": null,
-    "tags": null,
-    "alwaysApply": null,
-    "attachmentMethod": "message"
-  },
-  {
-    "rule": "linked-rule-reference-child2",
+    "rule": "create-implementation",
     "attachmentType": "ManuallyAttached",
-    "createdOn": "2025-04-28T16:34:35-04:00",
-    "updatedOn": "2025-04-28T16:34:35-04:00",
-    "category": null,
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "development",
     "description": null,
     "globs": null,
-    "tags": null,
+    "tags": [
+      "task management",
+      "development workflow",
+      "code implementation",
+      "project tracking",
+      "feature development",
+      "progress monitoring",
+      "task organization",
+      "code generation"
+    ],
     "alwaysApply": null,
-    "attachmentMethod": "message"
+    "attachmentMethod": "task"
   },
   {
-    "rule": "linked-rule-reference-parent2",
+    "rule": "create-mcp-server",
     "attachmentType": "AgentAttached",
-    "createdOn": "2025-04-28T16:34:35-04:00",
-    "updatedOn": "2025-04-28T16:34:35-04:00",
-    "category": null,
-    "description": "Referencing other rules",
-    "globs": null,
-    "tags": null,
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "backend",
+    "description": "Create an MCP server",
+    "globs": "mcp-schema.json",
+    "tags": [
+      "api development",
+      "server architecture",
+      "protocol implementation",
+      "service creation",
+      "backend development",
+      "communication protocols",
+      "system design",
+      "integration patterns"
+    ],
     "alwaysApply": null,
-    "attachmentMethod": "message"
+    "attachmentMethod": "task"
   },
   {
-    "rule": "agent-requested-description-h2",
-    "attachmentType": "AgentAttached",
-    "createdOn": "2025-04-28T16:34:35-04:00",
-    "updatedOn": "2025-04-28T16:34:35-04:00",
-    "category": null,
-    "description": "The agent can read this description and decide if it wants to include it or not",
-    "globs": null,
-    "tags": null,
-    "alwaysApply": null,
-    "attachmentMethod": "message"
-  },
-  {
-    "rule": "always-attached-h3-description",
-    "attachmentType": "AlwaysAttached",
-    "createdOn": "2025-04-28T16:34:35-04:00",
-    "updatedOn": "2025-04-28T16:34:35-04:00",
-    "category": null,
+    "rule": "create-plan",
+    "attachmentType": "ManuallyAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "planning",
     "description": null,
     "globs": null,
-    "tags": null,
-    "alwaysApply": true,
+    "tags": [
+      "project planning",
+      "task breakdown",
+      "implementation strategy",
+      "workflow management",
+      "documentation standards",
+      "development methodology",
+      "project organization",
+      "task sequencing"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "task"
+  },
+  {
+    "rule": "create-prompt",
+    "attachmentType": "ManuallyAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "interaction",
+    "description": null,
+    "globs": null,
+    "tags": [
+      "ai interaction",
+      "prompt engineering",
+      "user guidance",
+      "content creation",
+      "communication design",
+      "query formulation",
+      "instruction design",
+      "interaction patterns"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "task"
+  },
+  {
+    "rule": "create-release",
+    "attachmentType": "AgentAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "release",
+    "description": "Releasing and publishing new versions of Javascript packages",
+    "globs": null,
+    "tags": [
+      "version management",
+      "release workflow",
+      "package publishing",
+      "deployment process",
+      "change tracking",
+      "distribution management",
+      "release automation",
+      "version control"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "task"
+  },
+  {
+    "rule": "create-tests",
+    "attachmentType": "AgentAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "testing",
+    "description": "Rules for Writing Tests",
+    "globs": [
+      "*.test.js",
+      "*.test.ts"
+    ],
+    "tags": [
+      "test methodology",
+      "quality assurance",
+      "code verification",
+      "test automation",
+      "code coverage",
+      "test design",
+      "quality control",
+      "validation protocols"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "task"
+  },
+  {
+    "rule": "create-todo",
+    "attachmentType": "ManuallyAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "tasks",
+    "description": null,
+    "globs": null,
+    "tags": [
+      "task management",
+      "project organization",
+      "work tracking",
+      "productivity tools",
+      "progress monitoring",
+      "task prioritization",
+      "development workflow",
+      "issue management"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "task"
+  },
+  {
+    "rule": "finalize",
+    "attachmentType": "AgentAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "completion",
+    "description": "Finalizing Work or Ending the Conversation",
+    "globs": null,
+    "tags": [
+      "project completion",
+      "code review",
+      "quality assurance",
+      "validation process",
+      "final checks",
+      "release preparation",
+      "documentation verification",
+      "closure protocols"
+    ],
+    "alwaysApply": null,
     "attachmentMethod": "message"
   },
   {
-    "rule": "auto-attached-h1-single-glob",
+    "rule": "mode-optimize",
+    "attachmentType": "ManuallyAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "performance",
+    "description": null,
+    "globs": null,
+    "tags": [
+      "system",
+      "mode",
+      "performance improvement",
+      "code optimization",
+      "efficiency enhancement",
+      "resource management",
+      "speed optimization",
+      "memory management",
+      "load reduction",
+      "system performance"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "system"
+  },
+  {
+    "rule": "mode-propose",
+    "attachmentType": "AgentAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "design",
+    "description": "When proposing a solution or design in a chat only conversation or Ask mode.",
+    "globs": null,
+    "tags": [
+      "system",
+      "mode",
+      "solution design",
+      "architectural planning",
+      "concept presentation",
+      "design patterns",
+      "system architecture",
+      "implementation strategy",
+      "technical proposal",
+      "design methodology"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "system"
+  },
+  {
+    "rule": "mode-recover",
+    "attachmentType": "AgentAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "resilience",
+    "description": "Recover From Repeated Failures to Resolve Errors",
+    "globs": null,
+    "tags": [
+      "system",
+      "mode",
+      "error handling",
+      "recovery strategies",
+      "troubleshooting",
+      "system resilience",
+      "error mitigation",
+      "debugging protocols",
+      "failure recovery",
+      "problem resolution"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "system"
+  },
+  {
+    "rule": "prepare",
+    "attachmentType": "AgentAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "preparation",
+    "description": "Force deep preparation before answering a prompt",
+    "globs": [
+      "README.md",
+      "AI-CONTRIBUTING.md"
+    ],
+    "tags": [
+      "project preparation",
+      "environment setup",
+      "context gathering",
+      "research methodology",
+      "pre implementation",
+      "requirements analysis",
+      "knowledge acquisition",
+      "resource preparation"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "message"
+  },
+  {
+    "rule": "remove-plans",
+    "attachmentType": "ManuallyAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "cleanup",
+    "description": null,
+    "globs": null,
+    "tags": [
+      "project cleanup",
+      "resource management",
+      "file organization",
+      "workspace management",
+      "memory cleanup",
+      "system maintenance",
+      "file deletion",
+      "workspace optimization"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "task"
+  },
+  {
+    "rule": "with-code-accounting",
+    "attachmentType": "ManuallyAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "refactoring",
+    "description": null,
+    "globs": null,
+    "tags": [
+      "code metrics",
+      "clean code",
+      "minimal",
+      "dead code",
+      "tidy",
+      "code analysis",
+      "code review"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "message"
+  },
+  {
+    "rule": "with-cursor-insight",
+    "attachmentType": "ManuallyAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "tooling",
+    "description": null,
+    "globs": null,
+    "tags": [
+      "ide integration",
+      "development tools",
+      "code navigation",
+      "editor features",
+      "development productivity",
+      "coding assistance",
+      "tool integration",
+      "programming utilities"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "message"
+  },
+  {
+    "rule": "with-deno",
+    "attachmentType": "AgentAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "runtime",
+    "description": "Extra Deno 2.0 Context",
+    "globs": [
+      "deno.json",
+      "deno.jsonc"
+    ],
+    "tags": [
+      "deno runtime",
+      "javascript development",
+      "runtime environment",
+      "server development",
+      "framework integration",
+      "module management",
+      "typescript development",
+      "standard libraries"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "message"
+  },
+  {
+    "rule": "with-javascript-vibe",
+    "attachmentType": "AgentAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "style",
+    "description": "Vibe coding for bleeding-edge Javascript and Typescript code generation",
+    "globs": [
+      "*.ts",
+      "*.js"
+    ],
+    "tags": [
+      "coding style",
+      "modern javascript",
+      "code aesthetics",
+      "language idioms",
+      "coding patterns",
+      "javascript features",
+      "expressive coding",
+      "coding conventions"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "message"
+  },
+  {
+    "rule": "with-javascript",
+    "attachmentType": "AgentAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "conventions",
+    "description": "Generating code in Javascript and Typescript files",
+    "globs": [
+      "*.ts",
+      "*.js"
+    ],
+    "tags": [
+      "javascript standards",
+      "coding conventions",
+      "language features",
+      "code organization",
+      "best practices",
+      "typescript integration",
+      "naming conventions",
+      "syntax guidelines"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "message"
+  },
+  {
+    "rule": "with-jsdoc",
+    "attachmentType": "AgentAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "documentation",
+    "description": "Creating and Editing JSDoc comments",
+    "globs": null,
+    "tags": [
+      "documentation standards",
+      "code commenting",
+      "api documentation",
+      "code explanation",
+      "documentation generation",
+      "comment conventions",
+      "code clarity",
+      "developer guidance"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "message"
+  },
+  {
+    "rule": "with-mcp",
+    "attachmentType": "AgentAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "protocols",
+    "description": "For use with MCP and the MCP Typescript SDK (modelcontextprotocol/sdk)",
+    "globs": "mcp-schema.json",
+    "tags": [
+      "protocol implementation",
+      "model context protocol",
+      "api standards",
+      "service integration",
+      "communication protocols",
+      "interface definition",
+      "protocol design",
+      "system communication"
+    ],
+    "alwaysApply": null,
+    "attachmentMethod": "message"
+  },
+  {
+    "rule": "with-project-directory",
     "attachmentType": "AutoAttached",
-    "createdOn": "2025-04-28T16:34:35-04:00",
-    "updatedOn": "2025-04-28T16:34:35-04:00",
-    "category": null,
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "structure",
     "description": null,
-    "globs": "test/*.test.ts",
-    "tags": null,
+    "globs": [
+      "src/utils/**",
+      "bin/**",
+      "scripts/**"
+    ],
+    "tags": [
+      "project structure",
+      "directory organization",
+      "file management",
+      "project layout",
+      "code organization",
+      "repository structure",
+      "workspace management",
+      "project architecture"
+    ],
     "alwaysApply": null,
     "attachmentMethod": "message"
   },
   {
-    "rule": "manually-attached-h1-description",
-    "attachmentType": "ManuallyAttached",
-    "createdOn": "2025-04-28T16:34:35-04:00",
-    "updatedOn": "2025-04-28T16:34:35-04:00",
-    "category": null,
+    "rule": "with-tests",
+    "attachmentType": "AutoAttached",
+    "createdOn": "2025-04-30T03:36:53-04:00",
+    "updatedOn": "2025-05-03T07:13:01-04:00",
+    "category": "testing",
     "description": null,
-    "globs": null,
-    "tags": null,
+    "globs": [
+      "*.test.js",
+      "*.test.ts"
+    ],
+    "tags": [
+      "testing methodology",
+      "test automation",
+      "quality assurance",
+      "code validation",
+      "test design",
+      "testing frameworks",
+      "test coverage",
+      "test patterns"
+    ],
     "alwaysApply": null,
     "attachmentMethod": "message"
   }

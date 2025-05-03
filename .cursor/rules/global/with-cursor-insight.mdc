@@ -4,7 +4,6 @@ globs:
 alwaysApply: false
 category: tooling
 tags: ide integration,development tools,code navigation,editor features,development productivity,coding assistance,tool integration,programming utilities
-attachmentMethod: none
 ---
 # Cursor Insight: Use Advanced Tools & Capabilities
 SUBTASK: Use this guide to help solve or answer the current query, user message, or task.
@@ -221,7 +220,85 @@ run_terminal_cmd(
 )
 ```
 
-### 6. Custom Tooling Integration
+### 6. File Navigation and Reading
+
+#### Reading File Contents
+Use the `read_file` tool to examine file contents with precise control:
+
+```typescript
+// Read complete file contents
+read_file(
+  target_file: "src/main.ts",
+  should_read_entire_file: true
+)
+
+// Read specific lines of a file
+read_file(
+  target_file: "src/components/Button.tsx",
+  should_read_entire_file: false,
+  start_line_one_indexed: 10,
+  end_line_one_indexed_inclusive: 30
+)
+
+// Read function implementation
+read_file(
+  target_file: "src/utils/formatters.ts",
+  should_read_entire_file: false,
+  start_line_one_indexed: 45,
+  end_line_one_indexed_inclusive: 75,
+  explanation: "Examining date formatter implementation"
+)
+```
+
+#### Directory Exploration
+Use the `list_dir` tool to explore the file structure:
+
+```typescript
+// List contents of project root
+list_dir(
+  relative_workspace_path: ".",
+  explanation: "Exploring project structure"
+)
+
+// List contents of specific directory
+list_dir(
+  relative_workspace_path: "src/components",
+  explanation: "Examining available UI components"
+)
+
+// List configuration files
+list_dir(
+  relative_workspace_path: "config",
+  explanation: "Identifying configuration files"
+)
+```
+
+#### Finding Files
+Use the `file_search` tool for fuzzy file path matching:
+
+```typescript
+// Find configuration files
+file_search(
+  query: "config",
+  explanation: "Locating configuration files across the project"
+)
+
+// Find specific component files
+file_search(
+  query: "button component",
+  explanation: "Finding button component implementations"
+)
+
+// Find test files for a specific feature
+file_search(
+  query: "auth test",
+  explanation: "Locating authentication test files"
+)
+```
+
+### 7. Custom Tooling Integration
+
+**Note:** Some examples in this document use the `edit_file` tool which allows creating or editing files and the `run_terminal_cmd` tool to execute terminal commands. While these examples demonstrate potential capabilities, please note that these tools may not be available in all environments or may have different parameter requirements than shown here.
 
 #### Build Custom Analysis Tools
 ```typescript
@@ -299,120 +376,6 @@ if (import.meta.main) {
   const [serviceUrl, apiKey] = Deno.args;
   const result = await publishMetrics(serviceUrl, apiKey);
   console.log("Metrics published:", result);
-}
-`
-)
-```
-
-### 7. Programmatic Cursor IDE Interaction
-
-#### Accessing Cursor's Document Index
-Cursor maintains an intelligent document index that can be accessed programmatically:
-
-```typescript
-// Example: Create a utility to access Cursor's document index
-edit_file(
-  target_file: "scripts/query-cursor-index.js",
-  instructions: "Creating utility to query Cursor's document index",
-  code_edit: `
-// Utility to query Cursor's document index programmatically
-async function queryCursorIndex(query, options = {}) {
-  const defaultOptions = {
-    maxResults: 20,
-    includeTypes: ['file', 'symbol', 'docs'],
-    excludePaths: ['node_modules', 'dist', '.git'],
-    caseSensitive: false
-  };
-  
-  const mergedOptions = { ...defaultOptions, ...options };
-  
-  // Cursor exposes its index through a local HTTP API
-  const response = await fetch('http://localhost:8765/api/index/query', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      query,
-      options: mergedOptions
-    })
-  });
-  
-  if (!response.ok) {
-    throw new Error(\`Failed to query index: \${response.statusText}\`);
-  }
-  
-  return await response.json();
-}
-
-// Example usage - searching for type definitions
-if (import.meta.main) {
-  const query = Deno.args[0] || 'interface';
-  queryCursorIndex(query, { includeTypes: ['symbol'], symbolKinds: ['interface', 'type'] })
-    .then(results => console.log(JSON.stringify(results, null, 2)))
-    .catch(err => console.error(err));
-}
-`
-)
-```
-
-#### Cursor Settings Manipulation
-Programmatically modify Cursor settings to customize behavior:
-
-```typescript
-// Example: Create a utility to modify Cursor settings
-edit_file(
-  target_file: "scripts/update-cursor-settings.js",
-  instructions: "Creating utility to update Cursor settings",
-  code_edit: `
-// Utility to modify Cursor settings programmatically
-async function updateCursorSettings(settingsPath) {
-  // Read the current settings
-  let settings;
-  try {
-    const settingsContent = await Deno.readTextFile(settingsPath);
-    settings = JSON.parse(settingsContent);
-  } catch (e) {
-    console.error(\`Error reading settings: \${e.message}\`);
-    settings = {};
-  }
-  
-  // Modify settings as needed
-  settings = {
-    ...settings,
-    // Example: Adjust AI-related settings
-    "cursor.ai.chat.maxLineCountPerMessage": 50,
-    "cursor.ai.completion.enabled": true,
-    "cursor.ai.completion.maxTokens": 256,
-    "cursor.ai.codebase.maxIndexedItemCount": 20000,
-    // Example: Configure language-specific settings
-    "cursor.editor.languages.typescript.tabSize": 2,
-    // Example: Configure custom keybindings for tools
-    "cursor.keybindings.custom": [
-      {
-        "command": "cursor.ai.chat.summarizeFile",
-        "key": "ctrl+shift+s"
-      }
-    ]
-  };
-  
-  // Write updated settings back
-  await Deno.writeTextFile(settingsPath, JSON.stringify(settings, null, 2));
-  console.log(\`Updated Cursor settings at \${settingsPath}\`);
-  
-  return settings;
-}
-
-// Usage example
-if (import.meta.main) {
-  const settingsPath = Deno.args[0] || 
-    (Deno.build.os === 'windows' 
-      ? \`\${Deno.env.get('APPDATA')}/Cursor/User/settings.json\` 
-      : \`\${Deno.env.get('HOME')}/Library/Application Support/Cursor/User/settings.json\`);
-  
-  updateCursorSettings(settingsPath)
-    .then(settings => console.log('Settings updated successfully'))
-    .catch(err => console.error(\`Failed to update settings: \${err.message}\`));
 }
 `
 )
@@ -1462,5 +1425,3 @@ This rule provides a comprehensive guide to Cursor's advanced capabilities for d
 | `visualize_data` | Visualize data | `{data_source: string, chart_type: string, options?: Object}` | Data visualization result | ❌ |
 | `explain_code` | Explain code | `{target_file: string, start_line?: number, end_line?: number, detail_level?: 'low'|'medium'|'high'}` | Code explanation with different levels of detail | ❌ |
 | `translate_code` | Translate code | `{target_file: string, source_language: string, target_language: string}` | Code translation result | ❌ |
-
-Both tables now include confirmation status to help you distinguish between verified capabilities and theoretical or potential features. The capabilities marked as confirmed (✅) have been directly observed in Cursor's implementation, while those marked as unconfirmed (❌) represent possible extensions of the platform that may not be implemented exactly as described.

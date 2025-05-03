@@ -105,7 +105,7 @@ src/
 └── types.ts          # TypeScript interfaces and enums
 ```
 
-## MDC Attachment Types (`AttachmentType`)
+## Rule Attachment Types (`AttachmentType`)
 
 An `.mdc` file represents a Cursor Rule. The attachment type is determined by the presence and values of specific fields in its YAML frontmatter (`---`). The `AttachmentType` enum categorizes these:
 
@@ -133,6 +133,48 @@ An `.mdc` file represents a Cursor Rule. The attachment type is determined by th
 
 * **`AttachmentType.Unknown`**:
   * Condition: Parsing failed before the attachment type could be determined, or the frontmatter structure doesn't match any known type pattern. This often indicates a syntax error in the frontmatter or a read error.
+
+## Rule Attachment Methods (`AttachmentMethod`)
+
+While `AttachmentType` indicates **when** a rule will be injected into the context, in contrast the `AttachmentMethod` indicates **how** that rule will be injected once it's attached to the context.
+
+To achieve this differentiated injection, compiled rules are wrapped in a specialized higher-order prompt depending on their `AttachmentMethod` that instructs the agent on how to use them depending on the method.  Only `message` is not wrapped and essentially acts like a vanilla Cursor rule. `message` is the default if `AttachmentMethod` is not set when the rules are built.
+
+The `attachmentMethod` field in the frontmatter can have one of the following values:
+
+* **`AttachmentMethod.System`** (`system`):
+  * **Purpose**: Injects into the internal system prompt and attempts to overrule it.
+  * **Use cases**: Setting modes, overruling other rules or polluted context, establishing base AI instructions.
+  * **Behavior**: Rules will be transparently wrapped in XML.
+  * **Best for**: Rules that need to set agent context before a conversation or task begins.
+
+* **`AttachmentMethod.Message`** (`message`):
+  * **Purpose**: Default method, injects into the current user message or conversation.
+  * **Use cases**: General-purpose rules that augment the current interaction context.
+  * **Behavior**: Standard attachment without special wrapping.
+  * **Best for**: Most rule types and typical usage scenarios.
+
+* **`AttachmentMethod.Task`** (`task`):
+  * **Purpose**: Specifically triggers an agent action.
+  * **Use cases**: When the rule should cause the agent to perform a specific task.
+  * **Behavior**: Injects and wraps any optional user message.
+  * **Best for**: Rules that should initiate specific agent behaviors, such as creating a file if the rule is named '@create-file'.
+
+* **`AttachmentMethod.None`** (`none`):
+  * **Purpose**: References the rule without loading its full context.
+  * **Use cases**: When you want to avoid context pollution but need to refer to a rule.
+  * **Behavior**: Enables lazy-loading of the rule content when needed.
+  * **Best for**: Large or complex rules that you only want loaded at certain steps in your instructions.
+
+If the `attachmentMethod` field is not specified in the frontmatter, it defaults to `message`. If an invalid value is provided, it will also default to `message` with a warning during linting.
+
+Example in frontmatter:
+```yaml
+---
+alwaysApply: true
+attachmentMethod: system
+---
+```
 
 ## Rule Content Best Practices
 

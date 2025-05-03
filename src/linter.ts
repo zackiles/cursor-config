@@ -12,6 +12,18 @@ import { wrapTextInBoundingBox } from './bounding-box.ts'
 const MAX_LINE_WIDTH = 100
 
 /**
+ * Command line options for the linter
+ */
+interface CLIOptions {
+  files: string[]
+  json: boolean
+  help: boolean
+  verbose: boolean
+  parse: boolean
+  rules: boolean
+}
+
+/**
  * Gets the width of the console, limiting to MAX_LINE_WIDTH
  * @returns The console width or a default value if not available
  */
@@ -277,23 +289,13 @@ function convertToKeyValueFormat(
   return result
 }
 
-// --- Restored Functions ---
-interface CliOptions {
-  files: string[]
-  json: boolean
-  help: boolean
-  verbose: boolean
-  parse: boolean
-  rules: boolean
-}
-
 /**
  * Parses command line arguments
  *
  * @param args - Command line arguments
  * @returns Parsed CLI options
  */
-function parseCliArgs(args: string[]): CliOptions {
+function parseCliArgs(args: string[]): CLIOptions {
   const parsedArgs = parseArgs(args, {
     boolean: ['json', 'help', 'verbose', 'parse', 'rules'],
     alias: {
