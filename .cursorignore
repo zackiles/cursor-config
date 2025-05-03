@@ -1,7 +1,7 @@
 # Ignore things that .gitignore possibly didn't cover. Cursor already ignores whatever .gitignore does but the below are things occasionally people don't ignore in git
 # CAUTION: this assumes there truly isn't anything in
-/bin
-/dist
+#/bin
+#/dist
 
 # Since we're ignoring all json in the codebase, we'll manually allow these as it's typical the model will be working on them
 !package.json

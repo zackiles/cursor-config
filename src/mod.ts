@@ -1,3 +1,5 @@
+Deno.env.set('PACKAGE_NAME', 'mdc-linter')
+
 // Re-export all exports from TS files in src/ except for linter.ts
 export * from './types.ts'
 export * from './processor.ts'

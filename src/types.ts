@@ -44,14 +44,15 @@ export interface ParsedMarkdownContent {
 /** Structured representation of the parsed YAML Frontmatter */
 export interface ParsedFrontmatter {
   raw: string
-  parsed: Record<string, unknown> | null // Null if YAML parsing failed
+  description?: string | null
   globs?: string | string[] | null
   alwaysApply?: boolean
-  description?: string | null
   category?: string | null
   startLine: number // 1-based
   endLine: number // 1-based
   parseError?: Error
+  // Add other properties that might be in the frontmatter YAML
+  [key: string]: unknown
 }
 
 /** Comprehensive object model for a parsed .mdc file */

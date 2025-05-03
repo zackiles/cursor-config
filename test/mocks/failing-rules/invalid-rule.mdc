@@ -1,0 +1,8 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Invalid Rule
+
+This rule has invalid frontmatter that should fail linting because when alwaysApply is true, globs should be empty.

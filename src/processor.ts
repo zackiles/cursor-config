@@ -35,10 +35,8 @@ export async function processMdcFile(filePath: string): Promise<MdcFile> {
       mdcFile.markdownContent = parseMarkdownContent(markdownContent, startLine)
 
       // Determine attachment type based on frontmatter
-      if (frontmatter.parsed) {
-        const attachmentType: AttachmentType = determineAttachmentType(frontmatter.parsed)
-        mdcFile.derivedAttachmentType = attachmentType
-      }
+      const attachmentType: AttachmentType = determineAttachmentType(frontmatter)
+      mdcFile.derivedAttachmentType = attachmentType
     } else {
       // If no frontmatter found, treat the entire file as markdown
       mdcFile.markdownContent = parseMarkdownContent(content, 1)

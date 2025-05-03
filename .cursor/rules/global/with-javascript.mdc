@@ -8,12 +8,12 @@ category: Code Generation
 Follow the below coding standards, rules, best practices and style guides.
 
 ### Naming and Casing
-- **kebab-case**: for file names.  
+- **kebab-case**: when file names contain two words such as `some-file.ts`  
 - **camelCase**: for instance names.  
 - **PascalCase**: for class and symbol names.  
 - **UPPER_SNAKE_CASE**: for constants.
 - **Consistent**: When naming things, always review the naming patterns and conventions of similar this and follow that those
-- **Evolve Names Over Time**: When refactoring previous code, look for opporutnities to rename not only the things you're working on but related things where renaming both would provide an overall better pattern, convention, or abstraction for the broader code base.
+- **Evolve Names Over**: Time: When refactoring, rename not just what you’re changing but also related things to improve patterns and conventions across the codebase.
 
 #### Naming Specificity
 - Broad or abstracted names for top-level things such as: namespaces, classes, types shared by multiple files, or global conceps and terms.

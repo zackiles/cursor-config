@@ -12,12 +12,12 @@ export const frontmatterMissingAlwaysApply: LintRule = {
     }
 
     // If frontmatter parsing failed or is missing, other rules will handle that case
-    if (!file.frontmatter?.parsed) {
+    if (!file.frontmatter) {
       return result
     }
 
-    // Check if the key exists on the parsed object
-    const hasKey = 'alwaysApply' in file.frontmatter.parsed
+    // Check if the key exists on the frontmatter object
+    const hasKey = 'alwaysApply' in file.frontmatter
 
     if (!hasKey) {
       result.passed = false

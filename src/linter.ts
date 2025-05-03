@@ -418,8 +418,15 @@ async function main(): Promise<void> {
             const parsedContent: Record<string, unknown> = {}
 
             // Include only important derived properties
-            if (mdcFile.frontmatter?.parsed) {
-              parsedContent.frontmatter = mdcFile.frontmatter.parsed
+            if (mdcFile.frontmatter) {
+              // Filter out internal properties like 'raw', 'parseError', etc.
+              const frontmatterContent: Record<string, unknown> = {}
+              for (const [key, value] of Object.entries(mdcFile.frontmatter)) {
+                if (!['raw', 'parseError', 'startLine', 'endLine'].includes(key)) {
+                  frontmatterContent[key] = value
+                }
+              }
+              parsedContent.frontmatter = frontmatterContent
             }
 
             if (mdcFile.markdownContent) {
@@ -578,8 +585,8 @@ async function main(): Promise<void> {
       for (const [filePath, _] of groupedResults) {
         try {
           const mdcFile = await processMdcFile(filePath)
-          if (mdcFile.frontmatter?.parsed?.category) {
-            const category = String(mdcFile.frontmatter.parsed.category)
+          if (mdcFile.frontmatter?.category) {
+            const category = String(mdcFile.frontmatter.category)
             categories.add(category)
           }
         } catch (_) {

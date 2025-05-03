@@ -1,0 +1,8 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+This file does not have any header (like # Title), which is required by the linter.
+
+The linter should detect this as an error and fail the build process.

@@ -164,17 +164,23 @@ export function parseFrontmatter(fileContent: string): {
     parsedContent = {}
   }
 
+  // Create the base frontmatter object
   const frontmatter: ParsedFrontmatter = {
     raw: rawFrontmatter,
-    parsed: parsedContent,
     parseError,
     startLine: frontmatterStartLine,
     endLine: frontmatterEndLine,
   }
 
-  // Extract known frontmatter fields
-  // Handle globs field, normalizing empty values to null
-  if (parsedContent && 'globs' in parsedContent) {
+  // Copy all properties from parsedContent directly into frontmatter
+  for (const [key, value] of Object.entries(parsedContent)) {
+    const normalizedValue = normalizeEmptyValue(value, key)
+    frontmatter[key] = normalizedValue
+  }
+
+  // Handle special cases for known frontmatter fields
+  // Handle globs field, ensuring it has the correct type
+  if ('globs' in parsedContent) {
     const globsValue = parsedContent.globs
     // Cast to appropriate type including null
     const normalizedValue = normalizeEmptyValue(globsValue)
@@ -182,7 +188,7 @@ export function parseFrontmatter(fileContent: string): {
   }
 
   // Handle alwaysApply field - ensure we don't lose boolean false values
-  if (parsedContent && 'alwaysApply' in parsedContent) {
+  if ('alwaysApply' in parsedContent) {
     // The alwaysApply value might be a boolean or a string
     const alwaysApplyValue = parsedContent.alwaysApply
 
@@ -194,27 +200,12 @@ export function parseFrontmatter(fileContent: string): {
       // For boolean values, use as is
       frontmatter.alwaysApply = Boolean(alwaysApplyValue)
     }
-  } else if (parsedContent) {
+  } else {
     // Check for alwaysApply in the raw string since YAML parsing might miss it
     const alwaysApplyMatch = rawFrontmatter.match(/alwaysApply:\s*(true|false|yes|no|1|0)/i)
     if (alwaysApplyMatch) {
       const value = alwaysApplyMatch[1].toLowerCase()
       frontmatter.alwaysApply = value === 'true' || value === 'yes' || value === '1'
-    }
-  }
-
-  // Handle description field with special care
-  if (parsedContent && 'description' in parsedContent) {
-    // Extract description directly from raw YAML if it's not being correctly parsed
-    const descriptionMatch = rawFrontmatter.match(/description:\s*([^\n]+)/)
-    if (descriptionMatch?.[1]?.trim()) {
-      // Use the raw value from the frontmatter
-      frontmatter.description = descriptionMatch[1].trim()
-    } else {
-      // Fallback to the parsed value
-      const descValue = parsedContent.description
-      const normalizedValue = normalizeEmptyValue(descValue, 'description')
-      frontmatter.description = normalizedValue === null ? null : normalizedValue as string
     }
   }
 

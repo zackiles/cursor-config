@@ -1,0 +1,11 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Invalid Attachment Type
+
+This rule has an invalid attachment type configuration. According to the docs,
+when `alwaysApply` is true, both `globs` and `description` should be empty.
+
+This should cause an explicit error in the linter.
