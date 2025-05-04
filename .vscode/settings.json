@@ -102,6 +102,9 @@
     "Zipkin"
   ],
   "workbench.editorAssociations": {
-    "*.mdc": "default"
+    "*.mdc": "default",
+    "*.copilotmd": "vscode.markdown.preview.editor",
+    "*.disabled": "default",
+    "*.md": "vscode.markdown.preview.editor"
   }
 }
