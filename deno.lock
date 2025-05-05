@@ -21,6 +21,7 @@
     "jsr:@std/path@*": "1.0.9",
     "jsr:@std/path@1": "1.0.9",
     "jsr:@std/path@^1.0.9": "1.0.9",
+    "jsr:@std/semver@^1.0.5": "1.0.5",
     "jsr:@std/streams@^1.0.9": "1.0.9",
     "jsr:@std/yaml@1": "1.0.6",
     "jsr:@tui/strings@~0.1.2": "0.1.2",
@@ -95,6 +96,9 @@
     },
     "@std/path@1.0.9": {
       "integrity": "260a49f11edd3db93dd38350bf9cd1b4d1366afa98e81b86167b4e3dd750129e"
+    },
+    "@std/semver@1.0.5": {
+      "integrity": "529f79e83705714c105ad0ba55bec0f9da0f24d2f726b6cc1c15e505cc2c0624"
     },
     "@std/streams@1.0.9": {
       "integrity": "a9d26b1988cdd7aa7b1f4b51e1c36c1557f3f252880fa6cc5b9f37078b1a5035"
@@ -534,6 +538,7 @@
       "jsr:@std/http@^1.0.15",
       "jsr:@std/jsonc@^1.0.2",
       "jsr:@std/path@1",
+      "jsr:@std/semver@^1.0.5",
       "jsr:@std/yaml@1",
       "jsr:@tui/strings@~0.1.2",
       "jsr:@zip-js/zip-js@^2.7.60",
