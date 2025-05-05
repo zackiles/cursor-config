@@ -112,7 +112,7 @@ async function copyRuleFiles(rules: Array<{ rule: string }>): Promise<string[]> 
 }
 
 /**
- * Create zip file containing the rule files
+ * Create zip file containing the rule files and documentation files
  */
 async function createZipFile(filePaths: string[]) {
   const zipWriter = new ZipWriter(new BlobWriter())
@@ -123,7 +123,15 @@ async function createZipFile(filePaths: string[]) {
     await zipWriter.add(fileName, new TextReader(fileContent))
   }
 
+  // Add all rule .mdc files
   await Promise.all(filePaths.map(addFileToZip))
+
+  // Add required documentation files
+  for (const requiredFile of REQUIRED_FILES) {
+    const filePath = join(COMPILE_PATH, requiredFile)
+    await addFileToZip(filePath)
+    console.log(`Added ${requiredFile} to zip file`)
+  }
 
   const zipBlob = await zipWriter.close()
   const zipData = new Uint8Array(await zipBlob.arrayBuffer())
