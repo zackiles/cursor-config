@@ -1,0 +1,96 @@
+name: Release Cursor Rules
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Deno
+        uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      
+      - name: Cache Deno dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/deno
+          key: ${{ runner.os }}-deno-${{ hashFiles('deno.lock') }}
+          restore-keys: ${{ runner.os }}-deno-
+      
+      - name: Validate tag format
+        run: |
+          if [[ ! "${{ github.ref_name }}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid tag format: ${{ github.ref_name }}. Expected format: vX.Y.Z"
+            exit 1
+          fi
+          echo "Tag format is valid: ${{ github.ref_name }}"
+      
+      - name: Build rules
+        id: build
+        run: |
+          echo "::group::Building rules"
+          deno run -A scripts/build.ts
+          echo "::endgroup::"
+          
+          # Verify output files exist
+          if [ ! -f "bin/rules.json" ] || [ ! -f "bin/rules.jsonc" ]; then
+            echo "::error::Build failed: Required output files missing"
+            ls -la bin/
+            exit 1
+          fi
+          echo "Build completed successfully"
+      
+      - name: Create release package
+        id: release_package
+        run: |
+          echo "::group::Creating release package"
+          deno run --allow-read --allow-write --allow-env scripts/release.ts
+          echo "::endgroup::"
+          
+          # Verify zip file exists
+          if [ ! -f "bin/rules.zip" ]; then
+            echo "::error::Release package creation failed: rules.zip not found"
+            ls -la bin/
+            exit 1
+          fi
+          echo "Release package created successfully"
+      
+      - name: Debug release contents
+        run: |
+          echo "::group::Release package contents"
+          mkdir -p /tmp/rules-debug
+          unzip -l bin/rules.zip
+          unzip -q bin/rules.zip -d /tmp/rules-debug
+          ls -la /tmp/rules-debug/
+          echo "::endgroup::"
+      
+      - name: Get tag message
+        id: tag_message
+        run: |
+          TAG_MESSAGE=$(git tag -l --format='%(contents)' ${{ github.ref_name }})
+          if [ -z "$TAG_MESSAGE" ]; then
+            echo "No tag message found. Using default release notes."
+            TAG_MESSAGE="Release ${{ github.ref_name }}"
+          fi
+          echo "message<<EOF" >> $GITHUB_OUTPUT
+          echo "$TAG_MESSAGE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: bin/rules.zip
+          body: ${{ steps.tag_message.outputs.message }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: "Cursor Rules ${{ github.ref_name }}"
+          fail_on_unmatched_files: true 

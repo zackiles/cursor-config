@@ -6,6 +6,7 @@
 # CAUTION: you might actually need a file that matches these to be indexed. If so, add them to overrides below.
 # I intentionally ignore documentation, logs, and configuration by default as to not pollute the context.
 
+bin
 *.md
 docs/
 *.json

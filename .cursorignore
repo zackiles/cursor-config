@@ -2,6 +2,7 @@
 # CAUTION: this assumes there truly isn't anything in
 #/bin
 #/dist
+!bin
 
 # Since we're ignoring all json in the codebase, we'll manually allow these as it's typical the model will be working on them
 !package.json
