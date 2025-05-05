@@ -1,6 +1,6 @@
 {
   "name": "@zackiles/cursor-config",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "An opinionated suite of general-purpose, and modern Cursor Rules as well as global Cursor configuration that compliments these rules.",
   "license": "MIT",
   "author": "Zachary Iles <zack.iles@gmail.com>",
