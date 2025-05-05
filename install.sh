@@ -32,7 +32,7 @@ check_dependencies() {
 }
 
 # Repository information
-REPO_OWNER="zacharyiles"
+REPO_OWNER="zackiles"
 REPO_NAME="cursor-config"
 RULES_DIR=".cursor/rules/global"
 TEMP_DIR=$(mktemp -d)
@@ -75,9 +75,9 @@ if ! unzip -q "$TEMP_DIR/rules.zip" -d "$TEMP_DIR"; then
   exit 1
 fi
 
-# Verify that rules.json exists in the extracted files
-if [ ! -f "$TEMP_DIR/rules.json" ]; then
-  print_message "Error: Invalid release package. Missing rules.json file." "${RED}"
+# Verify that we have extracted files (check for MDC files instead of rules.json)
+if [ $(ls -1 "$TEMP_DIR"/*.mdc 2>/dev/null | wc -l) -eq 0 ]; then
+  print_message "Error: Invalid release package. No rule files found." "${RED}"
   exit 1
 fi
 
@@ -91,62 +91,25 @@ if [ ! -d "$RULES_DIR" ]; then
   fi
 fi
 
-# Check if rules.json exists in the target directory
-if [ ! -f "$RULES_DIR/rules.json" ]; then
+# Check if the rules directory already contains files
+if [ $(ls -1 "$RULES_DIR"/*.mdc 2>/dev/null | wc -l) -eq 0 ]; then
   print_message "First-time installation detected. Copying all rules..." "${BLUE}"
-  cp "$TEMP_DIR"/*.* "$RULES_DIR/"
+  cp "$TEMP_DIR"/*.mdc "$RULES_DIR/"
   
   # Verify files were copied successfully
-  if [ ! -f "$RULES_DIR/rules.json" ]; then
+  if [ $(ls -1 "$RULES_DIR"/*.mdc 2>/dev/null | wc -l) -eq 0 ]; then
     print_message "Error: Failed to copy files to $RULES_DIR" "${RED}"
     exit 1
   fi
   
   print_message "Successfully installed all rules." "${GREEN}"
 else
-  print_message "Existing rules found. Selectively updating..." "${BLUE}"
+  print_message "Existing rules found. Updating rules..." "${BLUE}"
   
-  # Parse rules.json from the downloaded release
-  NEW_RULES=$(cat "$TEMP_DIR/rules.json")
-  EXISTING_RULES=$(cat "$RULES_DIR/rules.json")
+  # Copy all MDC files
+  cp "$TEMP_DIR"/*.mdc "$RULES_DIR/"
   
-  # Copy rules.json and rules.jsonc from the downloaded release
-  cp "$TEMP_DIR/rules.json" "$RULES_DIR/"
-  cp "$TEMP_DIR/rules.jsonc" "$RULES_DIR/"
-  
-  # Track how many rules were updated
-  UPDATED_COUNT=0
-  NEW_COUNT=0
-  SKIPPED_COUNT=0
-  
-  # Process each rule in the new rules.json
-  echo "$NEW_RULES" | grep -o '"rule": "[^"]*"' | cut -d'"' -f4 | while read -r rule; do
-    # Check if rule exists in the target directory
-    if [ ! -f "$RULES_DIR/$rule.mdc" ]; then
-      print_message "Installing new rule: $rule" "${GREEN}"
-      cp "$TEMP_DIR/$rule.mdc" "$RULES_DIR/"
-      NEW_COUNT=$((NEW_COUNT+1))
-    else
-      # Check updatedOn dates
-      NEW_DATE=$(echo "$NEW_RULES" | grep -A10 "\"rule\": \"$rule\"" | grep -o '"updatedOn": "[^"]*"' | head -1 | cut -d'"' -f4)
-      EXISTING_DATE=$(echo "$EXISTING_RULES" | grep -A10 "\"rule\": \"$rule\"" | grep -o '"updatedOn": "[^"]*"' | head -1 | cut -d'"' -f4)
-      
-      if [ -z "$NEW_DATE" ] || [ -z "$EXISTING_DATE" ]; then
-        print_message "Warning: Could not determine dates for rule: $rule. Updating anyway." "${YELLOW}"
-        cp "$TEMP_DIR/$rule.mdc" "$RULES_DIR/"
-        UPDATED_COUNT=$((UPDATED_COUNT+1))
-      elif [ "$NEW_DATE" \> "$EXISTING_DATE" ]; then
-        print_message "Updating rule: $rule (newer version available)" "${GREEN}"
-        cp "$TEMP_DIR/$rule.mdc" "$RULES_DIR/"
-        UPDATED_COUNT=$((UPDATED_COUNT+1))
-      else
-        print_message "Skipping rule: $rule (already up to date)" "${BLUE}"
-        SKIPPED_COUNT=$((SKIPPED_COUNT+1))
-      fi
-    fi
-  done
-  
-  print_message "Update summary: $NEW_COUNT new rules, $UPDATED_COUNT updated rules, $SKIPPED_COUNT unchanged rules" "${GREEN}"
+  print_message "All rules have been updated." "${GREEN}"
 fi
 
 # Ask about documentation
@@ -155,16 +118,27 @@ read -p "Would you like to add Cursor Rules documentation to your project root? 
 
 if [[ $ADD_DOCS =~ ^[Yy]$ ]]; then
   print_message "Copying documentation files to project root..." "${BLUE}"
-  cp "$TEMP_DIR/rules.md" "./rules.md"
-  cp "$TEMP_DIR/rules.html" "./rules.html"
   
-  # Verify files were copied successfully
-  if [ -f "./rules.md" ] && [ -f "./rules.html" ]; then
+  # Check if documentation files exist in the extracted zip
+  DOC_FILES_FOUND=false
+  
+  if [ -f "$TEMP_DIR/rules.md" ]; then
+    cp "$TEMP_DIR/rules.md" "./rules.md"
+    DOC_FILES_FOUND=true
+  fi
+  
+  if [ -f "$TEMP_DIR/rules.html" ]; then
+    cp "$TEMP_DIR/rules.html" "./rules.html"
+    DOC_FILES_FOUND=true
+  fi
+  
+  if [ "$DOC_FILES_FOUND" = true ]; then
     print_message "Documentation files added:" "${GREEN}"
-    print_message "- rules.md: Markdown documentation" "${GREEN}"
-    print_message "- rules.html: HTML documentation (can be viewed in a browser)" "${GREEN}"
+    
+    [ -f "./rules.md" ] && print_message "- rules.md: Markdown documentation" "${GREEN}"
+    [ -f "./rules.html" ] && print_message "- rules.html: HTML documentation (can be viewed in a browser)" "${GREEN}"
   else
-    print_message "Warning: Failed to copy some documentation files." "${YELLOW}"
+    print_message "Warning: No documentation files found in the release package." "${YELLOW}"
   fi
 else
   print_message "Skipping documentation files." "${BLUE}"
