@@ -224,37 +224,15 @@ jobs:
         run: bin/release.sh
 
       - name: Create GitHub Release
-        # Only create release if not already created (the tag push might not auto-create a release)
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: env.COMPILE_BINARY == 'true'
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}    # vX.Y.Z
-          release_name: ${{ github.ref_name }}
+          files: bin/*
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
           draft: false
           prerelease: false
-
-      - name: Upload assets (binaries and script)
-        if: env.COMPILE_BINARY == 'true'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: "./dist/*"
-          asset_name: "${{ basename }}"
-
-      - name: Upload install script
-        if: env.COMPILE_BINARY == 'true'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: "./install.sh"
-          asset_name: "install.sh"
-          content_type: "application/x-sh"
+          token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 **Explanation:** This workflow uses a single job for simplicity. It determines `RUNTIME` and `IS_CLI` via a bash step. Depending on `RUNTIME`, it sets up the appropriate environment and installs dependencies. It then calls `bin/publish.sh` and/or `bin/release.sh` to perform publishing and binary compilation. Finally, it creates a GitHub Release for the tag and uploads any release assets. (For library-only projects with no binaries, `bin/release.sh` will be skipped and the release will just be a tag with perhaps source code available.)
@@ -319,7 +297,7 @@ This script runs only for CLI tools that need standalone binaries (when `COMPILE
 set -e
 
 # Ensure output directory
-mkdir -p dist
+mkdir -p bin
 
 # Get package/tool name (for naming binaries)
 NAME=""
@@ -337,15 +315,15 @@ echo "Compiling binaries for $NAME..."
 
 if [[ -f "deno.json" || -f "deno.jsonc" ]]; then
   # Deno cross-compilation for all targets:contentReference[oaicite:26]{index=26}
-  deno compile -A --output dist/"$NAME-linux"       --target x86_64-unknown-linux-gnu  ${ENTRY:-main.ts}
-  deno compile -A --output dist/"$NAME-macos"       --target x86_64-apple-darwin       ${ENTRY:-main.ts}
-  deno compile -A --output dist/"$NAME-macos-arm64" --target aarch64-apple-darwin      ${ENTRY:-main.ts}
-  deno compile -A --output dist/"$NAME-windows.exe" --target x86_64-pc-windows-msvc    ${ENTRY:-main.ts}
+  deno compile -A --output bin/"$NAME-linux"       --target x86_64-unknown-linux-gnu  ${ENTRY:-main.ts}
+  deno compile -A --output bin/"$NAME-macos"       --target x86_64-apple-darwin       ${ENTRY:-main.ts}
+  deno compile -A --output bin/"$NAME-macos-arm64" --target aarch64-apple-darwin      ${ENTRY:-main.ts}
+  deno compile -A --output bin/"$NAME-windows.exe" --target x86_64-pc-windows-msvc    ${ENTRY:-main.ts}
 elif [[ -f "bun.json" || -f "bun.lockb" ]]; then
   # Bun cross-compilation (x64 targets):contentReference[oaicite:27]{index=27}:contentReference[oaicite:28]{index=28}
-  bun build --compile --target=bun-linux-x64   src/*.ts --outfile dist/"$NAME-linux"
-  bun build --compile --target=bun-darwin-x64  src/*.ts --outfile dist/"$NAME-macos"
-  bun build --compile --target=bun-windows-x64 src/*.ts --outfile dist/"$NAME-windows.exe"
+  bun build --compile --target=bun-linux-x64   src/*.ts --outfile bin/"$NAME-linux"
+  bun build --compile --target=bun-darwin-x64  src/*.ts --outfile bin/"$NAME-macos"
+  bun build --compile --target=bun-windows-x64 src/*.ts --outfile bin/"$NAME-windows.exe"
   # Note: Bun will add .exe for Windows if not specified:contentReference[oaicite:29]{index=29}
 else
   # Node: use vercel/pkg to generate executables:contentReference[oaicite:30]{index=30}
@@ -353,18 +331,18 @@ else
   # Determine entry file: if package.json has a 'bin' script, use that; else use main
   ENTRY=$(node -p "require('./package.json').bin && typeof require('./package.json').bin==='object' ? Object.values(require('./package.json').bin)[0] : require('./package.json').main || 'index.js'")
   # Run pkg for Linux, macOS, Windows (x64). Adjust Node target version as needed.
-  npx pkg -t node18-linux-x64,node18-macos-x64,node18-win-x64 "$ENTRY" --out-path dist/
+  npx pkg -t node18-linux-x64,node18-macos-x64,node18-win-x64 "$ENTRY" --out-path bin/
   # pkg will produce files named like ${ENTRY}-<platform> (or the binary name if defined in package.json pkg config)
   # Rename outputs to our naming convention:
-  [ -f dist/"$(basename $ENTRY)-linux" ] && mv dist/"$(basename $ENTRY)-linux" dist/"$NAME-linux"
-  [ -f dist/"$(basename $ENTRY)-macos" ] && mv dist/"$(basename $ENTRY)-macos" dist/"$NAME-macos"
-  [ -f dist/"$(basename $ENTRY).exe" ] && mv dist/"$(basename $ENTRY).exe" dist/"$NAME-windows.exe"
+  [ -f bin/"$(basename $ENTRY)-linux" ] && mv bin/"$(basename $ENTRY)-linux" bin/"$NAME-linux"
+  [ -f bin/"$(basename $ENTRY)-macos" ] && mv bin/"$(basename $ENTRY)-macos" bin/"$NAME-macos"
+  [ -f bin/"$(basename $ENTRY).exe" ] && mv bin/"$(basename $ENTRY).exe" bin/"$NAME-windows.exe"
 fi
 
 # (Optional) compress the binaries for smaller download (not done here for simplicity)
 
 echo "Binaries compiled. Verifying files:"
-ls -lh dist/
+ls -lh bin/
 
 # Prepare install.sh (in repo root) if not present
 if [ ! -f "install.sh" ]; then
@@ -422,7 +400,7 @@ A few points about `bin/release.sh`:
   * Makes the binary executable and prints a success message.
   * For Windows, since this is a Bash script, it would typically be run in WSL or Git Bash. Windows users not using a UNIX shell can manually download the `.exe` or use a PowerShell equivalent script (not included here).
 
-After running `bin/release.sh`, the `dist/` folder contains our compiled binaries named `${NAME}-linux`, `${NAME}-macos`, `${NAME}-macos-arm64` (if Deno), and `${NAME}-windows.exe`. The workflow then attaches everything in `dist/` as well as the `install.sh` to the GitHub Release. Users can now go to the release page and download the binaries, or simply run the one-liner install command:
+After running `bin/release.sh`, the `bin/` folder contains our compiled binaries named `${NAME}-linux`, `${NAME}-macos`, `${NAME}-macos-arm64` (if Deno), and `${NAME}-windows.exe`. The workflow then attaches everything in `bin/` as well as the `install.sh` to the GitHub Release. Users can now go to the release page and download the binaries, or simply run the one-liner install command:
 
 ```bash
 # Example usage for a tool named "mytool"
