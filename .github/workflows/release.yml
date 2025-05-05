@@ -38,6 +38,33 @@ jobs:
           fi
           echo "Tag format is valid: ${{ github.ref_name }}"
       
+      - name: Check for existing release
+        id: check_release
+        run: |
+          TAG="${{ github.ref_name }}"
+          echo "Checking for existing release with tag $TAG"
+          
+          RELEASE_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/$TAG" | \
+            jq -r '.id // "null"')
+          
+          if [ "$RELEASE_ID" != "null" ]; then
+            echo "Existing release found with ID: $RELEASE_ID"
+            echo "release_exists=true" >> $GITHUB_OUTPUT
+            echo "release_id=$RELEASE_ID" >> $GITHUB_OUTPUT
+          else
+            echo "No existing release found for tag $TAG"
+            echo "release_exists=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Delete existing release
+        if: steps.check_release.outputs.release_exists == 'true'
+        run: |
+          echo "Deleting existing release with ID: ${{ steps.check_release.outputs.release_id }}"
+          curl -s -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/${{ steps.check_release.outputs.release_id }}"
+          echo "Existing release deleted successfully"
+      
       - name: Build rules
         id: build
         run: |
@@ -97,3 +124,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           name: "Cursor Rules ${{ github.ref_name }}"
           fail_on_unmatched_files: true 
+          draft: false
+          prerelease: false
+          generate_release_notes: false

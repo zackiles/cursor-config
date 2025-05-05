@@ -18,7 +18,7 @@ print_message() {
 check_dependencies() {
   local missing_deps=()
   
-  for cmd in curl unzip grep cut; do
+  for cmd in curl unzip grep cut jq; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
       missing_deps+=("$cmd")
     fi
@@ -53,18 +53,70 @@ cleanup() {
 trap cleanup EXIT
 trap 'print_message "Installation aborted." "${RED}"; exit 1' INT TERM
 
-# Get the latest release
-print_message "Fetching latest release information..." "${BLUE}"
-LATEST_RELEASE_URL=$(curl -s https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest | grep "browser_download_url.*zip" | cut -d '"' -f 4)
+# Retrieve all releases
+print_message "Fetching release information..." "${BLUE}"
+ALL_RELEASES=$(curl -s "https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases")
 
-if [ -z "$LATEST_RELEASE_URL" ]; then
-  print_message "Error: Could not find the latest release. Please check your internet connection and try again." "${RED}"
+# Check if we got a valid JSON response
+if ! echo "$ALL_RELEASES" | jq empty 2>/dev/null; then
+  print_message "Error: Failed to fetch releases. GitHub API response is not valid JSON." "${RED}"
+  print_message "Response: ${ALL_RELEASES}" "${RED}"
   exit 1
 fi
 
-print_message "Downloading latest release from $LATEST_RELEASE_URL" "${BLUE}"
-if ! curl -sL "$LATEST_RELEASE_URL" -o "$TEMP_DIR/rules.zip"; then
-  print_message "Error: Failed to download the release. Please check your internet connection and try again." "${RED}"
+# Check if we have any releases
+RELEASE_COUNT=$(echo "$ALL_RELEASES" | jq 'length')
+if [ "$RELEASE_COUNT" -eq 0 ]; then
+  print_message "Error: No releases found for $REPO_OWNER/$REPO_NAME." "${RED}"
+  exit 1
+fi
+
+# Get the latest release that has assets
+print_message "Finding latest release with assets..." "${BLUE}"
+
+# Find the first release with a rules.zip asset
+DOWNLOAD_URL=""
+for i in $(seq 0 $((RELEASE_COUNT-1))); do
+  ASSETS=$(echo "$ALL_RELEASES" | jq -r ".[$i].assets")
+  ASSET_COUNT=$(echo "$ASSETS" | jq 'length')
+  
+  if [ "$ASSET_COUNT" -gt 0 ]; then
+    for j in $(seq 0 $((ASSET_COUNT-1))); do
+      NAME=$(echo "$ASSETS" | jq -r ".[$j].name")
+      if [ "$NAME" == "rules.zip" ]; then
+        DOWNLOAD_URL=$(echo "$ASSETS" | jq -r ".[$j].browser_download_url")
+        RELEASE_NAME=$(echo "$ALL_RELEASES" | jq -r ".[$i].name")
+        RELEASE_TAG=$(echo "$ALL_RELEASES" | jq -r ".[$i].tag_name")
+        break 2
+      fi
+    done
+  fi
+done
+
+if [ -z "$DOWNLOAD_URL" ]; then
+  print_message "Error: No rules.zip asset found in any release." "${RED}"
+  exit 1
+fi
+
+print_message "Found release: ${RELEASE_NAME:-Unnamed} (${RELEASE_TAG:-Untagged})" "${BLUE}"
+print_message "Downloading from: $DOWNLOAD_URL" "${BLUE}"
+
+HTTP_CODE=$(curl -s -L -w "%{http_code}" -o "$TEMP_DIR/rules.zip" "$DOWNLOAD_URL")
+
+# Check if the download succeeded
+if [ "$HTTP_CODE" != "200" ]; then
+  print_message "Error: Failed to download rules.zip (HTTP code: $HTTP_CODE). Please check your internet connection and try again." "${RED}"
+  exit 1
+fi
+
+# Check if the file is empty or contains "Not Found"
+if [ ! -s "$TEMP_DIR/rules.zip" ]; then
+  print_message "Error: The downloaded file is empty." "${RED}"
+  exit 1
+fi
+
+if grep -q "Not Found" "$TEMP_DIR/rules.zip"; then
+  print_message "Error: The downloaded file contains 'Not Found'. The asset may not exist." "${RED}"
   exit 1
 fi
 
@@ -75,9 +127,10 @@ if ! unzip -q "$TEMP_DIR/rules.zip" -d "$TEMP_DIR"; then
   exit 1
 fi
 
-# Verify that we have extracted files (check for MDC files instead of rules.json)
+# Verify that we have extracted files (check for MDC files)
 if [ $(ls -1 "$TEMP_DIR"/*.mdc 2>/dev/null | wc -l) -eq 0 ]; then
   print_message "Error: Invalid release package. No rule files found." "${RED}"
+  ls -la "$TEMP_DIR" | head -n 20
   exit 1
 fi
 
