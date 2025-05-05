@@ -21,7 +21,7 @@ This project uses the latest Deno 2 and any code you generate or review should a
 
 [Full Documentation On Deno Namespace APIs](https://docs.deno.com/api/deno/~/Deno)
 
-#### Deno Project Sructure and Design
+#### Deno Project Structure and Design
 - **deno.json and deno.jsonc**: Always have a complete file, with typical fields filled out like: name, version, license, fmt, lint, publish, exports, test, publish etc.
   -**include and exclude**: ensure lint, fmt, test, and publish use the propper include and exclude settings for the array of glob patterns needed for the codebase.
 - **.vscode/settings.json**: ensure a VS Code `settings.json` file exists and has `"deno.enable": true` set to enable the `denoland.vscode-deno` extension.
@@ -29,16 +29,42 @@ This project uses the latest Deno 2 and any code you generate or review should a
 - **Deno Tasks**: Common tasks should use and be executed using tasks defined in a `deno.json` or `deno.jsonc` file.
 - **File and Folder Structure**: source code in `src/*.ts`, tests in `test/*.test.ts`, deno confgiuration in `deno.json` or `deno.jsonc` (preferred), and if writing a library a `mod.ts` file should be used to provide the exports.
 - **Common Project Files**: Most projects will always benefit from the following default files when starting a project or a suggestion to the user to create for existing projects: `src/utils.ts` for shared functions, `src/logger.ts` for a shared logger, `src/types.ts` for types that need to be shared in one or more files, `config.ts` as a singleton that loads or provides global configuration to files.
-- **Environemnt Variables and Configuration**: Most projects will benefit from a .env file and loading it with `import "@std/dotenv/load"`. Enviornment variables should be prefixed with a short acronym that represents the project name.
+- **Environment Variables and Configuration**: Most projects will benefit from a .env file and loading it with `import "@std/dotenv/load"`. Enviornment variables should be prefixed with a short acronym that represents the project name.
 - **Imports and Using Libraries**: any external npm or jsr imports used in the project should be added using `deno add jsr:@scope/name` or `deno add npm:name` so that they can be added to the deno.json or deno.jsonc file and imported in files use the short name such as `import func from '@scope/name'`
 - **Module Documentation**: All typescript modules in `src/` that are to be published as part of the project MUST contain a jsdoc module comment at the top of the module that describes its prupose and provides and example of its usage, and iff availble jsdoc "@see" comments with links to documentation for methods or libraries used in the module.
 - **Exports**: Exports should be defined cleared at the bottom of modules. If the exports are both types and normal exports they should be split over two lines for each such as `export {someMethod, someVariable}` and then `export type {someType}`
 
 ### Prefer `@std` Libraries
 
-Deno's standard library, written in TypeScript, offers audited, reusable modules for common tasks, ensuring consistency and reliability. Modules are independently versioned following semantic versioning, allowing version pinning to prevent breaking changes. To import modules, use the `deno add` command to update your `deno.json` import map, or import directly with the `jsr:` specifier.
+Deno's standard library, written in TypeScript, offers audited, reusable modules for common tasks, ensuring consistency and reliability. Modules are independently versioned following semantic versioning, allowing version pinning to prevent breaking changes.
 
-#### Full list of `@std` packages
+#### Importing standard library modules
+
+To install packages from the Deno Standard Library, you can use the `deno add`
+subcommand to add the package to your `deno.json` import map.
+
+```sh
+deno add jsr:@std/fs jsr:@std/path
+```
+
+The `deno.json` or `deno.jsonc` `imports` field will be updated to include those imports:
+
+```json
+{
+  "imports": {
+    "@std/fs": "jsr:@std/fs@1",
+    "@std/path": "jsr:@std/path@1"
+  }
+}
+
+You can then import these packages in your source code:
+
+```ts
+import { copy } from '@std/fs'
+import { join } from '@std/path'
+```
+
+#### All Available `@std` Packages On JSR
 @std/assert, @std/async, @std/bytes, @std/cache, @std/cbor, @std/cli, @std/collections, @std/crypto, @std/csv, @std/data-structures, @std/datetime, @std/dotenv, @std/encoding, @std/expect, @std/fmt, @std/front-matter, @std/fs, @std/html, @std/http, @std/ini, @std/internal, @std/io, @std/json, @std/jsonc, @std/log, @std/media-types, @std/msgpack, @std/net, @std/path, @std/random, @std/regexp, @std/semver, @std/streams, @std/tar, @std/testing, @std/text, @std/toml, @std/ulid, @std/uuid, @std/webgpu, @std/yaml 
 
 ### 3) Deno CLI for 
@@ -48,7 +74,7 @@ It provides helpful functionality for Building, Testing, Running, Formatting, Li
 - `deno add [OPTIONS] [packages]`: Add dependencies to your configuration file.
 - `deno publish [OPTIONS]`: publishes a package to jsr.
 - `deno install`: Installs dependencies either in the local project or globally to a bin directory. Allows " --global" flag to install globally.
-- `deno task`: runs a task speciifed in deno.json or deno.jsonc.
+- `deno task`: runs a task specified in deno.json or deno.jsonc.
 - `deno info [OPTIONS] [file]`:Show information about a module or the cache directories.
 - `deno compile [OPTIONS] [SCRIPT_ARG]`: Cross-compiling to different target architectures is supported using the --target flag. On the first invocation with deno will download the proper binary and cache it in $DENO_DIR.
 - `deno run [OPTIONS] [file]`: Run a JavaScript or TypeScript program, or a task or script. By default all programs are run in sandbox without access to disk, network or ability to spawn subprocesses. Should rarely be used over "deno task".
@@ -111,7 +137,7 @@ export default {
 ```
 [Full documentation on Deno.serve](https:/docs.deno.com/runtime/fundamentals/http_server)
 
-#### New Methods Deno Nampespace APIs in Deno 2
+#### New Methods Deno Native APIs in Deno 2
 Deno.serve Deno.AtomicOperation, Deno.ChildProcess, Deno.Command, Deno.FsFile, Deno.HttpClient, Deno.Kv, Deno.KvListIterator, Deno.KvU64, Deno.Permissions, Deno.PermissionStatus, Deno.QuicEndpoint, Deno.UnsafeCallback, Deno.UnsafeFnPointer, Deno.UnsafePointer, Deno.UnsafePointerView, Deno.UnsafeWindowSurface
 
 ### New and Supported Web APIs in Deno 2
@@ -193,7 +219,7 @@ Deno.test("test-2", () => {});
 // Run just "my-test" with `deno test --filter "my" tests/`
 ```
 
-### Igoring Deno Tests
+### Ignoring Deno Tests
 ```
 Deno.test({
   name: "do macOS feature",

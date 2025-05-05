@@ -5,7 +5,7 @@
     "createdOn": "2025-04-30T03:36:53-04:00",
     "updatedOn": "2025-05-03T19:27:28-04:00",
     "category": "collaboration",
-    "description": "Use for git commit messages",
+    "description": "Use for git commit messages.",
     "globs": null,
     "tags": [
       "git workflow",
@@ -68,7 +68,7 @@
     "createdOn": "2025-04-30T03:36:53-04:00",
     "updatedOn": "2025-05-03T07:13:01-04:00",
     "category": "backend",
-    "description": "Create an MCP server",
+    "description": "Create an MCP server.",
     "globs": "mcp-schema.json",
     "tags": [
       "api development",
@@ -131,7 +131,7 @@
     "createdOn": "2025-04-30T03:36:53-04:00",
     "updatedOn": "2025-05-03T07:13:01-04:00",
     "category": "release",
-    "description": "Releasing and publishing new versions of Javascript packages",
+    "description": "Releasing and publishing new versions of Javascript packages.",
     "globs": null,
     "tags": [
       "version management",
@@ -152,7 +152,7 @@
     "createdOn": "2025-04-30T03:36:53-04:00",
     "updatedOn": "2025-05-03T07:13:01-04:00",
     "category": "testing",
-    "description": "Rules for Writing Tests",
+    "description": "Rules for Writing Tests.",
     "globs": [
       "*.test.js",
       "*.test.ts"
@@ -197,7 +197,7 @@
     "createdOn": "2025-04-30T03:36:53-04:00",
     "updatedOn": "2025-05-03T07:13:01-04:00",
     "category": "completion",
-    "description": "Finalizing Work or Ending the Conversation",
+    "description": "Finalizing Work or Ending the Conversation.",
     "globs": null,
     "tags": [
       "project completion",
@@ -264,7 +264,7 @@
     "createdOn": "2025-04-30T03:36:53-04:00",
     "updatedOn": "2025-05-03T19:27:28-04:00",
     "category": "resilience",
-    "description": "Recover From Repeated Failures to Resolve Errors",
+    "description": "Recover From Repeated Failures to Resolve Errors.",
     "globs": null,
     "tags": [
       "system",
@@ -287,7 +287,7 @@
     "createdOn": "2025-04-30T03:36:53-04:00",
     "updatedOn": "2025-05-03T07:13:01-04:00",
     "category": "preparation",
-    "description": "Force deep preparation before answering a prompt",
+    "description": "Force deep preparation before answering a prompt.",
     "globs": [
       "README.md",
       "AI-CONTRIBUTING.md"
@@ -373,7 +373,7 @@
     "createdOn": "2025-04-30T03:36:53-04:00",
     "updatedOn": "2025-05-03T07:13:01-04:00",
     "category": "runtime",
-    "description": "Extra Deno 2.0 Context",
+    "description": "Extra Deno 2.0 Context.",
     "globs": [
       "deno.json",
       "deno.jsonc"
@@ -397,7 +397,7 @@
     "createdOn": "2025-04-30T03:36:53-04:00",
     "updatedOn": "2025-05-03T07:13:01-04:00",
     "category": "style",
-    "description": "Vibe coding for bleeding-edge Javascript and Typescript code generation",
+    "description": "Vibe coding for bleeding-edge Javascript and Typescript code generation.",
     "globs": [
       "*.ts",
       "*.js"
@@ -421,7 +421,7 @@
     "createdOn": "2025-04-30T03:36:53-04:00",
     "updatedOn": "2025-05-03T07:13:01-04:00",
     "category": "conventions",
-    "description": "Generating code in Javascript and Typescript files",
+    "description": "Generating code in Javascript and Typescript files.",
     "globs": [
       "*.ts",
       "*.js"
@@ -445,7 +445,7 @@
     "createdOn": "2025-04-30T03:36:53-04:00",
     "updatedOn": "2025-05-03T07:13:01-04:00",
     "category": "documentation",
-    "description": "Creating and Editing JSDoc comments",
+    "description": "Creating and Editing JSDoc comments.",
     "globs": null,
     "tags": [
       "documentation standards",
@@ -466,7 +466,7 @@
     "createdOn": "2025-04-30T03:36:53-04:00",
     "updatedOn": "2025-05-03T07:13:01-04:00",
     "category": "protocols",
-    "description": "For use with MCP and the MCP Typescript SDK (modelcontextprotocol/sdk)",
+    "description": "For use with MCP and the MCP Typescript SDK (modelcontextprotocol/sdk).",
     "globs": "mcp-schema.json",
     "tags": [
       "protocol implementation",

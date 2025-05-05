@@ -94,7 +94,7 @@ this.on('some action', eventHandler)
 ### Documentation in Code
 - Use **JSDoc** for functions and files (including `@module` docs with examples).
 - Never include inline comments to describe code that can easily be understood.
-- Never include inline comments that are redundant, innacurate, or used only to help group sections of code unless the user asks you to.
+- Never include inline comments that are redundant, inaccurate, or used only to help group sections of code unless the user asks you to.
 - **DANGER**: When updating code, never remove JSDoc or linting comments unless explicitly requested. If changes break comments, update them accurately.
 
 ### Object and Functional Programming vs. OOP
@@ -111,15 +111,15 @@ this.on('some action', eventHandler)
 
 ### TypeScript Types
 - **Purpose**: This section MUST be read completely and ALWAYS before generating, refactoring, or considering to add code that contains or should contain Typescript Types.
-- **Instructions**: Apply all rules in the two crtical lists in this section that describe WHEN or WHEN NOT to use rules before writing any types or using native Typescript syntax or functionality.
+- **Instructions**: Apply all rules in the two critical lists in this section that describe WHEN or WHEN NOT to use rules before writing any types or using native Typescript syntax or functionality.
 - **Examples of WHY to use Typescript**: Review the section named "Examples of Boundaries: Module, Package, Project, Application, Boundaries" for examples that demonstrate WHY we use Typescript in this project or codebase.
 - **Examples of Typescript Syntax**: Review the section named "Examples of Proper Usage and Syntax" to understand how to integrate types into the codebase to enhance simplicity, readability, maintainability, and cleanliness of code.
 
-**1) CRITICAL**: You MUSN'T and will NEVER use Typescript types or Typescript functionality when the following is true: 
+**1) CRITICAL**: You will NEVER use Typescript types or Typescript functionality when the following is true: 
 
 - The type is used for anything that the consumer of the module or code file does not interact with. This includes types found in: method or class interfaces, return values, arguments, variables, exports, and anywhere else a Typescript symbol is used.
 - The type is similar to or could be similar to another type if one or both were refactored. In this case, use the other type or refactor one or both instead of creating an additional type.
-- The type describes a very simple type, or expresses something redudant or obvious. An example of a simple type is an interface with one property that is a string.
+- The type describes a very simple type, or expresses something redundant or obvious. An example of a simple type is an interface with one property that is a string.
 - The type defines something or properties of something that is highly complex and can't easily be solved with a simpler type while still ensuring type saftey. In these cases, explain to the user the problem and present them a concise list of potential refactoring solutions for them to choose from before continuing your work.
 - When an appropriate type to use, refactor to, or create can't be determined. Examples include: third-party imported packages that we've confirmed doesn't export types for us to use for type-casting and type-guarding.
 - When repeated and consistent attempts to create or use a type causes errors and bugs, they should be removed and vanilla Javascript used instead.
@@ -303,11 +303,11 @@ Receiving lint errors for imports likely means one of three things:
 
 2) You have a declared but unused import, and need to investigate if there was a recent regression that removed code intended to use that import. If there is no use for that import than you need to remove it.
 
-3) You're hallcuinaing and have imported an incorrectly named or declared module name, path, or exported method. You will need to investigate using tools, documentation, and debugging approaches to determine where you've made a mistake so you can fix it.
+3) You're hallucinating and have imported an incorrectly named or declared module name, path, or exported method. You will need to investigate using tools, documentation, and debugging approaches to determine where you've made a mistake so you can fix it.
 
 If the issue isn't obvious, follow the instructions in "##### Tools, Cocumentation, and Cebugging Approaches to Import Lint Errors and Bugs"
 
-##### Tools, Cocumentation, and Cebugging Approaches to Import Lint Errors and Bugs
+##### Debugging Lint Errors For Imports
 - **[`deno info`](https://docs.deno.com/runtime/reference/cli/info/)**: Run the shell command to get context on a module and its depedencies.
 - **Registry Documentation**: Find and review documentation for the import on its usage. Examples:
   ```text
@@ -319,8 +319,9 @@ If the issue isn't obvious, follow the instructions in "##### Tools, Cocumentati
   ```
 
 ### Exports
-- Exports should always be declared at the bottom of code files and never in the middle.
-- Exports delcarations should be as free of logic as possible.
+- Exports should be declared separately from the things they're exporting.
+- Exports should ALWAYS be declared at the bottom of code files and never in the middle.
+- Exports declarations should be as free of logic as possible.
 - Prefer simple object exports such as `export {someMethod, anotherMethod}`.
 - If exports include types AND other things, prefer to export them on separate lines like the following:
   ```
@@ -367,11 +368,14 @@ If the issue isn't obvious, follow the instructions in "##### Tools, Cocumentati
 - When rewriting previous code, also apply these rules while ensuring the overall coding standards of this codebase are maintained if these rules conflict with the current standard.
 
 ### Rules for Clean Code
-
-- Always try to reduce the amount of code or lines of code needed to do the same thing
-- If multiple variables are required and shared in a method or module, consider grouping them into logcal objects and hoisting them so they can be accessed, instead of declaring multiple variables over several lines of code. This will ensure less code is needed to do the same thing.
+- **Typescript**: Don't create types or interfaces if they're only referenced in a single place, instead prefer inline types if they're needed.
+- **Less lines of code**: always prefer solutions with the least lines of code needed to achieve the required functionality using less code. This improves readability because it avoids having to scroll large functions.
+- **Avoid Robustness*: when working on new files or introducing a lot of new functionality, prefer minimal solutions that meet the requirements unless you've been explicitly asked to improve the solution by the user. Less code is always better.
+- **Avoid Multiple Variables**: avoid declaring multiple variables when only 1 would suffice. Refactor code with multiple variables to reduce the number of variables through strategies such as: refactoring references of two variables in a way that allows 1 variable, inlining methods and values, functional patterns (chaining, map, reduce, filter), and removing the need for multiple variables be refactoring the code that references them to not need them.  
+- Don't create top-level functions in a module or class if it's only used in a single place. Prefer to keep code within the function that uses it. Consider hoisting arrow functions within a top-level function if you need to split code up.
+- If multiple variables are required and shared in a method or module, consider grouping them into logical objects and hoisting them so they can be accessed, instead of declaring multiple variables over several lines of code. This will ensure less code is needed to do the same thing.
 - Avoid repeated or deeply nested try/catch or if/else blocks inside module or class methods. Instead find ways to compose the code in more a more functional manner such as chaining or hoisting nested arrow functions within methods so that it improves readability, reduces the amount of code needed to do accomplish what we need, and reduces deep nesting inside module or class methods.
-- When refactoring, find alternative solutions, patterns, methods and code that can be used instead of the current code that would reduce the total amount of code or lines of code if it was used instead. Always look to redopportunities to 
+- When refactoring, find alternative solutions, patterns, methods and code that can be used instead of the current code that would reduce the total amount of code or lines of code if it was used instead.
 - Only define large multi-line strings at the top of files instead of inside methods.
 - Define important static variables and configuration at the highest points reasonable to their scope, such as the top of the method or the top of a class or file (but after imported or module jsdoc descriptions).
 
@@ -387,7 +391,7 @@ If the issue isn't obvious, follow the instructions in "##### Tools, Cocumentati
 - If your class/object name tells you something, don't repeat that in your variable name. Don't add uneeded context. For example, if a class is named `Car`, don't add a variable to it named `Car.carHorn`, instead use just `Car.horn`.
 - Use default parameters instead of short circuiting or conditionals.
 - **Function arguments**: use two or fewer ideally. If many arguments are required consider using one or two arguments that contain multiple arguments inside them. Examples: GOOD `function create({data: 'hello'}, options = {})`, BAD `function create (data, name, time, options)`
-- Remove duplicate or reptitive code by consolidating.
+- Remove duplicate or repetitive code by consolidating.
 - Remove dead code. If something is not being used remove it or comment it out if you think removing it might break something or frustrate the user.
 - **Open/Closed Principle (OCP)**: software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification
 - **Liskov Substitution Principle (LSP)**: If S is a subtype of T, then objects of type T may be replaced with objects of type S (i.e., objects of type S may substitute objects of type T) without altering any of the desirable properties of that program (correctness, task performed, etc.).
@@ -443,5 +447,10 @@ Simple, compact, and elegant code is easier for the reader to read as it doesn't
 - Export small, focused modules rather than monolithic ones to keep code modular and concise  
 
 ### Summary
+This document provides distilled focus areas for generating and refactoring JavaScript and TypeScript code, targeting optimal readability, maintainability, modern syntax, and alignment with project conventions. Remember to always review the following before writing code:
 
-This document provides coding standards for generating and refactoring JavaScript and TypeScript code, targeting optimal readability, cleanliness, and maintainability. **Key Directives Include**: Prioritize modern ECMAScript features (ESM, functional patterns, composition over inheritance). Strictly follow naming conventions (kebab-case files, camelCase instances, PascalCase classes/symbols, UPPER_SNAKE_CASE constants) and code ordering (imports, hoisted elements, methods, bottom-exports). **Crucially**, apply TypeScript types *only* at well-defined boundaries (e.g., public module interfaces, essential core primitives) or where they significantly simplify code complexity; *avoid* internal, overly simple, or redundant types. Adhere to specific guidelines for ESM imports/exports (including `import type`), flat error handling patterns (avoid nested try/catch), immutable data structures (`structuredClone`), concurrency management (`Atomics`, Workers), minimal integration testing strategy, secure crypto usage (`crypto.subtle`), and structured logging. The overarching goal is consistent, high-quality, modern code generation adhering to these rules.
+* **Enforce Consistent Naming & Structure**: Maintain strict and predictable patterns for naming, code ordering, and structural consistency to improve readability and ease refactoring (*Naming and Casing*, *Code Ordering*, *Evolve Names Thoughtfully*).
+* **Embrace Modern, Declarative Syntax**: Use the latest ECMAScript 2024 (15th edition) and TypeScript 5.8 features and functional patterns to reduce complexity, eliminate imperative control flows, and increase code clarity (*Syntax*, *Functional & Compositional Approach*, *Rules for Readable Code*).
+* **Apply Types Thoughtfully & Sparingly**: Introduce TypeScript types only where they clarify boundaries, improve code resilience, or reduce duplication—avoid unnecessary typing that bloats code (*TypeScript Types*, *Examples of Proper Usage and Syntax*).
+* **Maximize Maintainability & Cleanliness**: Reduce line count, limit variables, prevent over-engineering, and maintain immutability to ensure long-term maintainability and resilience (*Rules for Clean Code*, *Immutable Data Patterns*, *Exports*, *Documentation in Code*).
+* **Prioritize Simplicity & Minimalism**: Favor minimal code solutions, avoid excessive variables or functions, reduce nesting, and apply the K.I.S.S. principle to enhance clarity and reduce maintenance overhead (*Rules for Clean Code*, *KEEP IT SIMPLE STUPID (K.I.S.S)*).

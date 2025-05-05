@@ -23,10 +23,19 @@
  * deno run -A scripts/build.ts .cursor/rules/custom
  * ```
  *
- * @see The processor.ts module for MDC file processing details
+ * @see https://github.com/qnighy/dedent
+ * @see https://jsr.io/@std/path/doc
+ * @see https://jsr.io/@std/path/doc/~/join
+ * @see https://jsr.io/@std/path/doc/~/extname
+ * @see https://jsr.io/@std/path/doc/~/dirname
+ * @see https://jsr.io/@std/path/doc/~/basename
+ * @see https://jsr.io/@std/fs/doc
+ * @see https://jsr.io/@std/fs/doc/~/ensureDir
+ * @see https://jsr.io/@std/fs/doc/~/expandGlob
  */
 
 import { ensureDir, expandGlob } from '@std/fs'
+import { dedent } from '@qnighy/dedent'
 import { basename, dirname, extname, join } from '@std/path'
 import { processMdcFile } from '../src/processor.ts'
 import logger from '../src/utils/logger.ts'
@@ -36,11 +45,139 @@ import { AttachmentType } from '../src/types.ts'
 const COMPILE_PATH = Deno.env.get('COMPILE_PATH') || 'bin'
 const UNCOMPILED_RULES_PATH = join('.cursor', 'rules', 'global')
 const OUTPUT_PATH = join(COMPILE_PATH, 'rules.json')
+const OUTPUT_JSONC_PATH = join(COMPILE_PATH, 'rules.jsonc')
 const MARKDOWN_PATH = join(COMPILE_PATH, 'rules.md')
 const HTML_PATH = join(COMPILE_PATH, 'rules.html')
 const HOW_RULES_WORK_SRC = join('docs', 'how-cursor-rules-work.md')
 const HOW_RULES_WORK_DEST = join(COMPILE_PATH, 'how-cursor-rules-work.md')
-const GITHUB_MARKDOWN_API = 'https://api.github.com/markdown/raw'
+const GITHUB_MARKDOWN_API = 'https://api.github.com/markdown'
+const CSS_PATH = join('assets', 'rules-docs.css')
+
+// Markdown styling configuration
+const MARKDOWN_CONFIG = {
+  header: dedent`
+    # Available Cursor Rules In This Project
+
+    This project contains Cursor rules created through **Cursor Workbench**!
+
+    This document was auto-generated and describes all global rules used by this project in the \`.cursor/rules/global\` directory.
+
+    > [!TIP]
+    > **New to Cursor Rules?** Read this deep-dive guide on [How Cursor Rules Work](./how-cursor-rules-work.md).
+
+    > [!NOTE]
+    > Rules in \`.cursor/rules/global\` are used for global rules shared with the project and others. Project-specific rules unique to this project should be stored in \`.cursor/rules/local\` or \`.cursor/rules/\` instead.
+  `,
+  customRuleFieldsDescription: dedent`
+    This project adds specialized fields to the frontmatter on Cursor rule files that help with discoverability of rules as well as extending their functionality outside of what Cursor provides. This section documents all of the custom fields used in Cursor rules for this project.
+
+    > [!IMPORTANT]
+    > The Cursor IDE opens rule files by default using the Cursor MDC Editor, which hides all of the frontmatter fields that are contained in the raw file. If you'd like to see or edit any of the custom fields you'll need to open the .mdc file in a plain text editor.
+
+    > [!TIP]
+    > It's recommended to choose a default editor for .mdc files by setting \`"workbench.editorAssociations": {"*.mdc": "default"}\` in your settings.json. This will make editing custom fields contained in the frontmatter header easier. You can still choose 'Open With -> MDC Editor' to use Cursor's editor at any time by right-clicking the rule file.
+  `,
+  ruleClassifierSections: [
+    {
+      title: 'Field: Attachment Type',
+      description:
+        "Describes **when** a rule will attach to the context. This is a derived value set by the compiler ONLY (it can't be set directly). It's a simplified way of expressing the complex combination of existing Cursor MDC frontmatter (e.g. `alwaysApply`, `globs`, and `description`) during rule-compilation.",
+      renderBody: (): string =>
+        Object.entries(MARKDOWN_CONFIG.attachmentTypeDescriptions)
+          .map(([type, description]) =>
+            `- <a id="attachment-type-${type.toLowerCase()}"></a>**${type}**: ${description}`
+          )
+          .join('\n'),
+    },
+    {
+      title: 'Field: Attachment Method',
+      description:
+        'Describes **how** a rule will attach to the context. Set in the frontmatter using the `attachmentMethod` field. Example: `attachmentMethod: system` makes a rule override the system prompt.',
+      renderBody: (): string =>
+        Object.entries(MARKDOWN_CONFIG.attachmentMethodDescriptions)
+          .filter(([method]) => method !== 'default')
+          .map(([method, description]) => {
+            const formattedMethod = method.charAt(0).toUpperCase() + method.slice(1)
+            return `- <a id="attachment-method-${method.toLowerCase()}"></a>**${formattedMethod}**: ${description}`
+          })
+          .join('\n'),
+    },
+    {
+      title: 'Field: Category',
+      description: "Adding a `category` in a rule's frontmatter helps organize and discover rules.",
+      renderBody: (rules: RuleFileSimple[]): string => {
+        const categories = new Set(
+          rules
+            .filter((rule) => rule.category)
+            .map((rule) => rule.category?.toLowerCase() || '')
+            .filter((category) => category !== ''),
+        )
+
+        return categories.size === 0
+          ? 'No categories are currently used in this project.\n'
+          : `**Categories Used In This Project:** ${
+            renderCollapsibleList(Array.from(categories), MARKDOWN_CONFIG.maxItemsBig)
+          }\n`
+      },
+    },
+    {
+      title: 'Field: Tags',
+      description:
+        "Adding `tags` in a rule's frontmatter provides a finer-grained way to categorize and discover rules in a large collection. Tags are specified as a comma-separated string in the frontmatter. Each tag can contain spaces and multiple words.",
+      renderBody: (rules: RuleFileSimple[]): string => {
+        const tags = new Set(
+          rules
+            .filter((rule) => rule.tags && Array.isArray(rule.tags))
+            .flatMap((rule) => {
+              if (rule.tags && Array.isArray(rule.tags)) {
+                return rule.tags.map((tag) => tag.toLowerCase())
+              }
+              return []
+            }),
+        )
+
+        return tags.size === 0
+          ? 'No tags are currently used in this project.\n'
+          : `**Tags Used In This Project:** ${
+            renderCollapsibleList(Array.from(tags), MARKDOWN_CONFIG.maxItemsBig)
+          }\n`
+      },
+    },
+  ],
+  table: {
+    columnWidths: {
+      ruleContent: 65, // Width % for combined rule name and description column
+      tags: 35, // Width % for tags column
+    },
+    columnAlignment: {
+      ruleContent: 'left',
+      tags: 'left',
+    },
+  },
+  maxItemsSmall: 4, // Maximum tags to show in tables before using expandable section
+  maxItemsBig: 25, // Maximum tags to show in Tags/Category section before using expandable section
+  attachmentMethodDescriptions: {
+    system:
+      'System attachment method. Injects into the internal system prompt and attempts to overrule it. Best for setting modes, establishing base AI instructions, and rules that need to set agent context before a conversation or task begins.',
+    message:
+      'Message attachment method (default). Injects into the current user message or conversation. Best for most rule types and general-purpose rules that augment the current interaction context.',
+    task:
+      'Task attachment method. Injects into the current message or conversation and explicitly instructs the agent to perform an action. Best for rules that should initiate specific agent behaviors, such as creating a file if the rule is named "@create-file".',
+    none:
+      'No attachment method/reference only. References the rule without loading its full content into the current context. Best for large or complex rules that you only want lazy-loaded by the agent at certain steps in your instructions. The agent will be aware of the rule and will have the choice to load its contents when it chooses.',
+    default: 'Custom attachment method with behavior defined by the system.',
+  },
+  attachmentTypeDescriptions: {
+    AlwaysAttached:
+      'Defined by `alwaysApply: true` in frontmatter. The rule is always active in the Cursor context.',
+    AutoAttached:
+      'Defined by `alwaysApply: false` with non-empty `globs` in frontmatter. The rule is automatically activated when a file matching the `globs` pattern is opened or focused in Cursor.',
+    AgentAttached:
+      'Defined by non-empty `description` in frontmatter. Loaded and used by the AI agent based on context, guided by the `description`.',
+    ManuallyAttached:
+      'Defined by `alwaysApply: false`, empty or no `globs`, empty or no `description`. The rule is only activated when manually referenced by the user with `@rule-name`.',
+  },
+} as const
 
 /**
  * Renders a collection of items with collapsible section if needed
@@ -66,160 +203,17 @@ function renderCollapsibleList(items: string[], maxVisible: number, useCodeTags 
     ).join(', ')
     const remainingCount = sortedItems.length - maxVisible
 
-    return `${visibleItems}
-<details>
-  <summary><em>Show ${remainingCount} more</em></summary>
-  ${hiddenItems}
-</details>`
+    return dedent`
+      ${visibleItems}
+      <details>
+        <summary><i>Show ${remainingCount} more</i></summary>
+        ${hiddenItems}
+      </details>
+    `
   }
 
   return visibleItems
 }
-
-// Markdown styling configuration
-const MARKDOWN_CONFIG = {
-  header: `<!-- This document was auto-generated by Cursor Workbench on ${
-    new Date().toISOString().replace('T', ' ').substring(0, 19)
-  } and uses [Github Flavored Markdown](https://github.github.com/gfm/#atx-headings) -->
-
-# Available Cursor Rules In This Project
-
-This project contains Cursor rules created through **Cursor Workbench**!
-
-This document was auto-generated and describes all global rules used by this project in the \`.cursor/rules/global\` directory.
-
-> [!TIP]
-> **New to Cursor Rules?** Read this deep-dive guide on [How Cursor Rules Work](./how-cursor-rules-work.md).
-
-> [!NOTE]
-> Rules in \`.cursor/rules/global\` are used for global rules shared with the project and others. Project-specific rules unique to this project should be stored in \`.cursor/rules/local\` or \`.cursor/rules/\` instead.
-
-`,
-  customRuleFieldsDescription:
-    'This project adds specialized fields to the frontmatter on Cursor rule files that help with discoverability of rules as well as extending their functionality outside of what Cursor provides. This section documents all of the custom fields used in Cursor rules for this project.\n\n' +
-    '> [!IMPORTANT]\n' +
-    "> The Cursor IDE opens rule files by default using the Cursor MDC Editor, which hides all of the frontmatter fields that are contained in the raw file. If you'd like to see or edit any of the custom fields you'll need to open the .mdc file in a plain text editor.\n\n" +
-    '> [!TIP]\n' +
-    '> It\'s recommended to choose a default editor for .mdc files by setting `"workbench.editorAssociations": {"*.mdc": "default"}` in your settings.json. This will make editing custom fields contained in the frontmatter header easier. You can still choose \'Open With -> MDC Editor\' to use Cursor\'s editor at any time by right-clicking the rule file.',
-  ruleClassifierSections: [
-    {
-      title: 'Field:Attachment Type',
-      description:
-        'The attachment type defines how a rule is loaded and activated in Cursor. Its value is sat during compilation and derived from the the standard Cursor rule file fields of: the `alwaysApply`, `globs`, and `description` fields. Example: `alwaysApply: true` makes a rule always active.',
-      renderBody: (): string => {
-        let body = ''
-        for (
-          const [type, description] of Object.entries(MARKDOWN_CONFIG.attachmentTypeDescriptions)
-        ) {
-          // Add an HTML anchor for each attachment type
-          body +=
-            `- <a id="attachment-type-${type.toLowerCase()}"></a>**${type}**: ${description}\n`
-        }
-        return body
-      },
-    },
-    {
-      title: 'Field: Attachment Method',
-      description:
-        'The attachment method controls how a rule is injected into the context when activated. Set in the frontmatter using the `attachmentMethod` field. Example: `attachmentMethod: system` makes a rule override the system prompt.',
-      renderBody: (): string => {
-        let body = ''
-        for (
-          const [method, description] of Object.entries(
-            MARKDOWN_CONFIG.attachmentMethodDescriptions,
-          )
-        ) {
-          if (method === 'default') continue // Skip the default entry
-          const formattedMethod = method.charAt(0).toUpperCase() + method.slice(1)
-          body +=
-            `- <a id="attachment-method-${method.toLowerCase()}"></a>**${formattedMethod}**: ${description}\n`
-        }
-        return body
-      },
-    },
-    {
-      title: 'Field:Category',
-      description:
-        "Adding a `category` in a rule's frontmatter helps organize and discover rules in your codebase. Examples of useful categories: `Code Generation`, `Tool Usage`, `Testing and Debugging`, `Documentation`, `Code Style`, etc. The `category` field makes it easier to filter and group rules when you have a large collection.",
-      renderBody: (rules: RuleFileSimple[]): string => {
-        // Collect unique categories
-        const categories = new Set<string>()
-        for (const rule of rules) {
-          if (rule.category) {
-            categories.add(rule.category.toLowerCase())
-          }
-        }
-
-        if (categories.size === 0) {
-          return 'No categories are currently used in this project.\n'
-        }
-
-        return `**Categories Used In This Project:** ${
-          renderCollapsibleList(Array.from(categories), MARKDOWN_CONFIG.maxItemsBig)
-        }\n`
-      },
-    },
-    {
-      title: 'Field: Tags',
-      description:
-        "Adding a tag to the `tags` field in a rule's frontmatter provides another way to categorize and filter rules. Tags are specified as a comma-separated string in the frontmatter. Each tag can contain spaces and multiple words.",
-      renderBody: (rules: RuleFileSimple[]): string => {
-        // Collect unique tags
-        const tags = new Set<string>()
-        for (const rule of rules) {
-          if (rule.tags && Array.isArray(rule.tags)) {
-            for (const tag of rule.tags) {
-              tags.add(tag.toLowerCase())
-            }
-          }
-        }
-
-        if (tags.size === 0) {
-          return 'No tags are currently used in this project.\n'
-        }
-
-        return `**Tags Used In This Project:** ${
-          renderCollapsibleList(Array.from(tags), MARKDOWN_CONFIG.maxItemsBig)
-        }\n`
-      },
-    },
-  ],
-  table: {
-    columnWidths: {
-      rule: 15, // Width % for rule name column
-      description: 40, // Width % for description column (increased to accommodate attachment type)
-      tags: 35, // Width % for tags column
-    },
-    columnAlignment: {
-      rule: 'left',
-      description: 'left',
-      tags: 'left',
-    },
-  },
-  maxItemsSmall: 5, // Maximum tags to show in tables before using expandable section
-  maxItemsBig: 25, // Maximum tags to show in Tags/Category section before using expandable section
-  attachmentMethodDescriptions: {
-    system:
-      'System attachment method. Injects into the internal system prompt and attempts to overrule it. Best for setting modes, establishing base AI instructions, and rules that need to set agent context before a conversation or task begins.',
-    message:
-      'Message attachment method (default). Injects into the current user message or conversation. Best for most rule types and general-purpose rules that augment the current interaction context.',
-    task:
-      'Task attachment method. Injects into the current message or conversation and explicitly instructs the agent to perform an action. Best for rules that should initiate specific agent behaviors, such as creating a file if the rule is named "@create-file".',
-    none:
-      'No attachment method/reference only. References the rule without loading its full content into the current context. Best for large or complex rules that you only want lazy-loaded by the agent at certain steps in your instructions. The agent will be aware of the rule and will have the choice to load its contents when it chooses.',
-    default: 'Custom attachment method with behavior defined by the system.',
-  },
-  attachmentTypeDescriptions: {
-    AlwaysAttached:
-      'Defined by `alwaysApply: true` in frontmatter. The rule is always active in the Cursor context.',
-    AutoAttached:
-      'Defined by `alwaysApply: false` with non-empty `globs` in frontmatter. The rule is automatically activated when a file matching the `globs` pattern is opened or focused in Cursor.',
-    AgentAttached:
-      'Defined by non-empty `description` in frontmatter. Loaded and used by the AI agent based on context, guided by the `description`.',
-    ManuallyAttached:
-      'Defined by `alwaysApply: false`, empty or no `globs`, empty or no `description`. The rule is only activated when manually referenced by the user with `@rule-name`.',
-  },
-} as const
 
 /**
  * Run the MDC linter to ensure all files are valid
@@ -337,140 +331,320 @@ async function processMdcFiles(path: string): Promise<RuleFileRaw[]> {
  * @returns Markdown content as a string
  */
 function createRulesMarkdown(rules: RuleFileSimple[]): string {
-  // Start with the header from config
-  let markdown = MARKDOWN_CONFIG.header
+  // --- Helper Functions (unchanged from previous refactor) ---
+  const renderRuleTableRow = (rule: RuleFileSimple): string => {
+    const ruleName = rule.rule
+    const ruleDescription = rule.description || 'No description provided'
+    const formattedDescription = ruleDescription.trim().endsWith('.')
+      ? ruleDescription
+      : `${ruleDescription}.`
+    const attachmentMethod = rule.attachmentMethod || 'none'
+    const formattedMethod = attachmentMethod.charAt(0).toUpperCase() + attachmentMethod.slice(1)
+    const attachmentTypeName = rule.attachmentType || AttachmentType.Unknown
 
-  // Add Custom Cursor Rule Fields section
-  markdown += '\n## Custom Cursor Rule Fields\n\n'
-
-  // Add the description text for the Custom Cursor Rule Fields section
-  markdown += `${MARKDOWN_CONFIG.customRuleFieldsDescription}\n\n`
-
-  // Process each rule classifier section from the configuration
-  for (const section of MARKDOWN_CONFIG.ruleClassifierSections) {
-    markdown += `### ${section.title}\n\n`
-
-    // Add section description if provided
-    if (section.description) {
-      markdown += `${section.description}\n\n`
+    let globsInfo = ''
+    if (rule.globs) {
+      const globList = Array.isArray(rule.globs)
+        ? rule.globs.map((glob) => `<i>${glob}</i>`).join(', ')
+        : `<i>${rule.globs}</i>`
+      globsInfo = `<br><strong>Globs</strong>: ${globList}`
     }
 
-    // Render the body content using the section's renderBody function
-    markdown += section.renderBody(rules)
-    markdown += '\n'
-  }
+    let tagsText = '-'
+    if (rule.tags && Array.isArray(rule.tags) && rule.tags.length > 0) {
+      const formatTag = (tag: string) => `<i>${tag}</i>`
+      const visibleTags = rule.tags.slice(0, MARKDOWN_CONFIG.maxItemsSmall).map(formatTag).join(
+        ', ',
+      )
 
-  // Add single H2 section for all rules
-  markdown += '\n## All Rules By Category\n\n'
-
-  // Group rules by category
-  const rulesByCategory: Record<string, RuleFileSimple[]> = {}
-
-  for (const rule of rules) {
-    const category = rule.category || 'Uncategorized'
-
-    if (!rulesByCategory[category]) {
-      rulesByCategory[category] = []
+      if (rule.tags.length > MARKDOWN_CONFIG.maxItemsSmall) {
+        const hiddenTags = rule.tags.slice(MARKDOWN_CONFIG.maxItemsSmall).map(formatTag).join(', ')
+        const remainingCount = rule.tags.length - MARKDOWN_CONFIG.maxItemsSmall
+        tagsText = dedent`
+          ${visibleTags}<br>
+          <br><details>
+            <summary><i>Show ${remainingCount} more</i></summary>
+            ${hiddenTags}
+          </details>
+        `
+      } else {
+        tagsText = visibleTags
+      }
     }
 
-    rulesByCategory[category].push(rule)
+    return dedent`
+      <tr id="rule-${ruleName}" style="border-bottom: 16px solid transparent;">
+        <td valign="top" style="padding-bottom: 15px;">
+          <strong>Name</strong>: <code>@${ruleName}</code><br>
+          <strong>Attachment</strong>: <a href="#attachment-type-${
+      (attachmentTypeName || '').toLowerCase()
+    }">${attachmentTypeName}</a> / <a href="#attachment-method-${attachmentMethod.toLowerCase()}">${formattedMethod}</a>${globsInfo}<br><br>
+          ${formattedDescription}
+        </td>
+        <td valign="top" align="left" style="padding-bottom: 15px;">${tagsText}</td>
+      </tr>
+    `
   }
 
-  // Sort categories
-  const sortedCategories = Object.keys(rulesByCategory).sort()
-
-  // Create subsections for each category
-  for (const category of sortedCategories) {
-    const rulesInCategory = rulesByCategory[category]
-
-    // Format category name for display (capitalize first letter of each word)
+  const renderCategorySection = (
+    category: string,
+    rulesInCategory: RuleFileSimple[],
+    categoryNumber?: string,
+  ): string => {
     const formattedCategory = category
       .split(' ')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
+    const categoryId = `category-${category.toLowerCase().replace(/\s+/g, '-')}`
+    const { ruleContent, tags } = MARKDOWN_CONFIG.table.columnWidths
+    const formattedCategoryWithNumber = categoryNumber
+      ? `${categoryNumber} ${formattedCategory}`
+      : formattedCategory
 
-    markdown += `\n### ${formattedCategory}\n\n`
+    return dedent`
+      #### <a id="${categoryId}"></a>${formattedCategoryWithNumber}
 
-    // Add a table for rules in this category using HTML for fixed column widths
-    const { rule, description, tags } = MARKDOWN_CONFIG.table.columnWidths
-
-    // Use HTML table with explicit column widths instead of GFM table
-    markdown += `<table width="100%">
-  <tr>
-    <th width="${rule}%" align="left">Rule</th>
-    <th width="${description}%" align="left">Description</th>
-    <th width="${tags}%" align="left">Tags</th>
-  </tr>
-`
-
-    for (const rule of rulesInCategory) {
-      const ruleName = rule.rule
-      const ruleDescription = rule.description || 'No description provided'
-      const attachmentMethod = rule.attachmentMethod || 'none'
-      const formattedMethod = attachmentMethod.charAt(0).toUpperCase() + attachmentMethod.slice(1)
-
-      // Use the actual attachment type value directly
-      const attachmentTypeName = rule.attachmentType || AttachmentType.Unknown
-
-      // Add globs information if available
-      let globsInfo = ''
-      if (rule.globs) {
-        if (Array.isArray(rule.globs)) {
-          globsInfo = ` Applies to \`${rule.globs.join('`, `')}\` files.`
-        } else {
-          globsInfo = ` Applies to \`${rule.globs}\` files.`
-        }
-      }
-
-      // Format tags if available
-      let tagsText = '-'
-      if (rule.tags && Array.isArray(rule.tags) && rule.tags.length > 0) {
-        // Convert tags to HTML code elements instead of using backticks
-        const formatTag = (tag: string) => `<code>${tag}</code>`
-        const visibleTags = rule.tags.slice(0, MARKDOWN_CONFIG.maxItemsSmall).map(formatTag).join(
-          ', ',
-        )
-
-        // If we have more tags than maxItemsSmall, create a collapsible section
-        if (rule.tags.length > MARKDOWN_CONFIG.maxItemsSmall) {
-          const hiddenTags = rule.tags.slice(MARKDOWN_CONFIG.maxItemsSmall).map(formatTag).join(
-            ', ',
-          )
-          const remainingCount = rule.tags.length - MARKDOWN_CONFIG.maxItemsSmall
-
-          tagsText = `${visibleTags}<br>
-<details>
-  <summary><em>Show ${remainingCount} more</em></summary>
-  ${hiddenTags}
-</details>`
-        } else {
-          tagsText = visibleTags
-        }
-      }
-
-      // Create HTML table row with attachment type and method display
-      markdown += `  <tr>
-    <td><strong><code>@${ruleName}</code></strong></td>
-    <td><strong>Type</strong>: <a href="#attachment-type-${
-        (attachmentTypeName || '').toLowerCase()
-      }">${attachmentTypeName}</a><br><strong>Method</strong>: <a href="#attachment-method-${attachmentMethod.toLowerCase()}">${formattedMethod}</a><br><br>${ruleDescription}${globsInfo}</td>
-    <td align="left">${tagsText}</td>
-  </tr>
-`
-    }
-
-    // Close HTML table
-    markdown += '</table>\n\n'
+      <table width="100%">
+        <tr>
+          <th width="${ruleContent}%" align="left">Rule</th>
+          <th width="${tags}%" align="left">Tags</th>
+        </tr>
+      ${rulesInCategory.map(renderRuleTableRow).join('\n')}
+      </table>
+    `
   }
 
-  return markdown
+  // --- Static Workflow Data & Category Mapping ---
+  const workflows: Record<string, { description: string; labels: string[] }> = {
+    'Build': {
+      'description':
+        'Focus on creating, enhancing, and maintaining the core system, including code execution, performance, testing, and tooling essential for the software to function effectively.',
+      'labels': [
+        'backend',
+        'development',
+        'runtime',
+        'testing',
+        'refactoring',
+        'performance',
+        'resilience',
+        'tooling',
+      ],
+    },
+    'Plan': {
+      'description':
+        'Define objectives, sequence tasks, coordinate efforts, and prepare workflows to ensure smooth execution of development and operational activities.',
+      'labels': [
+        'planning',
+        'preparation',
+        'completion',
+        'collaboration',
+        'release',
+        'tasks',
+      ],
+    },
+    'Design': {
+      'description':
+        'Shape the structure, organization, and interaction patterns of the system, focusing on aesthetics, conventions, protocols, and user interaction principles.',
+      'labels': [
+        'design',
+        'structure',
+        'conventions',
+        'style',
+        'protocols',
+        'interaction',
+      ],
+    },
+    'Document': {
+      'description':
+        'Capture, maintain, and improve written knowledge including documentation, cleanup, and any activities that preserve understanding and clarity for both humans and AI.',
+      'labels': [
+        'documentation',
+        'cleanup',
+      ],
+    },
+  }
+  const categoryToWorkflow = Object.fromEntries(
+    Object.entries(workflows).flatMap(([wf, { labels }]) =>
+      labels.map((l) => [l.toLowerCase(), wf])
+    ),
+  )
+
+  // --- Group Rules by Workflow -> Category (and sort categories) ---
+  const rulesByWorkflowAndCategory = Object.entries(
+    rules.reduce((acc, rule) => {
+      const category = rule.category || 'Uncategorized'
+      const workflow = categoryToWorkflow[category.toLowerCase()] || 'Other'
+      acc[workflow] = acc[workflow] || {}
+      acc[workflow][category] = acc[workflow][category] || []
+      acc[workflow][category].push(rule)
+      return acc
+    }, {} as Record<string, Record<string, RuleFileSimple[]>>),
+  ).reduce((acc, [workflow, categories]) => {
+    // Sort categories alphabetically within the workflow
+    acc[workflow] = Object.fromEntries(
+      Object.entries(categories).sort(([a], [b]) => a.localeCompare(b)),
+    )
+    return acc
+  }, {} as Record<string, Record<string, RuleFileSimple[]>>)
+
+  // --- Determine Ordered Workflow List ---
+  const orderedWorkflows = [
+    ...Object.keys(workflows).filter((wf) => rulesByWorkflowAndCategory[wf]), // Keep defined order
+    ...(rulesByWorkflowAndCategory.Other ? ['Other'] : []), // Add 'Other' last if present
+  ]
+
+  // --- Build Markdown Sections ---
+  const headerSection = MARKDOWN_CONFIG.header
+  const customFieldsSection = MARKDOWN_CONFIG.ruleClassifierSections.map((section) =>
+    dedent`
+      ### ${section.title}
+
+      ${section.description ? `${section.description}\n\n` : ''}${section.renderBody(rules) // Needs original flat list for category/tag aggregation
+    }
+    `
+  ).join('\n\n')
+
+  const indexSection = dedent`
+    ### Overview
+
+    Project rules are grouped into the following workflows:
+
+    ${
+    orderedWorkflows.map((workflow) => {
+      const categoryLinks = Object.keys(rulesByWorkflowAndCategory[workflow]).map(
+        (category) => {
+          const formatted = category.split(' ').map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+            .join(' ')
+          return `[${formatted}](#category-${category.toLowerCase().replace(/\\s+/g, '-')})`
+        },
+      ).join(', ')
+      return `- **${workflow.toUpperCase()}**: ${categoryLinks}`
+    }).join('\n')
+  }
+  `
+
+  const rulesSections = orderedWorkflows.map((workflow, wIndex) => {
+    const workflowNum = wIndex + 1
+    const workflowData = workflows[workflow]
+    const description = workflowData?.description
+      ? `${workflowData.description}\n\n`
+      : workflow === 'Other'
+      ? "Categories that don't fit into the main workflows but still contain valuable rules.\n\n"
+      : ''
+    const categoryMarkdown = Object.entries(rulesByWorkflowAndCategory[workflow])
+      .map(([cat, catRules], cIndex) => {
+        const catNum = `${workflowNum}.${cIndex + 1}`
+        return renderCategorySection(cat, catRules, catNum)
+      })
+      .join('\n')
+
+    // Add horizontal line after each section except the last one
+    const isLastWorkflow = wIndex === orderedWorkflows.length - 1
+    const horizontalLine = isLastWorkflow ? '' : '\n\n<hr>\n'
+
+    return dedent`
+      ### ${workflowNum}. ${workflow}
+
+      ${description}${categoryMarkdown}${horizontalLine}
+    `
+  }).join('\n\n')
+
+  // --- Assemble Final Markdown ---
+  return dedent`
+    ${headerSection}
+    ## About These Rules
+
+    ${MARKDOWN_CONFIG.customRuleFieldsDescription}
+
+    ${customFieldsSection}
+    ## All Rules By Workflow
+
+    ${indexSection}${rulesSections}
+  `
 }
 
 /**
- * Converts markdown content to HTML using GitHub's Markdown API
+ * Adds appropriate header comments to a file based on its file type
+ *
+ * @param filePath - Path to the file
+ * @param content - Content to write to the file
+ * @returns The content with appropriate header comments
+ */
+async function addFileHeaderComments(filePath: string, content: string): Promise<string> {
+  // Generate timestamp in the same format for all file types
+  const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19)
+
+  // Get file extension
+  const ext = extname(filePath).toLowerCase()
+
+  switch (ext) {
+    case '.md':
+      return dedent`
+        <!-- IMPORTANT: DO NOT EDIT. This document was auto-generated by Cursor Workbench on ${timestamp} and uses [Github Flavored Markdown](https://github.github.com/gfm/#atx-headings). To change how it's generated edit build.ts.-->
+
+        ${content}
+      `
+
+    case '.html': {
+      // Read the CSS file content
+      let cssContent = ''
+      try {
+        cssContent = await Deno.readTextFile(CSS_PATH)
+      } catch (error) {
+        logger.error(
+          `Warning: Could not read CSS file: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        )
+        // If CSS file can't be read, create an empty style block
+        cssContent = '/* CSS file could not be loaded */'
+      }
+
+      return dedent`
+        <!-- IMPORTANT: DO NOT EDIT. This document was auto-generated by Cursor Workbench on ${timestamp} and rendered from Markdown to HTML using the GitHub Markdown API with GitHub Flavored Markdown (GFM) mode. To change how it's generated edit build.ts.-->
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Cursor Rules Documentation</title>
+          <style>
+        ${cssContent}
+          </style>
+        </head>
+        <body>
+          ${content}
+        </body>
+        </html>
+      `
+    }
+
+    case '.jsonc':
+      return dedent`
+        /**
+         * IMPORTANT: DO NOT EDIT. This file was auto-generated by Cursor Workbench on ${timestamp}. To change how it's generated edit build.ts.
+         * 
+         * It contains metadata about all available Cursor rules in this project.
+         * DO NOT EDIT THIS FILE DIRECTLY - it will be overwritten.
+         * 
+         * To modify rules, edit the original .mdc files in the .cursor/rules directory
+         * and compile them with Cursor Workbench.
+         */
+
+        ${content}
+      `
+
+    default:
+      // No comments for JSON files
+      return content
+  }
+}
+
+/**
+ * Generates an HTML file from markdown content using GitHub's Markdown API
  *
  * @param markdownContent - The markdown content to convert
- * @returns HTML content as a string
+ * @returns HTML content as a string (without HTML wrapper)
  */
 async function convertMarkdownToHtml(markdownContent: string): Promise<string> {
   try {
@@ -479,11 +653,15 @@ async function convertMarkdownToHtml(markdownContent: string): Promise<string> {
     const response = await fetch(GITHUB_MARKDOWN_API, {
       method: 'POST',
       headers: {
-        'Content-Type': 'text/x-markdown',
+        'Content-Type': 'application/json',
         'Accept': 'application/vnd.github.v3+json',
         'User-Agent': 'Cursor-Config-Builder',
+        'X-GitHub-Api-Version': '2022-11-28',
       },
-      body: markdownContent,
+      body: JSON.stringify({
+        text: markdownContent,
+        mode: 'gfm',
+      }),
     })
 
     if (!response.ok) {
@@ -491,58 +669,7 @@ async function convertMarkdownToHtml(markdownContent: string): Promise<string> {
       throw new Error(`GitHub API error (${response.status}): ${errorText}`)
     }
 
-    const html = await response.text()
-
-    // Add basic HTML wrapper with styling for better readability
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cursor Rules Documentation</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 45px;
-      line-height: 1.5;
-    }
-    pre, code {
-      font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-      background-color: rgba(27, 31, 35, 0.05);
-      border-radius: 3px;
-      padding: 0.2em 0.4em;
-    }
-    pre {
-      padding: 16px;
-      overflow: auto;
-    }
-    pre code {
-      background-color: transparent;
-      padding: 0;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    table th, table td {
-      padding: 6px 13px;
-      border: 1px solid #dfe2e5;
-    }
-    table tr {
-      background-color: #fff;
-      border-top: 1px solid #c6cbd1;
-    }
-    table tr:nth-child(2n) {
-      background-color: #f6f8fa;
-    }
-  </style>
-</head>
-<body>
-  ${html}
-</body>
-</html>`
+    return await response.text()
   } catch (error) {
     logger.error(
       `Error converting markdown to HTML: ${
@@ -604,6 +731,13 @@ async function main() {
         attachmentMethod: file.frontmatter?.attachmentMethod || null,
       }
 
+      // Ensure description ends with a period
+      if (ruleMetadata.description) {
+        ruleMetadata.description = ruleMetadata.description.trim().endsWith('.')
+          ? ruleMetadata.description
+          : `${ruleMetadata.description}.`
+      }
+
       // Add any remaining properties from frontmatter
       if (file.frontmatter) {
         for (const [key, value] of Object.entries(file.frontmatter)) {
@@ -624,27 +758,33 @@ async function main() {
     try {
       await ensureDir(dirname(OUTPUT_PATH))
 
-      await Deno.writeTextFile(
-        OUTPUT_PATH,
-        JSON.stringify(processedRules, null, 2),
-      )
+      // Generate the JSON content
+      const jsonContent = JSON.stringify(processedRules, null, 2)
 
+      // Write standard JSON file (without comments)
+      await Deno.writeTextFile(OUTPUT_PATH, jsonContent)
       logger.log(`Successfully wrote metadata to ${OUTPUT_PATH}`)
+
+      // Write JSONC file (with comments)
+      const jsoncContent = await addFileHeaderComments(OUTPUT_JSONC_PATH, jsonContent)
+      await Deno.writeTextFile(OUTPUT_JSONC_PATH, jsoncContent)
+      logger.log(`Successfully wrote commented metadata to ${OUTPUT_JSONC_PATH}`)
 
       // Create markdown file from the rules data
       const markdownContent = createRulesMarkdown(processedRules)
 
-      await Deno.writeTextFile(
-        MARKDOWN_PATH,
-        markdownContent,
-      )
-
+      // Apply header comments and write the markdown file
+      const markdownWithComments = await addFileHeaderComments(MARKDOWN_PATH, markdownContent)
+      await Deno.writeTextFile(MARKDOWN_PATH, markdownWithComments)
       logger.log(`Successfully wrote markdown to ${MARKDOWN_PATH}`)
 
       // Convert markdown to HTML using GitHub API
       try {
         const htmlContent = await convertMarkdownToHtml(markdownContent)
-        await Deno.writeTextFile(HTML_PATH, htmlContent)
+
+        // Apply header and wrapper to HTML content
+        const htmlWithComments = await addFileHeaderComments(HTML_PATH, htmlContent)
+        await Deno.writeTextFile(HTML_PATH, htmlWithComments)
         logger.log(`Successfully converted markdown to HTML and saved to ${HTML_PATH}`)
       } catch (error) {
         logger.error(

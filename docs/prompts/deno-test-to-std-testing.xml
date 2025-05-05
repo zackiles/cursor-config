@@ -1,0 +1,119 @@
+<prompt task="refactor-deno-test-to-std-testing" category="refactoring" role="software-engineer">
+  <title>Refactoring a Deno Test Suite into BDD Style using the JSR library `@std/testing`</title>
+
+  <context>
+    <section title="Deno.test and Test Steps (Built-in Testing)">
+      <bullet>Deno provides a global <code>Deno.test()</code> function to define test cases. Each test is identified by a name and a function, and tests can be run in parallel via the <code>deno test</code> command.</bullet>
+      <bullet>Tests can be subdivided using test steps <code>t.step(name, fn)</code> to structure sub-tests.</bullet>
+      <bullet>Skipping or focusing tests uses flags like <code>ignore: true</code>, <code>Deno.test.ignore()</code>, and <code>Deno.test.only()</code>.</bullet>
+      <bullet>No built-in lifecycle hooks (before/after) exist; manual setup/teardown is required.</bullet>
+    </section>
+
+    <section title="@std/testing BDD Framework (describe/it)">
+      <bullet>Provides a BDD-style interface with <code>describe()</code> for grouping and <code>it()</code> for individual tests.</bullet>
+      <bullet>Supports hooks: <code>beforeAll</code>, <code>afterAll</code>, <code>beforeEach</code>, <code>afterEach</code> to manage setup and teardown.</bullet>
+      <bullet>Has <code>describe.only</code>, <code>it.only</code>, <code>describe.ignore</code>, and <code>it.ignore</code> for test filtering.</bullet>
+      <bullet>Built on top of native Deno test, maintaining compatibility with Deno test runner.</bullet>
+    </section>
+
+    <section title="Key Differences and Migration Notes">
+      <bullet><strong>Structure:</strong> Flat tests move into nested describes and its.</bullet>
+      <bullet><strong>Hooks vs Manual Setup:</strong> Refactor repeated manual setups into lifecycle hooks.</bullet>
+      <bullet><strong>Test Context:</strong> <code>t.step</code> calls become nested describes/its; no explicit <code>TestContext</code> parameter.</bullet>
+      <bullet><strong>Skipping/Filtering:</strong> Convert <code>ignore</code> and <code>only</code> flags into corresponding BDD-style flags.</bullet>
+      <bullet><strong>Test Options:</strong> Preserve test options (permissions, sanitization) when refactoring.</bullet>
+      <bullet><strong>Assertions and Logic:</strong> Test assertions remain unchanged; only the structure is refactored.</bullet>
+      <bullet><strong>Imports and Setup:</strong> Replace imports and remove references to <code>Deno.test</code>.</bullet>
+    </section>
+
+    <section title="Organizing BDD Test Suites">
+      <bullet>Maintain test file naming convention (<code>.test.ts</code>).</bullet>
+      <bullet>Use nested describes for logical grouping.</bullet>
+      <bullet>Employ descriptive naming for describes (features/modules) and its (expected behaviors).</bullet>
+      <bullet>Isolate state using hooks appropriately.</bullet>
+      <bullet>Ensure consistent overall structure across the test suite.</bullet>
+    </section>
+
+    <section title="Prompt Design Tips">
+      <bullet>Use clear placeholders (like <code>{{TEST_FILE_CODE}}</code>) for injecting test files.</bullet>
+      <bullet>Specify clearly desired output format (just refactored code).</bullet>
+      <bullet>Provide step-by-step instructions and examples to guide refactoring.</bullet>
+      <bullet>Encourage internal chain-of-thought reasoning by the LLM.</bullet>
+      <bullet>Ask the LLM to double-check completeness and accuracy explicitly.</bullet>
+    </section>
+  </context>
+
+  <instructions>
+    <step>Analyze provided test files, identify tests and steps.</step>
+    <step>Decide appropriate grouping into <code>describe</code> and <code>it</code> blocks.</step>
+    <step>Group tests logically with nested <code>describe</code> structures.</step>
+    <step>Convert <code>Deno.test</code> and <code>t.step</code> into <code>describe</code>/<code>it</code> blocks.</step>
+    <step>Extract repeated setup/teardown into lifecycle hooks.</step>
+    <step>Remove original <code>Deno.test</code> and <code>t.step</code> wrappers after conversion.</step>
+    <step>Apply skip (<code>.ignore</code>) and focus (<code>.only</code>) flags.</step>
+    <step>Carry over special test options (permissions, sanitization).</step>
+    <step>Update imports to include <code>@std/testing/bdd</code>, removing deprecated ones.</step>
+    <step>Review thoroughly to ensure accurate refactoring.</step>
+    <step>Output refactored code in the requested format (code only).</step>
+  </instructions>
+
+  <examples>
+    <example>
+      <before>// Original Deno test with steps
+Deno.test("auth tests", async (t) => {
+  await t.step("login succeeds", () => {/* test code */});
+  await t.step("login fails", () => {/* test code */});
+});</before>
+      <after>// Refactored to BDD style
+describe("auth tests", () => {
+  it("login succeeds", () => {/* test code */});
+  it("login fails", () => {/* test code */});
+});</after>
+    </example>
+    <example>
+      <before>// Repeated manual setup in Deno tests
+Deno.test("add operation", () => {
+  const calc = new Calculator();
+  calc.add(2);
+  assertEquals(calc.value, 2);
+});
+Deno.test("subtract operation", () => {
+  const calc = new Calculator();
+  calc.subtract(2);
+  assertEquals(calc.value, -2);
+});</before>
+      <after>// Using hooks in BDD
+describe("Calculator operations", () => {
+  let calc;
+  beforeEach(() => { calc = new Calculator(); });
+  it("add operation", () => {
+    calc.add(2);
+    assertEquals(calc.value, 2);
+  });
+  it("subtract operation", () => {
+    calc.subtract(2);
+    assertEquals(calc.value, -2);
+  });
+});</after>
+    </example>
+  </examples>
+
+  <references>
+    <link>https://docs.deno.com/runtime/fundamentals/testing/</link>
+    <link>https://jsr.io/@std/testing/doc/bdd</link>
+    <link>https://jsr.io/@std/testing/doc/bdd/~/beforeAll</link>
+    <link>https://jsr.io/@std/testing/doc/bdd/~/afterAll</link>
+    <link>https://jsr.io/@std/testing/doc/bdd/~/beforeEach</link>
+    <link>https://jsr.io/@std/testing/doc/bdd/~/afterEach</link>
+    <link>https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/chain-of-thought</link>
+    <link>https://platform.openai.com/docs/guides/reasoning-best-practices</link>
+  </references>
+
+  <summary>
+    <bullet>Preserve test behavior and assertions.</bullet>
+    <bullet>Convert flat tests into clearly structured groups.</bullet>
+    <bullet>Extract common setup/teardown into lifecycle hooks.</bullet>
+    <bullet>Remove all deprecated usage after migration.</bullet>
+    <bullet>Verify the entire test suite thoroughly post-refactoring.</bullet>
+  </summary>
+</prompt>

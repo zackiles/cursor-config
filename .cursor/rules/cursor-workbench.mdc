@@ -1,0 +1,39 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Follow When Creating and Editing Cursor Rules
+**IMPORTANT**: When creating and editing cursor rules you MUST determine if the rule meets the definition of a global rule or a project rule and follow the section on "Managing Cursor Rules"
+
+**IMPORTANT**: When a user doesn't have a folder at `.cursor/rules/local` you will assume all further instructions for project rules are referring to `.cursor/rules` instead.
+
+
+## Project Rule Definiton
+
+- Rule is in the directory or a subdirectory of `.cursor/rules/local`
+- User prompted in the chat using the commmand: `/Generate Cursor Rules`
+- User prompted in the chat to edit or create a rule located in the directory or a subdirectory of `.cursor/rules/local`
+- A rule itself located in `.cursor/rules/global` is instructing the agent to create or edit a rule. In this instance, global rules in `.cursor/rules/global` will ALWAYS be referring to project rules when instructing to edit or create rules. This is NOT the case when reading other rules.
+- User is explicitly asking to edit or create a rule in any of the following ways
+  - "Edit the project rule..."
+  - "Find and update the rule in '.cursor/rules/local'..."
+  - "What project rules exist?"
+
+## Global Rule Definition
+
+- Rule is in the directory or a subdirectory of `.cursor/rules/global`
+- User prompted in the chat to edit or create a rule located in the directory or a subdirectory of`.cursor/rules/global`
+- User is explicitly asking to edit or create a rule in any of the following ways
+  - "Edit the global rule..."
+  - "Find and update the rule in '.cursor/rules/global'..."
+  - "What global rules exist?"
+  - 
+
+## Managing Cursor Rules
+- Never create or edit a rule before knowing if it's a global or project rule
+- Use the appropriate path according to the rule type. Example for illustration: `.cursor/rules/{global, local}/**/*.mdc`
+- Unless explicitly asked to edit a global rule by the user ALWAYS assume it's a project rule and should be located in `.cursor/rules/local`
+- Global rules MAY on occasion instruct the Cursor agent to create project rules, but they will never themeselves instruct the agent to create global rules.
+- `/Generate Cursor Rules` will always refer to a local rule in `.cursor/rules/local`
+- Project rules MAY on occasion instruct the Cursor agent to create global rules, but they MUST explicitly specify a "global rule" in their instructions. Otherwise, if they aren't explicit it will be assumed to be a project rule.

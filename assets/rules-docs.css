@@ -1,0 +1,168 @@
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+	max-width: 980px;
+	margin: 0 auto;
+	padding: 45px;
+	line-height: 1.5;
+	color: #24292e;
+}
+pre,
+code {
+	font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+	background-color: rgba(27, 31, 35, 0.05);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	font-size: 85%;
+}
+pre {
+	padding: 16px;
+	overflow: auto;
+	line-height: 1.45;
+}
+pre code {
+	background-color: transparent;
+	padding: 0;
+	border-radius: 0;
+}
+a {
+	color: #00489a;
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+	color: #001935;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	margin-top: 24px;
+	margin-bottom: 16px;
+	font-weight: 600;
+	line-height: 1.25;
+}
+h1 {
+	font-size: 2em;
+	border-bottom: 1px solid #eaecef;
+	padding-bottom: 0.3em;
+}
+h2 {
+	font-size: 1.5em;
+	border-bottom: 1px solid #eaecef;
+	padding-bottom: 0.3em;
+}
+table {
+	border-collapse: collapse;
+	width: 100%;
+	margin: 16px 0;
+}
+table th,
+table td {
+	padding: 6px 13px;
+	border: 1px solid #dfe2e5;
+}
+
+table tr {
+	background-color: #f7f7f7;
+	border-top: 1px solid #c6cbd1;
+}
+/* Remove alternating row colors */
+table tr:nth-child(2n) {
+	background-color: #fff;
+}
+
+/* GitHub alert styling */
+.markdown-alert {
+	padding: 8px 16px;
+	margin-bottom: 16px;
+	border-radius: 6px;
+	border: 1px solid;
+}
+.markdown-alert p {
+	margin: 8px 0;
+}
+.markdown-alert-title {
+	font-weight: 600;
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.5;
+	display: flex;
+	align-items: center;
+}
+.markdown-alert-title svg {
+	margin-right: 8px;
+}
+
+/* Note alert (blue) */
+.markdown-alert-note {
+	background-color: #f1f8ff;
+	border-color: #c8e1ff;
+}
+.markdown-alert-note .markdown-alert-title {
+	color: #0366d6;
+}
+
+/* Tip alert (green) */
+.markdown-alert-tip {
+	background-color: #f0fff4;
+	border-color: #c2e0c6;
+}
+.markdown-alert-tip .markdown-alert-title {
+	color: #22863a;
+}
+
+/* Important alert (purple) */
+.markdown-alert-important {
+	background-color: #f5f0ff;
+	border-color: #d5c8e1;
+}
+.markdown-alert-important .markdown-alert-title {
+	color: #6f42c1;
+}
+
+/* Warning alert (yellow) */
+.markdown-alert-warning {
+	background-color: #fffbdd;
+	border-color: #eed888;
+}
+.markdown-alert-warning .markdown-alert-title {
+	color: #b08800;
+}
+
+/* Caution alert (red) */
+.markdown-alert-caution {
+	background-color: #ffeef0;
+	border-color: #f9b3bd;
+}
+.markdown-alert-caution .markdown-alert-title {
+	color: #d73a49;
+}
+
+/* Details/summary styling */
+details {
+	margin: 16px 0;
+}
+summary {
+	cursor: pointer;
+	padding: 8px 0;
+}
+summary em {
+	color: #000000;
+	font-style: bold;
+	text-decoration: underline;
+}
+details > summary {
+	color: #000000;
+	font-style: bold;
+}
+
+summary > em:hover {
+	color: #292929;
+}
+
+/* Code notranslate */
+code.notranslate {
+	white-space: nowrap;
+}

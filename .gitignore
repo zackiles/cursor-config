@@ -2,3 +2,5 @@
 node_modules
 .cursor/memory
 .env
+reports
+bin
