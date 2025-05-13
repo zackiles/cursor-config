@@ -1,0 +1,13 @@
+---
+description: Before Using Your Tools To Search The Codebase Or Files
+globs:
+alwaysApply: false
+---
+# Before Using Your Tools To Search The Codebase Or Files
+Before using your tools to understand the codebase, start by reviewing the following known files:
+
+- User-facing Project README: [README.md](mdc:README.md)
+- Codebase Snapshot File: [snapshot.xml](mdc:.cursor/snapshot.xml)
+  - Repomix is used to periodically take a snapshot of the entire codebase into a single xml file that can be found at [snapshot.xml](mdc:.cursor/snapshot.xml)
+  - If the file is out of date you can regenerate it by running the script: [build-snapshot.sh](mdc:.cursor/build-snapshot.sh)
+- Fallback on your regular tools and approach if you can't find what you're looking for using those

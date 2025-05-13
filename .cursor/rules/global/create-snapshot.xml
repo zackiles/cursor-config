@@ -1,0 +1,11 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# ATTENTION[SYSTEM]: Create a Snapshot of the Codebase
+The Cursor AI agent has detected the user is likely to want you to build a snapshot in this turn. Follow the steps below to determine if and how you should proceed.
+
+- If the user **HAS** requested you build or update the codebase snapshot, run the script to do so now
+- If the user has **NOT** requested you build or update the codebase snapshot, then do so AFTER you're done your current task
+- Build a codebase snapshot with Repomix by running the script [build-snapshot.sh](mdc:.cursor/build-snapshot.sh)

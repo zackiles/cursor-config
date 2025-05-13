@@ -1,0 +1,107 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Task: Write an Implementation Checklist at `<project-root>/.cursor/checklists/<name-of-todo>-checklist.md`
+
+You will review the shown or mentioned proposal, solution, or TODO and follow the steps to create an implementation plan that includes the phases and checklist of steps for each phase.
+
+## Steps To Create An Implementation Plan
+
+### 1) **Prepare and Understand**
+
+Review the TODO or proposal, other related context the user provided to understand what needs to be done to implement the proposal or solution
+
+### 2) **Read the Code**
+
+Analyze the full and complete code involved and their dependencies to build a deep, accurate, and precise understanding of all the code and tests involved with the TODO and the code needed to implement the TODO
+
+### 3) **Create the Implementation Plan**
+
+Create a new markdown checklist file for this TODO at  
+`<project-root>/.cursor/checklists/<name-of-todo>-checklist.md`.
+
+#### 3.1) Include required metadata at the top
+
+- Current date and time (e.g., `2025-05-13 09:14 EDT`)
+- Short summary of the intended change (1–2 sentences)
+
+#### 3.2) Define high-level implementation phases
+
+Each phase MUST include:
+
+- A short description explaining the purpose of the phase
+- A numbered list of task steps using markdown checkboxes
+- Clear action verbs for each step
+- Tasks broken into discrete, testable units
+
+#### 3.3) Add appendix section
+
+Appendix must include:
+
+* Inline pseudocode samples for critical functions
+* Key references (e.g., RFCs, specs, related PRs)
+* Configuration or environment details that impact implementation
+
+#### 3.4) Write summary section
+
+End the markdown file with a `## Summary` section.
+
+Content must:
+
+* Restate the high-level goal and purpose of the TODO
+* Tell the reader to complete each phase in order
+* Instruct the reader to mark steps complete before continuing
+* Emphasize test validation before advancing to the next phase
+* Explain that the reader can choose when to write tests:
+  * a) After all phases are complete
+  * b) After each phase
+* Recommend selecting option a or b based on project risk and complexity
+
+### 4) Finish Your Task
+
+After the implementation checklist is complete, end your turn by responding to the user with only the path or link to the checklist you created for their review. Do NOT respond with the full markdown file in the chat.
+
+## Example Of Phases and Steps
+
+A hypothetical example of a general template specifically for the phases and steps.
+
+```md
+### 1) Refactor Utilities
+Refactor and consolidate shared utilities from `old-codebase/src/helpers/`, `old-codebase/src/common/`, and `old-codebase/src/utils/` into a unified `new-codebase/src/shared/` directory for Deno 2.
+
+#### 1.1) Identify Duplicate Logic
+- [ ] Audit files in `old-codebase/src/helpers`, `old-codebase/src/common`, and `old-codebase/src/utils`
+- [ ] Highlight overlap in functionality
+- [ ] Propose which file should be canonical source for Deno 2 port
+
+#### 1.2) Migrate and Delete Duplicates
+- [ ] Move canonical utilities to `new-codebase/src/shared/`
+- [ ] Convert CommonJS/Node idioms to ES module Deno-compatible syntax
+- [ ] Update imports in migrated files using Deno-compatible `import` paths
+- [ ] Remove deprecated or obsolete utility files in old codebase
+
+### 2) Replace HTTP Client Library
+Swap `axios` from `old-codebase` with Deno-native `fetch` in `new-codebase` to reduce external dependencies and simplify networking.
+
+#### 2.1) Inventory Current Usage
+- [ ] List all files in `old-codebase` importing or requiring `axios`
+- [ ] Identify patterns such as `axios.create`, interceptors, or custom headers
+
+#### 2.2) Replace API Calls
+- [ ] Replace GET requests with native `fetch`
+```
+
+## Final Notes
+
+- Main phases have short descriptions of the phase
+- Phases are numbered in order of when they should be implemented
+- Steps are specific, technical, and concise
+- Steps are numbered in order of when they should be implemented within their given phase
+- Steps include checkboxes
+- **IMPORTANT**: For large or complicated phases, encourage the reader to run the tests one they're finished implementing that phase before they move on to the next phase. Leave a note in the phase's description warning them to so it draws the readers attention.
+
+## Summary
+
+Following these steps will ensure you write a complete and comprehensive implementation plan that walks an engineer through the step-by-step completion and implementation of the specified TODO. Review your work, double-check code samples are accurate, and always check the full source files of code and test files that the implementation would have to modify to ensure you understand the impacts of changing it.

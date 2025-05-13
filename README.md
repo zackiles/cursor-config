@@ -2,9 +2,6 @@
 
 An opinionated suite of general-purpose and modern [Cursor Rules](https://docs.cursor.com/context/rules-for-ai) as well as global Cursor configuration that complements these rules. Battle-tested and leverages best practices of prompt design. Optimized for agent-mode.
 
-> [!TIP]
-> For more details on how Cursor Rules work, please read this deep-dive guide on [How Cursor Rules Work](./docs/how-cursor-rules-work.md).
-
 ## **How To Use These Rules**
 
 Run the following command in the root of the project where you want to install the rules. If you have rules with similar names, they will not be overwritten.
@@ -20,10 +17,7 @@ That's it! The rules will be automatically detected by Cursor and the [documenta
 
 ## Available Rules
 
-**The following rules are available**: `with-deno`, `with-javascript`, `with-javascript-vibe`, `with-mcp`, `with-tests`, `with-project-directory`, `create-mcp-server`, `create-prompt`, `create-release`, `create-tests`, `finalize`, `prepare`, `propose`, `recover`
-
-> [!TIP]  
-> For full documentation and examples for each of these rules, see [CURSOR-RULES.md](CURSOR-RULES.md).
+See [CURSOR-RULES.md](CURSOR-RULES.md) for full documentation.
 
 ## Creating and Editing Rules
 
@@ -70,7 +64,11 @@ Provided as examples. These files illustrate a typical approach where many docum
 
 **`.cursorindexignore`**: For files you want available to Cursor, but only when manually provided to it. These files will NOT be indexed. Note: things in `.gitignore` are already automatically ignored. I'll often use this to not index code that may confuse the AI unless I provide it manually with specific context, such as a large schema file or random project notes and documentation. A typical file you'll want to ignore is lock files.
 
+> [!TIP]
+> For more details on how Cursor Rules work, please read this deep-dive guide on [How Cursor Rules Work](./docs/how-cursor-rules-work.md).
+
 ## TODO
 
+- This codebase has a custom Cursor Rules linter, compiler, rule document-generator, and other advanced functionality not provided by Cursor. Document it and make it production ready.
 - Add general purpose MCP servers
 - Add AI docs to be used with Cursor's `@doc` system. See [Cursor @Docs](https://docs.cursor.com/context/@-symbols/@-docs).

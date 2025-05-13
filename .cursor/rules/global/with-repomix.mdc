@@ -1,0 +1,34 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# CRITICAL: This Codebase Has A Repomix Snapshot
+
+Do NOT use your tools to search the codebase or read files for this turn. Instead do the following:
+
+- The file [snapshot.xml](mdc:.cursor/snapshot.xml) contains a snapshot of the entire codebase with all its code files and documentation
+- You can use [snapshot.xml](mdc:.cursor/snapshot.xml) to understand the codebase at a high-level.
+- Read all or parts of [snapshot.xml](mdc:.cursor/snapshot.xml) to find the files or code you're looking for before trying to read the actual file
+- You can grep search this file, or read individual lines
+- It is a parsed AST of the codebase and contains almost all file names, classes, methods, imports, exports, code comments, variables, constants...
+- Grep search for the same terms you would when using your codebase search tool
+- Highly granular parts of the code are not shown in [snapshot.xml](mdc:.cursor/snapshot.xml), and require you to review the actual file
+- **NOTE**: Fallback on your regular tools if you can't find what you're looking for in [snapshot.xml](mdc:.cursor/snapshot.xml) or the file seems inaccurate or out-of-date.
+
+## Reading And Generating The Snapshot
+- **REPOMIX FILE LOCATION**: Stored in [snapshot.xml](mdc:.cursor/snapshot.xml)
+- **REPOMIX FILE CONTENTS**: Contains code, documentation, and tests related to this project condensed into a single file
+- The repomix configuration is at [repomix.config.json](mdc:repomix.config.json)
+- You can update the snapshot when needed by running the script at [build-snapshot.sh](mdc:.cursor/build-snapshot.sh)
+- **IMPORTANT**: Use the file `codebase-summary.xml` ONLY as a reference. Prefer to inspect the actual files in the codebase if you need granularity on a specific piece of code
+
+## When Adding or Removing Files To This Codebase
+
+- Update the Repomix config at [repomix.config.json](mdc:repomix.config.json) so that they're tracked or untracked in the snapshot (if they aren't already)
+- To track a file add the glob pattern to the `include` array like so:
+```json
+{
+"include": ["README.md", "src/**/*.ts", "test/**/*.ts", "docs/**/*.md"]
+}
+```
