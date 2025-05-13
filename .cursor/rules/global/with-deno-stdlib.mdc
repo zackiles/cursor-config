@@ -1,0 +1,27 @@
+---
+description: Import Errors and Import Warnings Specifically For Deno
+globs:
+alwaysApply: false
+---
+# Steps To Resolving Deno Lint Errors
+Follow these step by step, and in the order they're shown until the issue is resolved:
+
+1) **Check `deno.jsonc` Imports**: import map shows installed libraries in format of `"@std/fs": "jsr:@std/fs@1"`. If not installed, `deno add {jsr:@std/fs@1}` and import it with 'import { expandGlob } from 'std/fs@1'`.
+2) Libraries in `@std/` with `/unstable-*` in name have to be imported explicitly:
+  ```ts
+    import { multiPromptSelect } from '@std/cli/unstable-prompt-select`
+  ```
+3) NO imports from URLs or registry paths. `Deno add` install instead and use the short name. Examples:
+  - GOOD: `import { parse } '@std/jsonc'`
+  - BAD: `import { parse } 'jsr:@std/jsonc'`
+  - GOOD: `import { ulid } '@std/ulid'`
+  - BAD: `import { ulid } 'jsr:@std/ulid'`
+  - GOOD: `import * as jose from 'jose'`
+  - BAD: `import * as jose from 'npm:jose'`
+4) **Use Deno Tools to Debug the Issue**:
+  - LOCAL JSR package: `deno info --json | jq '.modules[] | select((.specifier | tostring) | test("^@std/cli$"))'`
+  - REMOTE JSR package: `deno info --json | jq '.modules[] | select((.specifier | tostring) | test("^(jsr:|https://jsr.io/)@std/cli"))'`
+  - LOCAL **or** REMOTE JSR package: `deno info --json | jq '.modules[] | select((.specifier | tostring) | test("(@std/cli|jsr:@std/cli|jsr.io/@std/cli)"))'`
+  - LOCAL Deno **file**: `deno info {example_name}.ts`
+  - LOCAL NPM package: `deno types npm:your-lib`
+  - UNKNOWN location of package: `deno info --json | jq '.modules[] | select((.specifier | tostring) | test('package alias'))'

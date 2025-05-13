@@ -1,0 +1,19 @@
+---
+description:
+globs: src/commands/*.ts,src/cli.ts
+alwaysApply: false
+---
+
+# Instructions For Reading and Modifying Command Files In "src/commands"
+
+Before you read or modify any files in "src/commands" ensure you read and understand how command files work by doing the following:
+- Review how commands are loaded and executed in [cli.ts](mdc:src/cli.ts)
+- Review how commands are routed and arguments handled
+- Review the entrypoint of the application in [mod.ts](mdc:src/mod.ts)
+- Review the general commands available (shown as Deno Tasks) in [deno.jsonc](mdc:deno.jsonc)
+- Review the project readme in [README.md](mdc:README.md)
+- Review one example command currently enabled such as [start.ts](mdc:src/commands/start.ts)
+
+## Summary
+
+Reviewing how commands work in the application will ensure any changes you might make to them will adhere to the standards and patterns of this codebase, and ensure consistency in code across the commands.

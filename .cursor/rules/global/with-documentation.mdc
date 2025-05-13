@@ -1,0 +1,104 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# How to Write Documentation
+**DANGER**: You must follow the rules in `Style and Prose`, and `Format and Output` when doing the following:
+
+1. Writing or editing documentation
+2. Responding technically or on a technical topic to the user
+3. Reviewing or proposing changes to documentation
+
+## Style and Prose
+- Sentences using the dependency grammar framework instead of phrase structure grammar
+- Sentences should be brief and action-oriented
+- Sentence-style capitalization and serial commas consistently
+- Subject-verb-object order for clarity and rhythm
+- Clear and active constructions
+- Verbs instead of nominalized nouns
+- Specific nouns and clear referents to eliminate ambiguity
+- Plain language or clearly explains necessary jargon
+- Consistent grammatical structure across headings, instructions, and examples
+- Parallel structure in lists to improve scanability and comprehension
+- Words connected in close proximity to each other improve comprehension
+- Concise language, active voice, and consistent structure
+- Second person ("you") to address readers
+- Imperative verbs for clear instructions
+- Place conditions before actions
+- Numbered lists for sequential steps
+- Bullet lists for non-sequential items
+- Instructions are task-oriented and start with verbs, such as "Click," "Select," or "Enter."
+- Descriptive and informative link text rather than generic terms like "click here" or "more information."
+- Consistent and precise terminology
+- Prefer familiar terms over ambiguous or novel ones
+- Define new or complex terms when first used
+- Introduce abbreviations and acronyms before using them
+- Use abbreviations consistently and sparingly
+- Keep spelling, capitalization, and hyphenation uniform
+- Format code and commands in `monospace`
+- Keep code lines under 80 characters
+- Show user input, system output, and examples clearly
+- Use sentence case for headings
+- Use clear subheadings and indent lists properly
+- Break steps into short, clear actions
+- Use tested, realistic technical examples
+- Most important information at the beginning of each sentence
+
+---
+
+## Format and Output
+
+- Use the rules in **Progressive‑Disclosure Pattern** when structuring documents or sections
+- Use the rules in **Writing Github Flavor Markdown** when writing markdown files (`*.md`)
+- Lead with clear task imperative, short clause
+- Reveal context next, one sentence
+- Unfold options in subsections, ordered by effort
+- If needed, add deep reference data last, collapsed or linked
+- Finish with short recap
+
+### Writing Github Flavor Markdown
+- Utilize the the full capabilities of Github Flavor markdown. Examples of capabilities you should use:
+  - Task lists. Example: `- [x] Install dependencies`
+  - Tables
+  - Admonitions
+    - Using the `[!TYPE]`syntax. Examples: `[!IMPORTANT]`, `[!TIP]`, `[!CAUTION]`...
+    - Using an emoji + blockquote. Example: `> **🧪 Example**`.
+  - Strikethroughs. Example: `This is ~~struck through~~ text.`
+  - Collapsed details block (`<details>`) are perfect for long lists. Example: `<details><summary>Click to expand</summary></details>`
+
+### Progressive‑Disclosure
+
+#### Example Skeleton (For Illustration Only)
+
+```markdown
+## Do X Now
+Step list…
+
+### Why X Works
+Brief explanation…
+
+### More You Can Tweak
+Options list…
+
+#### Deep Dive
+Reference table…
+
+### Recap
+One‑sentence summary
+```
+
+#### Good / Bad
+
+| Good                                                                                                                                                                          | Bad                                                                                                                                             |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Do:**<br>Install with `deno run -A mod.ts`.<br>**Why:** Minimal deps, quick start.<br>**More:** Set `--log-level=debug` for verbose output.<br>**Deep:** See full CLI spec. | **Overview:** This project is a powerful tool that...<br>It can be configured in various ways...<br>To install, follow these extensive steps... |
+
+#### Related Patterns
+- Inverted pyramid (journalism-inspired: summary → detail)
+- Action first, explanation second (task-based documentation)
+- Just-in-time help (surface detail only when needed)
+
+## Summary
+
+Adhering to these standards and guidelines (`Style and Prose`, and `Format and Output`) will ensure the best experience for readers and the user.
