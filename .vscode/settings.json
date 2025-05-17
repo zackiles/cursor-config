@@ -30,9 +30,6 @@
     "editor.defaultFormatter": "denoland.vscode-deno",
     "editor.formatOnSave": true
   },
-  "[mdc]": {
-    "editor.defaultFormatter": "pla"
-  },
   "cSpell.useGitignore": true,
   "cSpell.ignorePaths": [
     "deno.{json,jsonc}",
