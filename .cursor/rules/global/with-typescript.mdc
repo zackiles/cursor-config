@@ -1,0 +1,191 @@
+---
+description:
+globs: *.ts
+alwaysApply: false
+---
+# Rules For Typescript Types
+Follow these rules and standards when creating or editing types:
+
+- The less code it takes to define a type the better
+- Derive dynamic types from values instead of repeating values that already exist
+- Reuse and extend existing types instead of creating whole new types
+- Avoid duplicating types in the project
+- Avoid redundant type declaration
+- Avoid manual type annotation
+- Avoid non-inferential typing
+- Consolidate or share similar types across files instead of creating similar ones for each file. Examples:
+  - Finding and using the `types.ts` file or common export if they exist
+  - By namespace merging and augmentation of very similar interfaces that exist across files instead of creating the same or similar type in every single file.
+- Prefer type-level programming or type inference-driven type construction
+- GOOD: typeof inference: capturing runtime shapes for type use
+- GOOD: mapped types: transforming types over keys
+- GOOD: indexed access types: extracting types via `[K]`
+- GOOD: template literal types: for strings and key construction.
+- GOOD: conditional types: shaping types based on logic
+
+## GOOD Methods For Creating Types
+
+* **`satisfies`**
+
+  * Ensures a value conforms to a type without losing literal types
+
+    * ```ts
+      const config = {
+        mode: 'dev',
+        verbose: true,
+      } satisfies Record<string, unknown>
+      ```
+
+* **`infer`**
+
+  * Extracts types inside conditional types
+
+    * ```ts
+      type ElementType<T> = T extends (infer U)[] ? U : T
+      ```
+
+* **`keyof` with `typeof`**
+
+  * Gets literal keys from objects or arrays
+
+    * ```ts
+      const flags = ['--help', '--verbose'] as const
+      type Flag = (typeof flags)[number] // "--help" | "--verbose"
+      ```
+
+* **`ReturnType`, `Parameters`, `ConstructorParameters`**
+
+  * Extracts return values, arguments, and constructor params from functions
+
+    * ```ts
+      type Fn = (x: number) => string
+      type R = ReturnType<Fn> // string
+      ```
+
+* **Template Literal Types**
+
+  * Builds new string types using embedded values
+
+    * ```ts
+      type Lang = 'en' | 'fr'
+      type Route = `/${Lang}/home` // "/en/home" | "/fr/home"
+      ```
+
+* **`Record<K, V>` with `keyof`**
+
+  * Dynamically builds object-like types from keys
+
+    * ```ts
+      type Config = Record<keyof typeof config, string>
+      ```
+
+* **`as const`**
+
+  * Freezes values to preserve literal types
+
+    * ```ts
+      const roles = ['admin', 'user'] as const
+      type Role = typeof roles[number] // "admin" | "user"
+      ```
+
+* **Utility Types (`Partial`, `Required`, `Pick`, `Omit`, `Exclude`, `Extract`)**
+
+  * Shape types by including, excluding, or modifying fields
+
+    * ```ts
+      type OptionalName = Partial<{ name: string; age: number }>
+      ```
+
+* **`asserts` type predicates**
+
+  * Smartly narrows types with custom logic
+
+    * ```ts
+      function isString(val: unknown): val is string {
+        return typeof val === 'string'
+      }
+      ```
+
+* **`unique symbol`**
+
+  * Creates brand/tag-like nominal types
+
+    * ```ts
+      declare const myTag: unique symbol
+      type Tagged = { [myTag]: true }
+      ```
+
+## Example 1
+```ts
+// IMPORTANT: Given THIS Existing value
+const defaultConfig = {
+  ENV: 'production',
+  PORT: 9001,
+  HOST: undefined
+}
+
+// BAD: Repetitive type created (manual)
+interface Config {
+  HOST: string
+  ENV?: string
+  PORT?: number
+}
+
+// BAD: Repetitive type created (manual)
+type Config = 'ENV' | 'PORT' | 'HOST'
+
+// BAD: Frozen keys array
+const keys = ['ENV', 'PORT', 'HOST'] as const
+
+// GOOD: Dynamic type (derived)
+type Config = {
+  [K in keyof typeof defaultConfig]: typeof defaultConfig[K]
+}
+
+// GOOD: Derive the type with HOST required using mapped types and intersections
+type Config = {
+  HOST: typeof defaultConfig['HOST']
+} & Partial<Omit<typeof defaultConfig, 'HOST'>>
+
+// GOOD: Keys only (dynamically)
+type Config = keyof typeof defaultConfig
+
+// GOOD: Keys as array
+const keys = Object.keys(defaultConfig) as Array<keyof typeof defaultConfig>
+type Config = (typeof keys)[number]
+type Config = typeof keys[number]
+
+// GOOD: Value union (types of all values)
+type Config = typeof defaultConfig[keyof typeof defaultConfig]
+```
+
+## Example 2
+
+```ts
+const obj = { name: 'mary', age: 42 }
+
+// GOOD: Dynamic value
+interface LookupTable {
+  value: keyof typeof obj
+}
+
+// BAD:
+interface NewType {
+  name: string
+  age: number
+}
+```
+
+## Debugging Typescript and Deno
+
+When having issues with a Typescript library or module, these are the tools that will help you understand what the issue is and where you might've made a mistake:
+
+- **Deno Native APIs** :Get documentation generated from Typescript for Deno native APIs. Exanple: `deno doc --filter Deno.Listener`
+- **JSR or Typescript Packages**: Get documentation generated from Typescript for JSR packages (if they're current installed). Examples: `deno doc "jsr:@std/cli"`
+- **Local File**: Get documentation generated from Typescript for local file. Exanples: `./path/to/module.ts"`
+- **Type Checker**: `deno check ./path/to/module.ts`
+- **Temporarily Disable Type Checking**: Certain commands for the deno cli accept the `--no-check` flag. Example `deno test --no-check`
+
+## Summary
+
+Following these rules will ensure you introduce the least amount of code and types into the codebase. You will always consistently apply these rules to enforce a clean, minimal, maintainable, and readable style of Typescript code in the codebase.
