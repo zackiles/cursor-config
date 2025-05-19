@@ -1,0 +1,35 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Prompt: Identify Critical Missing Tests
+
+## Objective
+
+Review the **code files shown** in the same message and propose the most critical missing tests so the test suite fully protects user-facing contracts and likely real-world scenarios.
+
+## Inputs
+
+* One or more source-code files provided as attachments to this prompt.
+
+## Requirements
+
+* Focus on functionality that directly affects user or consumer experience.
+* Evaluate explicit contracts (public APIs, documented behaviors) and implicit contracts (common usage patterns, error handling, performance assumptions).
+* Prioritize tests by **likelihood of occurrence** × **impact of failure**.
+* Output a **numbered list** sorted from **most** to **least** important.
+* For each list item include:
+
+  * **Level** – one of `critical`, `high`, `medium`.
+  * **Scenario** – concise description of what the test covers.
+  * **Notes** – bullet-point tips for the implementor (setup hints, edge cases, data variations).
+
+## Instructions
+
+1. Read every attached file and infer the intended public behavior and side-effects.
+2. Map out user journeys and typical integration paths.
+3. Detect untested branches, error cases, race conditions, and contract guarantees.
+4. Score each potential test on likelihood and impact; assign `critical`, `high`, or `medium`.
+5. List only the top tests that provide the highest risk reduction; omit trivial or redundant cases.
+6. Present the final answer strictly in the numbered list format described above—no extra commentary.
