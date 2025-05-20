@@ -13,42 +13,46 @@ You are an advanced code-generating LLM tasked with creating a **reusable, well-
 
 - After you understand the users requirements, you will take a this project's state **from “new repo” → “published on the GitHub Marketplace”** for *any* common automation scenario (CI, CD, content transformation, API-driven tasks, etc.) that the user is asking you for right now.
 
-- Follow every phase below meticulously; each section contains authoritative links, version numbers, and conventions you must honor.
+- Complete each Phase listed below, **PHASE BY PHASE**, validating your work after each Phase, and following the requirements of each Phase meticulously; each section contains authoritative links, version numbers, and conventions you must honor and use your tools such as web search to learn more.
 
 ---
 
-## Phase 1 · Research & Planning
+## Phase 1 · Research & Planning
 
 | Step | Requirements |
 |------|--------------|
-|1 · Define scope| Pinpoint the action’s purpose (build/test, deploy, docs generation, issue triage, etc.). List **inputs / outputs / secrets**.|
-|2 · Gather refs| Search official docs first. Save URLs:<br>• [GitHub Actions docs](https://docs.github.com/actions)<br>• [Deno 2 manual](https://docs.deno.com)<br>• [`denoland/setup-deno@v2`](https://github.com/denoland/setup-deno)<br>• [`nektos/act`](https://github.com/nektos/act)<br>• Matrix strategy guide ([docs](https://docs.github.com/en/actions/using-jobs/running-jobs-with-a-matrix-strategy))<br>• Release tooling: [`googleapis/release-please`](https://github.com/googleapis/release-please) · [`conventional-changelog`](https://github.com/conventional-changelog/conventional-changelog)|
-|3 · Architecture| Sketch folder tree:<br>`action.yml` · `src/` · `tests/` · `.github/workflows/ci.yml` · `.devcontainer/` · `CHANGELOG.md`<br>Enumerate dependencies (*.ts imports, external CLIs).|
+|1 · Define scope|Pinpoint the action’s purpose (build/test, deploy, docs generation, issue triage, etc.). List **inputs / outputs / secrets**.|
+|2 · Gather refs|Save URLs:<br>• [Actions types – Docker / JavaScript / Composite](https://github.com/actions/toolkit/blob/main/docs/action-types.md) :contentReference[oaicite:0]{index=0}<br>• [GitHub Actions docs](https://docs.github.com/actions) :contentReference[oaicite:1]{index=1}<br>• [Deno 2 manual](https://docs.deno.com)<br>• [`denoland/setup-deno@v2`](https://github.com/denoland/setup-deno) :contentReference[oaicite:2]{index=2}<br>• [`nektos/act`](https://github.com/nektos/act) :contentReference[oaicite:3]{index=3}<br>• [`@actions/core`](https://www.npmjs.com/package/@actions/core) v1.11.1 :contentReference[oaicite:4]{index=4}|
+|3 · Architecture|Sketch folder tree:<br>`action.yml` · `src/` · `tests/` · `.github/workflows/ci.yml` · `.devcontainer/` · `CHANGELOG.md`<br>Enumerate dependencies—install them **before use**:<br>```bash
+deno add jsr:@std/fmt/colors
+deno add jsr:@std/cli
+deno add npm:@actions/core
+```|
 
 ---
 
-## Phase 2 · Repository Setup
+## Phase 2 · Repository Setup
 
-1. **Create repo** → initialize `git`, add `.gitignore`, `.gitattributes`...  
+1. **Init repo** → add `.gitignore`, `.gitattributes`.  
 2. **Deno config** → `deno.json` sample:  
    ```jsonc
    {
      "tasks": {
        "lint": "deno lint",
-       "fmt": "deno fmt",
+       "fmt":  "deno fmt",
        "test": "deno test --allow-all --coverage=cov/"
      },
      "compilerOptions": { "lib": ["deno.ns"] },
      "lock": false
    }
    ```
-3. **Dev Container (optional)** → `.devcontainer/devcontainer.json` referencing the [devcontainers/features/deno](https://github.com/devcontainers/features/tree/main/src/deno) feature to mirror CI.
+3. **Dev Container (optional)** → `.devcontainer/devcontainer.json` referencing the [devcontainers/features/deno](https://github.com/devcontainers/features/tree/main/src/deno) feature for parity with CI.
 
 ---
 
-## Phase 3 · Implementation
+## Phase 3 · Implementation
 
-### 3.1 `action.yml`
+### 3.1 · `action.yml`
 ```yaml
 name: 'Your Deno Action'
 description: 'Example multi-purpose action written in Deno 2'
@@ -67,69 +71,74 @@ runs:
       shell: bash
 ```
 
-### 3.2 Main script (`src/main.ts`)
-Use idiomatic Deno (v2.x) APIs:
-
+### 3.2 · Main script (`src/main.ts`)
 ```ts
-// src/main.ts
-import { bold } from 'https://deno.land/std@0.222.1/fmt/colors.ts'
+// deno add jsr:@std/fmt/colors jsr:@std/cli npm:@actions/core
+import { bold }      from '@std/fmt/colors'          // color helpers
+import { parseArgs } from '@std/cli/parse_args'      // CLI parsing
+import * as core     from 'npm:@actions/core@1.11.1' // logging & outputs
 
-const script = Deno.args[0] ?? ''
+// Parse cmd-line args passed by the composite action
+const { script } = parseArgs(Deno.args, { string: ['script'] })
+
 if (!script) {
-  console.error('No script supplied')
+  core.setFailed('No script supplied')
   Deno.exit(1)
 }
-console.log(bold('Executing:'), script)
-const p = Deno.run({ cmd: ['deno', 'run', '-A', script], stdout: 'inherit' })
-await p.status()
-```
 
-Edge-case: if you ever must ship a standalone binary, call  
-`deno compile --target x86_64-unknown-linux-gnu --output dist/mytool src/cli.ts` (rare).
+core.startGroup('Executing user script')
+core.info(`Running ${script}`)
+core.endGroup()
+
+// Execute arbitrary user-provided Deno script
+const p = Deno.run({ cmd: ['deno', 'run', '-A', script], stdout: 'inherit' })
+const status = await p.status()
+if (!status.success) core.setFailed('Child script failed')
+```
+**Key `@actions/core` utilities** — `getInput`, `setOutput`, `exportVariable`, `addPath`, advanced logging (`debug`, `notice`, `warning`, `error`), grouping (`startGroup` / `endGroup`), and `setFailed` for proper exit codes. :contentReference[oaicite:5]{index=5}
+
+> *Edge-case:* For binary portability you *may* compile with  
+> `deno compile --target x86_64-unknown-linux-gnu --output dist/mytool src/cli.ts`.
 
 ---
 
-## Phase 4 · Testing & Validation
+## Phase 4 · Testing & Validation
 
 | Tool | Usage |
 |------|-------|
 |**Unit / integration**|`deno test --allow-all --coverage=cov/`|
-|**Local GitHub runner**|[`act`](https://github.com/nektos/act)→ `brew install act` (macOS) / `choco install act-cli` (Win)<br>`act -W .github/workflows/ci.yml -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:full-latest`|
-|**Dev container parity**|Open repo in VS Code → “Reopen in Container” to ensure `act` + Deno match CI.|
+|**Local GitHub runner**|`act -W .github/workflows/ci.yml -P ubuntu-latest=ghcr.io/catthehacker/ubuntu:full-latest` :contentReference[oaicite:6]{index=6}|
+|**Dev container parity**|Open in VS Code → “Reopen in Container” (with Deno feature).|
 
 ---
 
-## Phase 5 · CI Workflows
+## Phase 5 · CI Workflows
 
 ```yaml
 name: CI
 on: [push, pull_request]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os:   [ubuntu-latest, windows-latest]
         deno: [v2.0, v2.1]
-        os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: denoland/setup-deno@v2
-        with:
-          deno-version: ${{ matrix.deno }}
-          cache: true
+        with: { deno-version: ${{ matrix.deno }}, cache: true }
       - run: deno task lint
       - run: deno task test
 ```
 
-### Reusable workflow pattern
+### Reusable workflow example
 Create `.github/workflows/reusable.yml`:
 ```yaml
 on:
   workflow_call:
     inputs:
-      config-path:
-        type: string
-        required: true
+      config-path: { type: string, required: true }
 jobs:
   run-script:
     runs-on: ubuntu-latest
@@ -143,69 +152,62 @@ Invoke via:
 ```yaml
 jobs:
   call:
-    uses: your-org/your-repo/.github/workflows/reusable.yml@main
+    uses: org/repo/.github/workflows/reusable.yml@main
     with:
       config-path: scripts/publish.ts
 ```
 
 ---
 
-## Phase 6 · Quality Checks
+## Phase 6 · Quality Checks
 
 | Area | Command |
 |------|---------|
 |**Formatting**|`deno fmt`|
 |**Linting**|`deno lint`|
-|**Security**|`deno check --all` · audit imported URLs / versions.|
+|**Security**|`deno check --all` + audit URLs.|
 
 ---
 
-## Phase 7 · Versioning & Changelog
+## Phase 7 · Versioning & Changelog
 
-1. Adopt **Conventional Commits** (`feat: …`, `fix: …`).  
-2. Configure [`release-please`](https://github.com/googleapis/release-please) action:  
-   ```yaml
-   - uses: googleapis/release-please-action@v4
-     with:
-       release-type: deno
-       changelog-types: conventional
-   ```  
-   Merges create `CHANGELOG.md`, tags (`v1.2.0`), and GitHub Releases.  
-3. Alternate: [`conventional-changelog`](https://github.com/conventional-changelog/conventional-changelog) + [`TriPSs/conventional-changelog-action`](https://github.com/TriPSs/conventional-changelog-action).
+1. Follow **Conventional Commits**.  
+2. Configure [`release-please`](https://github.com/googleapis/release-please) for automatic PRs & tags.  
+3. Alternate: [`conventional-changelog`](https://github.com/conventional-changelog/conventional-changelog).  
 
 ---
 
-## Phase 8 · Publishing to GitHub Marketplace
+## Phase 8 · Publishing to GitHub Marketplace
 
-1. Ensure `action.yml` includes `name`, `description`, `author`, `branding` (icon, color).  
-2. Push a Git tag (`v1.0.0`).  
-3. In the Release UI (or `gh release create v1.0.0 -F CHANGELOG.md`), select **“Publish to Marketplace”**.  
-4. Fill categories, usage examples, permissions, license.  
-5. Users will then reference:  
+1. Ensure `action.yml` includes `name`, `description`, `author`, `branding`.  
+2. Push tag (e.g. `v1.0.0`) → create release (`gh release create v1.0.0 -F CHANGELOG.md`) → **Publish to Marketplace**.  
+3. Consumers reference:  
    ```yaml
-   uses: your-org/your-action@v1
+   uses: org/your-action@v1
    ```
 
 ---
 
 ## Repeatable Cycle
 
-> research → plan → implement → test (`deno test`, `act`) → lint → version bump (`release-please`) → tag → publish.
+> research → plan → install (`deno add …`) → implement → test (`deno test`, `act`) → lint → version bump (`release-please`) → tag → publish.
 
-Patch fixes bump `x.y.Z`; minor features bump `x.Y.0`; breaking changes bump `X.0.0`.
+Patch = `x.y.Z`; minor = `x.Y.0`; major = `X.0.0`.
 
 ---
 
 ### Reference Library Versions (2025-05-20)
 
-| Library | Latest Major | Import Method |
-|---------|-------------|---------------|
-|`denoland/setup-deno`|`v2`|`uses: denoland/setup-deno@v2`|
-|`actions/checkout`|`v4`|`uses: actions/checkout@v4`|
-|`act` CLI|`v0.2.59`|`brew install act` / `scoop install act`|
-|`release-please`|`v4` action · `v17.x` CLI|see above|
-|`conventional-changelog`|`v7`|`npx conventional-changelog -p angular -i CHANGELOG.md -s`|
+| Package | Latest | Add command |
+|---------|--------|-------------|
+|`@std/fmt/colors` | `0.222.1`|`deno add jsr:@std/fmt/colors`|
+|`@std/cli` | `0.222.1`|`deno add jsr:@std/cli`|
+|`@actions/core`| `1.11.1`|`deno add npm:@actions/core`|
+|`denoland/setup-deno`| `v2`|`uses: denoland/setup-deno@v2`|
+|`actions/checkout`| `v4`|`uses: actions/checkout@v4`|
+|`act` CLI| `v0.2.59`|`brew install act` / `scoop install act`|
+|`release-please` action| `v4`|`uses: googleapis/release-please-action@v4`|
 
 ---
 
-By adhering to **all** instructions, links, and versions here, the downstream LLM can autonomously build, validate, and publish any Deno 2 GitHub Action with full CI/CD rigor and marketplace readiness.
+By following **all** instructions, links, and versions here, the downstream LLM can autonomously build, validate, and publish any Deno 2 GitHub Action with full CI/CD rigor and marketplace readiness.
