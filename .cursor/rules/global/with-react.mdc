@@ -1,0 +1,170 @@
+---
+description:
+globs: *.tsx,*.jsx
+alwaysApply: false
+---
+
+# React Code Style Guide
+
+This guide outlines modern React patterns to improve readability, maintainability, and predictability in your components.
+
+---
+
+### 1. **Treat UIs as Thin Wrappers Over Data**
+- Avoid `useState` for anything that can be derived from props or global state.
+- Use `useState` only when the value is truly local and reactive.
+
+```tsx
+// Prefer
+const isVisible = props.status === 'open'
+
+// Avoid
+const [isVisible, setIsVisible] = useState(false)
+````
+
+---
+
+### 2. **Flatten UI State into Derived Calculations**
+
+* If the UI state can be computed, avoid storing it.
+
+```tsx
+const isFormDisabled = !formData.name || !formData.email
+```
+
+---
+
+### 3. **Prefer State Machines Over Multiple `useState`s**
+
+* Use a state machine to model UI flows with clear transitions.
+
+```tsx
+// Pseudo code with a basic state machine model
+const [state, transition] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+
+function onSubmit() {
+  transition('loading')
+  sendRequest()
+    .then(() => transition('success'))
+    .catch(() => transition('error'))
+}
+
+return (
+  <>
+    {state === 'idle' && <Form onSubmit={onSubmit} />}
+    {state === 'loading' && <Spinner />}
+    {state === 'success' && <SuccessMessage />}
+    {state === 'error' && <ErrorMessage />}
+  </>
+)
+```
+
+```tsx
+// For complex flows, consider XState
+const [state, send] = useMachine(myFormMachine)
+
+if (state.matches('loading')) return <Spinner />
+```
+
+---
+
+### 4. **Extract Logic-Heavy JSX into Components**
+
+* Avoid deeply nested ternaries or conditionals in JSX.
+* Encapsulate logic in dedicated components.
+
+```tsx
+// Prefer
+return <UserView user={user} />
+
+// Avoid
+return user ? (
+  user.isAdmin ? <AdminPanel /> : <UserPanel />
+) : (
+  <LoadingIndicator />
+)
+```
+
+---
+
+### 5. **Avoid Implicit Logic in `useEffect`**
+
+* Avoid logic that reacts indirectly via dependencies.
+* Prefer deriving the value directly.
+
+```tsx
+// Prefer
+const shouldShowBanner = user.hasSubscription && !user.dismissedBanner
+
+// Avoid
+useEffect(() => {
+  if (user.hasSubscription && !user.dismissedBanner) {
+    showBanner()
+  }
+}, [user])
+```
+
+---
+
+### 6. **Use Ternaries Sparingly**
+
+* Keep ternaries readable and shallow.
+
+```tsx
+// OK
+const badge = user.isPremium ? 'Premium' : 'Standard'
+
+// Not OK
+const content = isLoading ? (
+  <Spinner />
+) : hasError ? (
+  <Error />
+) : isEmpty(data) ? (
+  <EmptyState />
+) : (
+  <Results data={data} />
+)
+```
+
+---
+
+### 7. **Avoid `setTimeout` Without Strong Justification**
+
+* `setTimeout` is often fragile. If used, comment clearly why.
+
+```tsx
+// Only with explanation
+setTimeout(() => {
+  inputRef.current?.focus()
+}, 50) // Wait for modal animation to complete
+```
+
+---
+
+### 8. **Be Explicit in Reactive Behavior**
+
+* Declare logic transitions explicitly instead of relying on `useEffect` and scattered updates.
+
+```tsx
+// Prefer: clear state transition function
+function handleLoginSuccess() {
+  setUser(data)
+  setPage('dashboard')
+}
+
+// Avoid: multiple `useEffect`s that cause indirect jumps
+useEffect(() => {
+  if (token) fetchUser()
+}, [token])
+```
+
+---
+
+### Summary
+
+* Derive before declaring.
+* Abstract before nesting.
+* Declare before reacting.
+* Comment before hacking.
+
+Cleaner code avoids subtle bugs, improves reasoning, and reduces refactor costs.
