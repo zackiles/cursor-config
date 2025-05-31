@@ -9,21 +9,25 @@ Follow these rules and standards when creating or editing types:
 - The less code it takes to define a type the better
 - Derive dynamic types from values instead of repeating values that already exist
 - Reuse and extend existing types instead of creating whole new types
-- Avoid duplicating types in the project
-- Avoid redundant type declaration
-- Avoid manual type annotation
-- Avoid non-inferential typing
+- BAD: duplicating types in the project
+- BAD: redundant type declaration
+- BAD: manual type annotation
+- BAD: non-inferential typing
 - Consolidate or share similar types across files instead of creating similar ones for each file. Examples:
   - Finding and using the `types.ts` file or common export if they exist
   - By namespace merging and augmentation of very similar interfaces that exist across files instead of creating the same or similar type in every single file.
-- Prefer type-level programming or type inference-driven type construction
+- GOOD type-level programming or type inference-driven type construction
 - GOOD: typeof inference: capturing runtime shapes for type use
 - GOOD: mapped types: transforming types over keys
 - GOOD: indexed access types: extracting types via `[K]`
 - GOOD: template literal types: for strings and key construction.
 - GOOD: conditional types: shaping types based on logic
 
-## GOOD Methods For Creating Types
+---
+
+## Examples: GOOD Typescript Methods
+
+The following Typescript methods are preferred.
 
 * **`satisfies`**
 
@@ -114,16 +118,172 @@ Follow these rules and standards when creating or editing types:
       declare const myTag: unique symbol
       type Tagged = { [myTag]: true }
       ```
+---
 
-## Example 1
+## Examples: Creating Types
+
+These examples show what are GOOD practices for you to follow, and BAD practices for you to avoid when creating types.
+
+### Scenario A State‐transform function
+
+**GOOD Single-param object**
+
 ```ts
-// IMPORTANT: Given THIS Existing value
+type State = { count: number }
+type IncrementArgs = { state: State; by: number }
+
+function increment({ state, by }: IncrementArgs) {
+  return { newCount: state.count + by }
+}
+```
+
+*Autocompletion surfaces `state` then `count`, `by` directly.*
+
+**BAD: Split params**
+
+```ts
+function increment(state: State, by: number) {
+  /* … */
+}
+```
+
+*Caller sees only position hints; dot-chain slower.*
+
+---
+
+### Scenario B Service needing multiple shared deps
+
+**GOOD Deps bundle**
+
+```ts
+type Deps = { logger: Logger; metrics: Metrics }
+
+class UserService {
+  constructor(private deps: Deps) {}
+
+  async create(u: User) {
+    this.deps.logger.info('create')
+  }
+}
+```
+
+*Constructor stays one parameter; future deps append with zero churn.*
+
+**BAD: Many positional deps**
+
+```ts
+class UserService {
+  constructor(private logger: Logger, private metrics: Metrics) {}
+}
+```
+
+*Refactor pain; ordering errors easy.*
+
+---
+
+### Scenario C HTTP handler with context + request
+
+**GOOD Merged context object**
+
+```ts
+type HandlerCtx = { req: Request; env: Env; log: Logger }
+
+export const handler = ({ req, env, log }: HandlerCtx) => {
+  log.debug('hit')
+  return new Response(env.GREETING)
+}
+```
+
+*Edge runtime shows all keys when typing `ctx.`.*
+
+**BAD: Rest-spread state**
+
+```ts
+export const handler = (req: Request, ctx: { env: Env }, log: Logger) => { … }
+```
+
+*Mixed shapes ⇒ weaker hints.*
+
+---
+
+### Scenario D Validated input with Zod
+
+**GOOD Schema-driven infer**
+
+```ts
+const InputSchema = z.object({ email: z.string().email() })
+type Input = z.infer<typeof InputSchema>
+
+function invite(data: Input) { /* … */ }
+```
+
+*Single source of truth; runtime + type safety.*
+
+**BAD: Manual mirror type**
+
+```ts
+type Input = { email: string }
+```
+
+*Double maintenance; drift risk.*
+
+---
+
+### Scenario E State patch utilities
+
+**GOOD ReturnType for output**
+
+```ts
+function patch(state: State, delta: Partial<State>) {
+  return { ...state, ...delta }
+}
+type PatchResult = ReturnType<typeof patch>
+```
+
+*No explicit third type; keeps signatures tight.*
+
+**BAD: Hard-coded Output**
+
+```ts
+type PatchOutput = { count: number }
+```
+
+*Breaks when State evolves.*
+
+---
+
+### Quick rules
+
+| Need                     | Pattern                  | Rationale                        |
+| ------------------------ | ------------------------ | -------------------------------- |
+| Many named args          | Single object            | IntelliSense lists keys directly |
+| Growing constructor deps | `deps` object            | Append without breaking callers  |
+| Public API stability     | Explicit separate types  | Clear contracts for consumers    |
+| Internals only           | Scoped inline types      | Hide noise from API              |
+| Runtime validation       | Schema-infer (`z.infer`) | One definition, two layers       |
+| Minimize type sprawl     | `ReturnType` helpers     | Auto-sync, fewer files           |
+
+Use these defaults unless a stronger semantic boundary warrants explicit split types.
+
+## Examples: Deriving Types
+
+These examples show what are GOOD practices for you to follow, and BAD practices for you to avoid when deriving types.
+
+### Scenario A
+
+Given this value already existing in the code:
+
+```ts
 const defaultConfig = {
   ENV: 'production',
   PORT: 9001,
   HOST: undefined
 }
+```
 
+The following would be GOOD and BAD types to add:
+
+```ts
 // BAD: Repetitive type created (manual)
 interface Config {
   HOST: string
@@ -159,7 +319,7 @@ type Config = typeof keys[number]
 type Config = typeof defaultConfig[keyof typeof defaultConfig]
 ```
 
-## Example 2
+### Scenario B
 
 ```ts
 const obj = { name: 'mary', age: 42 }
@@ -180,12 +340,12 @@ interface NewType {
 
 When having issues with a Typescript library or module, these are the tools that will help you understand what the issue is and where you might've made a mistake:
 
-- **Deno Native APIs** :Get documentation generated from Typescript for Deno native APIs. Exanple: `deno doc --filter Deno.Listener`
+- **Deno Native APIs** :Get documentation generated from Typescript for Deno native APIs. Example: `deno doc --filter Deno.Listener`
 - **JSR or Typescript Packages**: Get documentation generated from Typescript for JSR packages (if they're current installed). Examples: `deno doc "jsr:@std/cli"`
-- **Local File**: Get documentation generated from Typescript for local file. Exanples: `./path/to/module.ts"`
+- **Local File**: Get documentation generated from Typescript for local file. Examples: `./path/to/module.ts"`
 - **Type Checker**: `deno check ./path/to/module.ts`
 - **Temporarily Disable Type Checking**: Certain commands for the deno cli accept the `--no-check` flag. Example `deno test --no-check`
 
 ## Summary
 
-Following these rules will ensure you introduce the least amount of code and types into the codebase. You will always consistently apply these rules to enforce a clean, minimal, maintainable, and readable style of Typescript code in the codebase.
+In large codebases, choosing the right type pattern improves IntelliSense, reduces boilerplate, and makes functions easier to use, test, and evolve. This guide outlines the most common scenarios where type structure matters—showing both the preferred patterns that enhance developer experience and the anti-patterns that often sneak in but should be avoided. Follow these practices to keep the codebase scalable, ergonomic, and consistent.

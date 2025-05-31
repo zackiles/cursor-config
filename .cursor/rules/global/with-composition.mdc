@@ -1,0 +1,230 @@
+---
+description: 
+globs: *.ts,*.js,*.jsx,*.tsx
+alwaysApply: false
+---
+# Code SHOULD Follow "Composition of Concerns"
+
+Structure and compose files, folders, modules, classes, methods, and interactions using "Composition of Concerns" instead of "Seperation of Concerns", while continually balancing the need to remain DRY and maintaining simple abstractions with intuitive consumer interfaces.
+
+> **Goal:** Embrace **composition over separation** by grouping tightly related behavior and state into cohesive backend-friendly units. This guide highlights JavaScript/TypeScript-native idioms for building high-cohesion modules, without unnecessary indirection, especially suited for APIs, CLIs, workers, or services.
+
+---
+
+## 1. Encapsulated Service via Closure
+
+**Use when:** You want private internal state and controlled method exposure without using `class`.
+
+```js
+function createAuthService() {
+  let token = null
+  return {
+    login(user, pass) {
+      token = Buffer.from(`${user}:${pass}`).toString('base64')
+    },
+    isAuthenticated() {
+      return !!token
+    },
+    getToken() {
+      return token
+    }
+  }
+}
+````
+
+---
+
+## 2. Class with Private Fields
+
+**Use when:** You need a stateful object with strict encapsulation and reusable methods.
+
+```js
+class RateLimiter {
+  #requests = new Map()
+
+  check(ip) {
+    const now = Date.now()
+    const window = 60000
+    const count = this.#requests.get(ip) || []
+    const recent = count.filter(ts => now - ts < window)
+    recent.push(now)
+    this.#requests.set(ip, recent)
+    return recent.length <= 100
+  }
+}
+```
+
+---
+
+## 3. Closure-Based Module Pattern
+
+**Use when:** You want composable singletons for CLI tools, daemons, or backend modules.
+
+```js
+function createConfig() {
+  let settings = {}
+  return {
+    load(path) {
+      settings = JSON.parse(Deno.readTextFileSync(path))
+    },
+    get(key) {
+      return settings[key]
+    }
+  }
+}
+```
+
+---
+
+## 4. Reducer-Driven Domain Handler
+
+**Use when:** You want pure-function command handlers for domain logic.
+
+```js
+function accountReducer(state, action) {
+  switch (action.type) {
+    case 'credit':
+      return { ...state, balance: state.balance + action.amount }
+    case 'debit':
+      return { ...state, balance: state.balance - action.amount }
+    default:
+      return state
+  }
+}
+```
+
+---
+
+## 5. Schema-Like Validation with Embedded Logic
+
+**Use when:** You want to enforce domain rules at the boundary of data entry.
+
+```js
+function validatePayload(payload) {
+  if (typeof payload.user !== 'string') throw new Error('Invalid user')
+  if (typeof payload.amount !== 'number') throw new Error('Invalid amount')
+  if (payload.amount <= 0) throw new Error('Amount must be positive')
+  return payload
+}
+```
+
+---
+
+## 6. Namespaced Domain Utilities
+
+**Use when:** You want to group all domain-specific operations under one object.
+
+```js
+const Email = {
+  validate(address) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)
+  },
+  normalize(address) {
+    return address.trim().toLowerCase()
+  }
+}
+```
+
+---
+
+## 7. Object with Stateful Behavior
+
+**Use when:** You want a composable module to wrap configuration or environment state.
+
+```js
+const Env = {
+  vars: {},
+  load() {
+    this.vars = Object.fromEntries(Deno.env.toObject())
+  },
+  get(name) {
+    return this.vars[name]
+  }
+}
+```
+
+---
+
+## 8. Higher-Order Function Wrappers
+
+**Use when:** You want to inject cross-cutting concerns into services (logging, auth, timing).
+
+```js
+function withTiming(fn) {
+  return async (...args) => {
+    const start = Date.now()
+    const result = await fn(...args)
+    const duration = Date.now() - start
+    console.log(`Execution took ${duration}ms`)
+    return result
+  }
+}
+
+async function fetchData() {
+  await new Promise(r => setTimeout(r, 50))
+  return 'done'
+}
+
+const timedFetch = withTiming(fetchData)
+```
+
+---
+
+## 🕸 Lazy Init Singleton Pattern
+
+**Use when:** You want to defer resource setup (DB, HTTP client) until first usage.
+
+```js
+const DB = (() => {
+  let conn
+  return {
+    connect(config) {
+      if (!conn) {
+        conn = { url: config.url, status: 'connected' } // placeholder
+      }
+    },
+    query(sql) {
+      if (!conn) throw new Error('DB not connected')
+      return `Running ${sql} on ${conn.url}`
+    }
+  }
+})()
+```
+
+---
+
+## 10. File Co-location + Barrel Exports
+
+**Use when:** You want to organize service internals without scattering files across folders.
+
+```
+user/
+├── index.js
+├── schema.js
+├── repository.js
+├── commands.js
+```
+
+**`index.js`**
+
+```js
+export * from './schema'
+export * from './repository'
+export * from './commands'
+```
+
+---
+
+## Summary: Backend Composition Patterns
+
+| Pattern                 | When to Use                                            |
+| ----------------------- | ------------------------------------------------------ |
+| Closure-Based Service   | Stateful module with private logic                     |
+| Class w/ Private Fields | Persistent state + enforced boundaries                 |
+| Reducer Functions       | Pure transformations for commands                      |
+| Validation at Entry     | Enforce contract rules alongside logic                 |
+| Utility Namespaces      | Group domain concerns under single interface           |
+| Stateful Objects        | Config/env/resource managers                           |
+| HOFs                    | Decorators for cross-cutting logic                     |
+| Lazy Singleton Init     | Deferred resource wiring (DB, API clients)             |
+| Barrel Exports          | Keep related modules physically + semantically grouped |
