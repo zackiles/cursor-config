@@ -97,12 +97,13 @@
     "typeof",
     "Uncategorized",
     "UNCOMPILED",
+    "Untar",
     "unvalidated",
     "USERPROFILE",
     "webgpu",
     "zacharyiles",
     "zackiles",
-    "Zipkin",
+    "Zipkin"
   ],
   "workbench.editorAssociations": {
     "*.mdc": "default",
